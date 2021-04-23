@@ -28,7 +28,7 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 
 	DisableThreadLibraryCalls(hModule);
 
-	// Initlize the console file which also opens the standard out stream.
+	// Initialize the console file which also opens the standard out stream.
 
 	Console.Initialize(Filesystem::GetCurrentPath(), "CodeRed.log");
 
@@ -68,8 +68,8 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 		Console.Write("[Core Module] Initialized!");
 
 		Instances.Initialize(); // Initialize class instances that aren't automatically set by function hooks.
-		Events.Initialize(); // Initialize hooking function events to voids.
 		Manager.Initialize(); // Initialize settings, commands, and mods.
+		Events.Initialize(); // Initialize hooking function events to voids.
 	}
 	else
 	{

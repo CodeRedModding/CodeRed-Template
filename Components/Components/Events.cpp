@@ -19,7 +19,7 @@ namespace Functions
 		}
 	}
 
-	void HUDPostRenderPost(class UObject* caller, class UFunction* function, void* params)
+	void HUDPostRenderPost(class UObject* caller, class UFunction* function, void* params, void* result)
 	{
 		
 	}
@@ -101,7 +101,7 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 			Console.Write(function->GetFullName());
 		}
 
-		std::map<int32_t, EventType>::iterator preIt = PreHookedEvents.find(function->ObjectInternalInteger);
+		std::map<int32_t, PreEventType>::iterator preIt = PreHookedEvents.find(function->ObjectInternalInteger);
 
 		if (preIt != PreHookedEvents.end())
 		{
@@ -110,11 +110,11 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 
 		ProcessEvent(caller, function, params, result);
 
-		std::map<int32_t, EventType>::iterator postIt = PostHookedEvents.find(function->ObjectInternalInteger);
+		std::map<int32_t, PostEventType>::iterator postIt = PostHookedEvents.find(function->ObjectInternalInteger);
 
 		if (postIt != PostHookedEvents.end())
 		{
-			postIt->second(caller, function, params);
+			postIt->second(caller, function, params, result);
 		}
 	}
 }
@@ -131,7 +131,7 @@ void EventsComponent::FindHookedEvents()
 			{
 				std::string objectFullName = uObject->GetFullName();
 
-				std::map<std::string, EventType>::iterator preIt = PreEvents.find(objectFullName);
+				std::map<std::string, PreEventType>::iterator preIt = PreEvents.find(objectFullName);
 
 				if (preIt != PreEvents.end())
 				{
@@ -140,7 +140,7 @@ void EventsComponent::FindHookedEvents()
 					hooksToFind--;
 				}
 
-				std::map<std::string, EventType>::iterator postIt = PostEvents.find(objectFullName);
+				std::map<std::string, PostEventType>::iterator postIt = PostEvents.find(objectFullName);
 
 				if (postIt != PostEvents.end())
 				{
@@ -160,12 +160,12 @@ void EventsComponent::FindHookedEvents()
 	PostEvents.clear();
 }
 
-void EventsComponent::HookEventPre(const std::string& functionFullName, const EventType& eventType)
+void EventsComponent::HookEventPre(const std::string& functionFullName, const PreEventType& eventType)
 {
 	PreEvents.emplace(functionFullName, eventType);
 }
 
-void EventsComponent::HookEventPost(const std::string& functionFullName, const EventType& eventType)
+void EventsComponent::HookEventPost(const std::string& functionFullName, const PostEventType& eventType)
 {
 	PostEvents.emplace(functionFullName, eventType);
 }
@@ -183,8 +183,8 @@ void EventsComponent::Initialize()
 
 	FindHookedEvents();
 
-	Console.Write(GetNameFormatted() + std::to_string(PreHookedEvents.size()) + " Pre-Hooks Initialized!");
-	Console.Write(GetNameFormatted() + std::to_string(PostHookedEvents.size()) + " Post-Hooks Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(PreHookedEvents.size()) + " Pre-Hook(s) Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(PostHookedEvents.size()) + " Post-Hook(s) Initialized!");
 }
 
 class EventsComponent Events;

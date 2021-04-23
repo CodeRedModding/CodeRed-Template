@@ -9,6 +9,7 @@ Module::Module(const std::string& name, const std::string& description, const ui
 	Type = type;
 	AllowedStates = states;
 	Enabled = false;
+	Initialized = false;
 }
 
 Module::~Module() { }
@@ -49,6 +50,11 @@ bool Module::IsEnabled() const
 	return Enabled;
 }
 
+bool Module::IsInitialized() const
+{
+	return Initialized;
+}
+
 void Module::SetEnabled(const bool& bEnabled)
 {
 	Enabled = bEnabled;
@@ -61,4 +67,10 @@ void Module::SetEnabled(const bool& bEnabled)
 	{
 		Console.Write(GetNameFormatted() + "Disabled.");
 	}
+}
+
+void Module::SetInitialized()
+{
+	Initialized = true;
+	Console.Success(GetNameFormatted() + "Initialized!");
 }

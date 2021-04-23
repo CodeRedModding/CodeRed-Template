@@ -18,6 +18,7 @@ private:
 	ModuleTypes Type;				// Modules underlying type.
 	uint32_t AllowedStates;			// Game states that this module can be used in.
 	bool Enabled;					// If the module is enabled or not.
+	bool Initialized;				// If the modules settings have been loaded, and it's safe to use its functions.
 
 public:
 	Module(const std::string& name, const std::string& description, const uint32_t& states, const ModuleTypes& type);
@@ -30,5 +31,7 @@ public:
 	ModuleTypes GetType() const;
 	bool IsAllowed() const;
 	bool IsEnabled() const;
+	bool IsInitialized() const;
 	void SetEnabled(const bool& bEnabled);
+	void SetInitialized();
 };

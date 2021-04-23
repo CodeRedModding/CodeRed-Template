@@ -25,8 +25,8 @@ std::string GameStateComponent::GetStateLabel()
 
 bool GameStateComponent::IsInGame() const
 {
-	if (GetStateId() & static_cast<uint32_t>(States::CasualMatch)
-		|| GetStateId() & static_cast<uint32_t>(States::RankedMatch))
+	if (GetStateId() & States::CasualMatch
+		|| GetStateId() & States::RankedMatch)
 	{
 		return true;
 	}

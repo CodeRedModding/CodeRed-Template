@@ -13,7 +13,7 @@ PlaceholderModule::~PlaceholderModule() { }
 // This is where you would load your custom settings for this module, whether it be from an external file or just defined here on compilation.
 void PlaceholderModule::LoadSettings()
 {
-
+	SetInitialized(); // Make sure this is always placed after you load your settings.
 }
 
 void PlaceholderModule::SetSomeBoolEnabled(const class BoolSetting& someBoolEnabled)
@@ -26,8 +26,11 @@ void PlaceholderModule::SetSomeBoolEnabled(const class BoolSetting& someBoolEnab
 
 void PlaceholderModule::DoAThing()
 {
-	if (SomeBoolSetting && IsAllowed())
+	if (IsInitialized() && IsAllowed())
 	{
-		Console.Success("Wow! Did a thing!");
+		if (SomeBoolSetting)
+		{
+			Console.Success("Wow! Did a thing!");
+		}
 	}
 }

@@ -734,8 +734,9 @@ void ManagerComponent::Initialize()
 {
 	Commands.push_back(std::make_shared<Command>(Command("command_not_found", "Command not found.", false, CommandTypes::TYPE_NONE)));
 	Settings.push_back(std::make_shared<Setting>(Setting("setting_not_found", "Setting not found.", false, SettingTypes::TYPE_NONE)));
-
-	PlaceholderMod = std::make_shared<PlaceholderModule>(PlaceholderModule("Paceholder", "An example module.", static_cast<uint32_t>(States::CasualMatch) | static_cast<uint32_t>(States::RankedMatch)));
+	
+	// Assigning the shared pointer with the CasualMatch and RankedMatch flags, so this mod will only be able to be used in casual or ranked games.
+	PlaceholderMod = std::make_shared<PlaceholderModule>(PlaceholderModule("Paceholder", "An example module.", States::CasualMatch | States::RankedMatch));
 	
 	// When someone uses the console command "placeholder_some_bool true", we automatically callback to PlaceholderMod and tell it to update its "SomeBoolSetting" property.
 	Settings.push_back(std::make_shared<BoolSetting>(BoolSetting("placeholder_some_bool", "Enable/disable some bool thingy in the placeholders module.", true, false, std::bind(&PlaceholderModule::SetSomeBoolEnabled, PlaceholderMod, std::placeholders::_1))));
