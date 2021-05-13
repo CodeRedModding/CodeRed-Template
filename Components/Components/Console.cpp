@@ -43,20 +43,7 @@ ConsoleComponent::~ConsoleComponent()
 
 void ConsoleComponent::Write(std::string text)
 {
-	SetTextColor(TextColors::White);
-
-	if (WriteTimestamp)
-	{
-		text = GetTimestamp(true) + text;
-	}
-
-	std::cout << text << std::endl;
-
-	if (WriteToLog)
-	{
-		LogFile.WriteLine(text);
-		LogFile.Flush();
-	}
+	Write(text, TextColors::BrightWhite);
 }
 
 void ConsoleComponent::Write(std::string text, const TextColors textColor)
@@ -76,87 +63,27 @@ void ConsoleComponent::Write(std::string text, const TextColors textColor)
 		LogFile.Flush();
 	}
 
-	SetTextColor(TextColors::White);
+	SetTextColor(TextColors::BrightWhite);
 }
 
 void ConsoleComponent::Warning(std::string text)
 {
-	SetTextColor(TextColors::Yellow);
-
-	if (WriteTimestamp)
-	{
-		text = GetTimestamp(true) + text;
-	}
-
-	std::cout << text << std::endl;
-
-	if (WriteToLog)
-	{
-		LogFile.WriteLine(text);
-		LogFile.Flush();
-	}
-
-	SetTextColor(TextColors::White);
+	Write(text, TextColors::Yellow);
 }
 
 void ConsoleComponent::Error(std::string text)
 {
-	SetTextColor(TextColors::Red);
-
-	if (WriteTimestamp)
-	{
-		text = GetTimestamp(true) + text;
-	}
-
-	std::cout << text << std::endl;
-
-	if (WriteToLog)
-	{
-		LogFile.WriteLine(text);
-		LogFile.Flush();
-	}
-
-	SetTextColor(TextColors::White);
+	Write(text, TextColors::Red);
 }
 
 void ConsoleComponent::Success(std::string text)
 {
-	SetTextColor(TextColors::LightGreen);
-
-	if (WriteTimestamp)
-	{
-		text = GetTimestamp(true) + text;
-	}
-
-	std::cout << text << std::endl;
-
-	if (WriteToLog)
-	{
-		LogFile.WriteLine(text);
-		LogFile.Flush();
-	}
-
-	SetTextColor(TextColors::White);
+	Write(text, TextColors::LightGreen);
 }
 
 void ConsoleComponent::Notify(std::string text)
 {
-	SetTextColor(TextColors::LightBlue);
-
-	if (WriteTimestamp)
-	{
-		text = GetTimestamp(true) + text;
-	}
-
-	std::cout << text << std::endl;
-
-	if (WriteToLog)
-	{
-		LogFile.WriteLine(text);
-		LogFile.Flush();
-	}
-
-	SetTextColor(TextColors::White);
+	Write(text, TextColors::LightBlue);
 }
 
 void ConsoleComponent::Initialize(const std::string& directory, const std::string& fileName)

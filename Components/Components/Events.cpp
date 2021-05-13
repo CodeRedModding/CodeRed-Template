@@ -92,6 +92,23 @@ void EventsComponent::ToggleLogFunctions(const bool& bLog)
 	}
 }
 
+void EventsComponent::MapFunctions()
+{
+	for (UObject* uObject : *UObject::GObjObjects())
+	{
+		if (uObject && uObject->IsA(UFunction::StaticClass()))
+		{
+			UFunction* function = reinterpret_cast<UFunction*>(uObject);
+			std::string functionFullName = function->GetFullName();
+
+			if (FunctionIndexMap.find(functionFullName) == FunctionIndexMap.end())
+			{
+				FunctionIndexMap.emplace(functionFullName, function->ObjectInternalInteger);
+			}
+		}
+	}
+}
+
 void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result)
 {
 	if (ProcessEvent)
@@ -108,7 +125,10 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 			preIt->second(caller, function, params);
 		}
 
-		ProcessEvent(caller, function, params, result);
+		if (std::find(BlackHookedEvents.begin(), BlackHookedEvents.end(), function->ObjectInternalInteger) == BlackHookedEvents.end())
+		{
+			ProcessEvent(caller, function, params, result);
+		}
 
 		std::map<int32_t, PostEventType>::iterator postIt = PostHookedEvents.find(function->ObjectInternalInteger);
 
@@ -119,60 +139,26 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 	}
 }
 
-void EventsComponent::FindHookedEvents()
-{
-	int32_t hooksToFind = static_cast<int32_t>(PreEvents.size() + PostEvents.size());
-
-	for (UObject* uObject : *UObject::GObjObjects())
-	{
-		if (hooksToFind > 0)
-		{
-			if (uObject && uObject->IsA(UFunction::StaticClass()))
-			{
-				std::string objectFullName = uObject->GetFullName();
-
-				std::map<std::string, PreEventType>::iterator preIt = PreEvents.find(objectFullName);
-
-				if (preIt != PreEvents.end())
-				{
-					PreHookedEvents.emplace(uObject->ObjectInternalInteger, PreEvents[objectFullName]);
-					PreEvents.erase(objectFullName);
-					hooksToFind--;
-				}
-
-				std::map<std::string, PostEventType>::iterator postIt = PostEvents.find(objectFullName);
-
-				if (postIt != PostEvents.end())
-				{
-					PostHookedEvents.emplace(uObject->ObjectInternalInteger, PostEvents[objectFullName]);
-					PostEvents.erase(objectFullName);
-					hooksToFind--;
-				}
-			}
-		}
-		else
-		{
-			return;
-		}
-	}
-
-	PreEvents.clear();
-	PostEvents.clear();
-}
-
 void EventsComponent::HookEventPre(const std::string& functionFullName, const PreEventType& eventType)
 {
-	PreEvents.emplace(functionFullName, eventType);
+	PreHookedEvents.emplace(FunctionIndexMap[functionFullName], eventType);
 }
 
 void EventsComponent::HookEventPost(const std::string& functionFullName, const PostEventType& eventType)
 {
-	PostEvents.emplace(functionFullName, eventType);
+	PostHookedEvents.emplace(FunctionIndexMap[functionFullName], eventType);
+}
+
+void EventsComponent::BlacklistEvent(const std::string& functionFullName)
+{
+	BlackHookedEvents.emplace_back(FunctionIndexMap[functionFullName]);
 }
 
 void EventsComponent::Initialize()
 {
-	// Example functions only, you will need to function scan for your own.
+	MapFunctions();
+
+	// Example functions only, you will need to function scan in your game for your own.
 
 	HookEventPre("Function Engine.HUD.PostRender", &Functions::HUDPostRender);
 	HookEventPost("Function Engine.HUD.PostRender", &Functions::HUDPostRenderPost);
@@ -181,10 +167,9 @@ void EventsComponent::Initialize()
 	HookEventPre("Function Engine.GameViewportClient.HandleKeyPress", &Functions::GameViewPortKeyPress);
 	HookEventPre("Function Engine.GFxData_MainMenu.MainMenuAdded", &Functions::GFxDataMainMenuAdded);
 
-	FindHookedEvents();
-
 	Console.Write(GetNameFormatted() + std::to_string(PreHookedEvents.size()) + " Pre-Hook(s) Initialized!");
 	Console.Write(GetNameFormatted() + std::to_string(PostHookedEvents.size()) + " Post-Hook(s) Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(BlackHookedEvents.size()) + " Backlisted Event(s) Initialized!");
 }
 
 class EventsComponent Events;

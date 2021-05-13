@@ -49,7 +49,7 @@ public:
 	void ToggleLogging(const bool& bWriteToLog);
 	void ToggleTimestamp(const bool& bWriteTimestamp);
 	void SetTextColor(const TextColors textColor);
-	std::string GetTimestamp(const bool& bWithSpace);
+	static std::string GetTimestamp(const bool& bWithSpace);
 };
 
 extern class ConsoleComponent Console;
