@@ -149,5 +149,5 @@ void FRainbowColor::Tick()
 		ByteRainbow.B -= 1;
 	}
 
-	LinearRainbow = UObject::GObjObjects()->At(0)->ColorToLinearColor(ByteRainbow.GetUnrealColor());
+	LinearRainbow = FLinearColor{ static_cast<float>(ByteRainbow.R), static_cast<float>(ByteRainbow.G), static_cast<float>(ByteRainbow.B), static_cast<float>(ByteRainbow.A) };
 }
