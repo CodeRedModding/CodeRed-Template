@@ -1,5 +1,6 @@
 #include "Events.hpp"
 #include "../Includes.hpp"
+#include "../Extensions/Includes.hpp"
 
 namespace Functions
 {
@@ -21,7 +22,7 @@ namespace Functions
 
 	void HUDPostRenderPost(class UObject* caller, class UFunction* function, void* params, void* result)
 	{
-		
+		FRainbowColor::Tick(); // Example of where you could put your rainbow color hook.
 	}
 
 	void GameViewPortPostRender(class UObject* caller, class UFunction* function, void* params)
@@ -111,9 +112,9 @@ void EventsComponent::MapFunctions()
 
 void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result)
 {
-	if (ProcessEvent)
+	if (ProcessEvent && function)
 	{
-		if (LogFunctions && function)
+		if (LogFunctions)
 		{
 			Console.Write(function->GetFullName());
 		}
@@ -159,6 +160,8 @@ void EventsComponent::Initialize()
 	MapFunctions();
 
 	// Example functions only, you will need to function scan in your game for your own.
+
+	BlacklistEvent("Function Engine.Tracker.ReportMetrics");
 
 	HookEventPre("Function Engine.HUD.PostRender", &Functions::HUDPostRender);
 	HookEventPost("Function Engine.HUD.PostRender", &Functions::HUDPostRenderPost);

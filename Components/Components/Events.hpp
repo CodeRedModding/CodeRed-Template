@@ -18,14 +18,14 @@ typedef void(*ProcessEventType)(class UObject*, class UFunction*, void*, void*);
 class EventsComponent : public Component
 {
 private:
-	static inline std::map<std::string, int32_t>		FunctionIndexMap;	// Function's internal integer and it's full name.
-	static inline std::map<int32_t, PreEventType>		PreHookedEvents;	// Hooked function's internal integer and arguments.
-	static inline std::map<int32_t, PostEventType>		PostHookedEvents;	// Hooked function's internal integer and arguments.
-	static inline std::vector<int32_t>					BlackHookedEvents;	// Blacklisted function's internal integer.
-	static inline bool									LogFunctions;		// Move this to function scanner!
+	static inline std::map<std::string, int32_t> FunctionIndexMap; // Function's internal integer and it's full name.
+	static inline std::map<int32_t, PreEventType> PreHookedEvents; // Hooked function's internal integer and arguments.
+	static inline std::map<int32_t, PostEventType> PostHookedEvents; // Hooked function's internal integer and arguments.
+	static inline std::vector<int32_t> BlackHookedEvents; // Blacklisted function's internal integer.
+	static inline bool LogFunctions;
 
 public:
-	inline static ProcessEventType						ProcessEvent;		// This is the function that we send our detoured process event to.
+	inline static ProcessEventType ProcessEvent; // This is the function that we send our detoured process event to.
 
 public:
 	EventsComponent();

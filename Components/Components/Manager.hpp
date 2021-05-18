@@ -121,13 +121,11 @@ public:
 class StringSetting : public Setting
 {
 private:
-	//std::function<void(class StringSetting)> Callback;
-	std::function<void()> Callback;
+	std::function<void(class StringSetting)> Callback;
 	std::string Value;
 
 public:
-	//StringSetting(const std::string& name, const std::string& description, bool bModifiable, const std::string& value, std::function<void(class StringSetting)> callback);
-	StringSetting(const std::string& name, const std::string& description, bool bModifiable, const std::string& value, std::function<void()> callback);
+	StringSetting(const std::string& name, const std::string& description, bool bModifiable, const std::string& value, std::function<void(class StringSetting)> callback);
 	StringSetting(const std::string& name, const std::string& description, bool bModifiable, const std::string& value);
 	StringSetting(const std::string& name, const std::string& description, bool bModifiable);
 	~StringSetting();
@@ -285,7 +283,8 @@ public:
 		return GetSetting<Setting>("setting_not_found");
 	}
 
-	std::string PhraseArguments(std::string arguments) const;
+	std::string PhraseArguments(std::string arguments);
+	std::vector<std::string> SplitArguments(const std::string& arguments); // Takes every word out of the argument string and adds it to the return vector.
 	void Initialize(); // Creates all settings, commands, and modules.
 };
 

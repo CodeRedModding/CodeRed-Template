@@ -3,9 +3,7 @@
 
 PlaceholderModule::PlaceholderModule(const std::string& name, const std::string& description, const uint32_t& states) : Module(name, description, states, ModuleTypes::TYPE_PLACEHOLDER)
 {
-	SomeBoolSetting = false;
-
-	Console.Write(GetNameFormatted() + "Initialized!");
+	PlaceholderEnabled = false;
 }
 
 PlaceholderModule::~PlaceholderModule() { }
@@ -16,11 +14,11 @@ void PlaceholderModule::LoadSettings()
 	SetInitialized(); // Make sure this is always placed after you load your settings.
 }
 
-void PlaceholderModule::SetSomeBoolEnabled(const class BoolSetting& someBoolEnabled)
+void PlaceholderModule::SetPlaceholderEnabled(const class BoolSetting& placeholderEnabled)
 {
-	if (someBoolEnabled.GetType() == SettingTypes::TYPE_BOOL)
+	if (placeholderEnabled.GetType() == SettingTypes::TYPE_BOOL)
 	{
-		SomeBoolSetting = someBoolEnabled.GetValue();
+		PlaceholderEnabled = placeholderEnabled.GetValue();
 	}
 }
 
@@ -28,7 +26,7 @@ void PlaceholderModule::DoAThing()
 {
 	if (IsInitialized() && IsAllowed())
 	{
-		if (SomeBoolSetting)
+		if (PlaceholderEnabled)
 		{
 			Console.Success("Wow! Did a thing!");
 		}

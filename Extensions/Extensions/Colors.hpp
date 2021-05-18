@@ -17,6 +17,7 @@ public:
 	struct FColor GetUnrealColor();
 
 public:
+	struct CRColor operator=(const struct CRColor& other);
 	struct CRColor operator=(const struct FColor& other);
 	bool operator==(const struct FColor& other);
 	bool operator!=(const struct FColor& other);
@@ -38,13 +39,14 @@ public:
 	struct FLinearColor GetUnrealColor();
 
 public:
+	struct CRLinearColor operator=(const struct CRLinearColor& other);
 	struct CRLinearColor operator=(const struct FLinearColor& other);
 	bool operator==(const struct FLinearColor& other);
 	bool operator!=(const struct FLinearColor& other);
 };
 
 // This is a global rainbow color class, hook your own function to the "Tick" function for it to update.
-// This means you can sync up multiple objects to cycle through RGB at the same rate by reading from either "ByteRainbow" or "LinearRainbow".
+// This means you can sync up multiple objects to cycle through RGB at the same rate.
 
 class FRainbowColor
 {

@@ -5,7 +5,7 @@
 class PlaceholderModule : public Module
 {
 private:
-	bool SomeBoolSetting;
+	bool PlaceholderEnabled;
 
 public:
 	PlaceholderModule(const std::string& name, const std::string& description, const uint32_t& states);
@@ -13,7 +13,7 @@ public:
 
 public: // Functions related to user settings.
 	void LoadSettings();
-	void SetSomeBoolEnabled(const class BoolSetting& someBoolEnabled);
+	void SetPlaceholderEnabled(const class BoolSetting& placeholderEnabled);
 
 public: // Functions related to the module.
 	void DoAThing();

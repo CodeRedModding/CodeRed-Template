@@ -8,7 +8,6 @@ Module::Module(const std::string& name, const std::string& description, const ui
 	Description = description;
 	Type = type;
 	AllowedStates = states;
-	Enabled = false;
 	Initialized = false;
 }
 
@@ -36,7 +35,7 @@ ModuleTypes Module::GetType() const
 
 bool Module::IsAllowed() const
 {
-	if (AllowedStates & static_cast<uint32_t>(States::All)
+	if (AllowedStates & States::All
 		|| AllowedStates & GameState.GetStateId())
 	{
 		return true;
@@ -45,28 +44,9 @@ bool Module::IsAllowed() const
 	return false;
 }
 
-bool Module::IsEnabled() const
-{
-	return Enabled;
-}
-
 bool Module::IsInitialized() const
 {
 	return Initialized;
-}
-
-void Module::SetEnabled(const bool& bEnabled)
-{
-	Enabled = bEnabled;
-
-	if (Enabled)
-	{
-		Console.Write(GetNameFormatted() + "Enabled.");
-	}
-	else
-	{
-		Console.Write(GetNameFormatted() + "Disabled.");
-	}
 }
 
 void Module::SetInitialized()

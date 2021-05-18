@@ -165,4 +165,7 @@
       <Filter>Detours</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Changelog.hpp" />
+  </ItemGroup>
 </Project>

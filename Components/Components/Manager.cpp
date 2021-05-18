@@ -199,7 +199,7 @@ void BoolSetting::TriggerCallback() const
 # ================================================== #
 */
 
-StringSetting::StringSetting(const std::string& name, const std::string& description, bool bModifiable, const std::string& value, std::function<void()> callback) : Setting(name, description, bModifiable, SettingTypes::TYPE_STRING)
+StringSetting::StringSetting(const std::string& name, const std::string& description, bool bModifiable, const std::string& value, std::function<void(class StringSetting)> callback) : Setting(name, description, bModifiable, SettingTypes::TYPE_STRING)
 {
 	Value = value;
 	Callback = callback;
@@ -236,7 +236,7 @@ std::vector<std::string> StringSetting::GetSplitValue(const char split)
 	std::vector<std::string> returnValue;
 	std::string splitValue;
 
-	for (const char c : Value)
+	for (const char& c : Value)
 	{
 		if (c == split)
 		{
@@ -256,7 +256,7 @@ void StringSetting::TriggerCallback() const
 {
 	if (HasCallback())
 	{
-		Callback();
+		Callback(*this);
 	}
 }
 
@@ -604,9 +604,8 @@ void ManagerComponent::KeyPressed(const std::string& key)
 {
 	if (key == "NumPadNine")
 	{
-		// Example of modifying a custom setting in a mod.
-
-		ConsoleCommand("placeholder_some_bool", "true");
+		// Example of modifying a custom setting in a mod, we assign this command in the "Initialize" function below.
+		ConsoleCommand("placeholder_enabled", "true");
 	}
 }
 
@@ -676,11 +675,11 @@ void ManagerComponent::ModifySetting(std::shared_ptr<class Setting>& setting, co
 	{
 		std::shared_ptr<BoolSetting> boolSetting = std::reinterpret_pointer_cast<BoolSetting>(setting);
 
-		if (arguments == "true")
+		if (arguments == "true" || arguments == "1")
 		{
 			boolSetting->SetValue(true);
 		}
-		else if (arguments == "false")
+		else if (arguments == "false" || arguments == "0")
 		{
 			boolSetting->SetValue(false);
 		}
@@ -712,13 +711,18 @@ void ManagerComponent::ModifySetting(std::shared_ptr<class Setting>& setting, co
 			stringSetting->TriggerCallback();
 		}
 	}
-	else if (setting->GetType() == SettingTypes::TYPE_COLOR) // TO DO: PHRASE AND SET VALUE WITHOUT LOOKING LIKE TOTAL FUCK ASS
+	else if (setting->GetType() == SettingTypes::TYPE_COLOR)
 	{
 		std::shared_ptr<ColorSetting> colorSetting = std::reinterpret_pointer_cast<ColorSetting>(setting);
+
+		if (arguments.find("#") != std::string::npos)
+		{
+			colorSetting->SetValue(arguments);
+		}
 	}
 }
 
-std::string ManagerComponent::PhraseArguments(std::string arguments) const
+std::string ManagerComponent::PhraseArguments(std::string arguments)
 {
 	size_t spacePos = arguments.find(' ');
 
@@ -730,6 +734,27 @@ std::string ManagerComponent::PhraseArguments(std::string arguments) const
 	return arguments;
 }
 
+std::vector<std::string> ManagerComponent::SplitArguments(const std::string& arguments)
+{
+	std::vector<std::string> returnValue;
+	std::string word;
+
+	for (const char& x : arguments) 
+	{
+		if (x == ' ')
+		{
+			returnValue.push_back(word);
+			word = "";
+		}
+		else
+		{
+			word = word + x;
+		}
+	}
+
+	return returnValue;
+}
+
 void ManagerComponent::Initialize()
 {
 	Commands.push_back(std::make_shared<Command>(Command("command_not_found", "Command not found.", false, CommandTypes::TYPE_NONE)));
@@ -739,7 +764,8 @@ void ManagerComponent::Initialize()
 	PlaceholderMod = std::make_shared<PlaceholderModule>(PlaceholderModule("Paceholder", "An example module.", States::CasualMatch | States::RankedMatch));
 	
 	// When someone uses the console command "placeholder_some_bool true", we automatically callback to PlaceholderMod and tell it to update its "SomeBoolSetting" property.
-	Settings.push_back(std::make_shared<BoolSetting>(BoolSetting("placeholder_some_bool", "Enable/disable some bool thingy in the placeholders module.", true, false, std::bind(&PlaceholderModule::SetSomeBoolEnabled, PlaceholderMod, std::placeholders::_1))));
+	Commands.push_back(std::make_shared<CallbackCommand>("placeholder_do_thing", "Calls the \"DoAThing\" function in \"PlaceholderMod\".", false, std::bind(&PlaceholderModule::DoAThing, PlaceholderMod)));
+	Settings.push_back(std::make_shared<BoolSetting>(BoolSetting("placeholder_enabled", "Enable/disable the placeholder module.", true, false, std::bind(&PlaceholderModule::SetPlaceholderEnabled, PlaceholderMod, std::placeholders::_1))));
 	PlaceholderMod->LoadSettings();
 
 	Console.Write(GetNameFormatted() + std::to_string(Settings.size() - 1) + " Setting(s) Initialized!");
