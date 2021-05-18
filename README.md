@@ -1,4 +1,4 @@
-## CodeRed Universal v1.0.4
+## CodeRed Universal v1.0.5
 
 A bare-bones template to get your started in Unreal Engine 3 modding that can be used in any game.
 
@@ -27,7 +27,7 @@ Included are the following features, each have their own examples in their own f
 - Automatic initialization of globals, along with detouring of the Process Event function.
 - Pre and post function hooking, bind your own functions that fire when an Unreal Engine function fires.
 - Instance storage, static and dynamically store needed classes that can be grabbed at any time.
-- Command, setting, and mod manager. Bind strings to activate mods or change certain settings dynamically (For separate UI/Console interaction like ImGui. Color settings not fully complete yet).
+- Command, setting, and mod manager. Bind strings to activate mods or change certain settings dynamically (For separate UI/Console interaction like ImGui).
 - GameState, track where the player is/what type of game they are in at all times.
 
 ## Issues & Feedback
