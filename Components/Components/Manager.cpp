@@ -658,6 +658,24 @@ void ManagerComponent::ConsoleCommand(const std::string& command, const std::str
 	}
 }
 
+void ManagerComponent::AddToQueue(const std::string& command, const std::string& arguments)
+{
+	Queue.emplace_back(command, arguments);
+}
+
+void ManagerComponent::QueueTick()
+{
+	if (Queue.size() > 0)
+	{
+		for (const auto& command : Queue)
+		{
+			ConsoleCommand(command.first, command.second);
+		}
+
+		Queue.clear();
+	}
+}
+
 void ManagerComponent::ModifySetting(std::shared_ptr<class Setting>& setting, const std::string& arguments)
 {
 	if (setting->GetType() == SettingTypes::TYPE_INT)

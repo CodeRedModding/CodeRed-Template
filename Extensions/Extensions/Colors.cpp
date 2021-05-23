@@ -1,26 +1,16 @@
 #include "Colors.hpp"
 
-CRColor::CRColor() : R(255), G(255), B(255), A(255)
-{
-	UnrealColor = { B, G, R, A };
-}
+CRColor::CRColor() : R(255), G(255), B(255), A(255) { }
 
-CRColor::CRColor(const uint8_t rgba) : R(rgba), G(rgba), B(rgba), A(rgba)
-{
-	UnrealColor = { B, G, R, A };
-}
+CRColor::CRColor(const uint8_t rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
 
-CRColor::CRColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) : R(r), G(g), B(b), A(a)
-{
-	UnrealColor = { B, G, R, A };
-}
+CRColor::CRColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) : R(r), G(g), B(b), A(a) { }
 
 CRColor::~CRColor() { }
 
-struct FColor CRColor::GetUnrealColor()
+struct FColor CRColor::UnrealColor()
 {
-	UnrealColor = { B, G, R, A };
-	return UnrealColor;
+	return FColor { B, G, R, A };
 }
 
 struct CRColor CRColor::operator=(const struct CRColor& other)
@@ -29,9 +19,6 @@ struct CRColor CRColor::operator=(const struct CRColor& other)
 	G = other.G;
 	B = other.B;
 	A = other.A;
-
-	UnrealColor = { B, G, R, A };
-
 	return *this;
 }
 
@@ -41,9 +28,6 @@ struct CRColor CRColor::operator=(const struct FColor& other)
 	G = other.G;
 	B = other.B;
 	A = other.A;
-
-	UnrealColor = { B, G, R, A };
-
 	return *this;
 }
 
@@ -73,27 +57,17 @@ bool CRColor::operator!=(const struct FColor& other)
 	return false;
 }
 
-CRLinearColor::CRLinearColor() : R(255), G(255), B(255), A(255)
-{
-	UnrealColor = { R, G, B, A };
-}
+CRLinearColor::CRLinearColor() : R(255), G(255), B(255), A(255) { }
 
-CRLinearColor::CRLinearColor(const float rgba) : R(rgba), G(rgba), B(rgba), A(rgba)
-{
-	UnrealColor = { R, G, B, A };
-}
+CRLinearColor::CRLinearColor(const float rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
 
-CRLinearColor::CRLinearColor(const float r, const float g, const float b, const float a) : R(r), G(g), B(b), A(a)
-{
-	UnrealColor = { R, G, B, A };
-}
+CRLinearColor::CRLinearColor(const float r, const float g, const float b, const float a) : R(r), G(g), B(b), A(a) { }
 
 CRLinearColor::~CRLinearColor() { }
 
-struct FLinearColor CRLinearColor::GetUnrealColor()
+struct FLinearColor CRLinearColor::UnrealColor()
 {
-	UnrealColor = { R, G, B, A };
-	return UnrealColor;
+	return FLinearColor { R, G, B, A };
 }
 
 struct CRLinearColor CRLinearColor::operator=(const struct CRLinearColor& other)
@@ -102,9 +76,6 @@ struct CRLinearColor CRLinearColor::operator=(const struct CRLinearColor& other)
 	G = other.G;
 	B = other.B;
 	A = other.A;
-
-	UnrealColor = { B, G, R, A };
-
 	return *this;
 }
 
@@ -114,9 +85,6 @@ struct CRLinearColor CRLinearColor::operator=(const struct FLinearColor& other)
 	G = other.G;
 	B = other.B;
 	A = other.A;
-
-	UnrealColor = { B, G, R, A };
-
 	return *this;
 }
 

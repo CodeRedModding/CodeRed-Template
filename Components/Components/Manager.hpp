@@ -239,6 +239,7 @@ class ManagerComponent : public Component
 private:
 	std::vector<std::shared_ptr<class Command>> Commands;
 	std::vector<std::shared_ptr<class Setting>> Settings;
+	std::vector<std::pair<std::string, std::string>> Queue;
 
 public:
 	std::shared_ptr<class PlaceholderModule> PlaceholderMod;
@@ -251,6 +252,8 @@ public:
 	void KeyPressed(const std::string& key);
 	void UnrealCommand(const std::string& unrealCommand);
 	void ConsoleCommand(const std::string& command, const std::string& arguments);
+	void AddToQueue(const std::string& command, const std::string& arguments); // Use this if you have ImGui interaction for console commands, as you CANNOT call Process Event on the ImGui render thread.
+	void QueueTick(); // Checks the "Queue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
 
 public:
 	void ModifySetting(std::shared_ptr<class Setting>& setting, const std::string& arguments);

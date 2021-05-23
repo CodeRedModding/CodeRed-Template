@@ -83,6 +83,9 @@
     <ClCompile Include="Modules\Mods\Placeholder.cpp">
       <Filter>Modules\Mods</Filter>
     </ClCompile>
+    <ClCompile Include="Extensions\Extensions\Math.cpp">
+      <Filter>Extensions\Extensions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Components\Component.hpp">
@@ -150,6 +153,9 @@
     </ClInclude>
     <ClInclude Include="Modules\Mods\Placeholder.hpp">
       <Filter>Modules\Mods</Filter>
+    </ClInclude>
+    <ClInclude Include="Extensions\Extensions\Math.hpp">
+      <Filter>Extensions\Extensions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

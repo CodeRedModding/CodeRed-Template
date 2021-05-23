@@ -513,6 +513,26 @@ struct FScriptDelegate
 	uint8_t UnknownData00[0x18];
 };
 
+struct FVector
+{
+	float X;
+	float Y;
+	float Z;
+};
+
+struct FVector2D
+{
+	float X;
+	float Y;
+};
+
+struct FRotator
+{
+	int32_t Pitch;
+	int32_t Yaw;
+	int32_t Roll;
+};
+
 /*
 # =================================================================================================== #
 # This just just a placeholder sdk so the project can actually compile! Replace this with your own!

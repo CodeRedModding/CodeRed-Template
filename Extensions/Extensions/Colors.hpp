@@ -5,7 +5,6 @@ struct CRColor
 {
 public:
 	uint8_t R, G, B, A;
-	struct FColor UnrealColor;
 
 public:
 	CRColor();
@@ -14,7 +13,7 @@ public:
 	~CRColor();
 
 public:
-	struct FColor GetUnrealColor();
+	struct FColor UnrealColor();
 
 public:
 	struct CRColor operator=(const struct CRColor& other);
@@ -27,7 +26,6 @@ struct CRLinearColor
 {
 public:
 	float R, G, B, A;
-	struct FLinearColor UnrealColor;
 
 public:
 	CRLinearColor();
@@ -36,7 +34,7 @@ public:
 	~CRLinearColor();
 
 public:
-	struct FLinearColor GetUnrealColor();
+	struct FLinearColor UnrealColor();
 
 public:
 	struct CRLinearColor operator=(const struct CRLinearColor& other);

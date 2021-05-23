@@ -23,6 +23,7 @@ namespace Functions
 	void HUDPostRenderPost(class UObject* caller, class UFunction* function, void* params, void* result)
 	{
 		FRainbowColor::Tick(); // Example of where you could put your rainbow color hook.
+		Manager.QueueTick(); // Example of where you could put your command queue tick.
 	}
 
 	void GameViewPortPostRender(class UObject* caller, class UFunction* function, void* params)

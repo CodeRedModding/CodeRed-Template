@@ -1,4 +1,10 @@
 /*
+    Changes in v1.0.6:
+    - Added a command queue, for executing Process Event functions outside of the games main thread (like in ImGui render scenes).
+    - Added "Math.hpp" & "Math.cpp" which include custom vector and rotator structs, along with some helper functions.
+    - Changed how the unreal color for the structs in "Colors.hpp" is calculated.
+    - Added some structs to the PlaceholderSDK to match the new operators in "Math.hpp".
+
     Changes in v1.0.5:
     - Added some extra operators for the custom color structs in "Colors.hpp".
     - Added example of where to put the FRainbowColor hook.

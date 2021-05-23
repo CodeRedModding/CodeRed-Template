@@ -152,6 +152,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Extensions\Extensions\Colors.cpp" />
     <ClCompile Include="Extensions\Extensions\Filesystem.cpp" />
+    <ClCompile Include="Extensions\Extensions\Math.cpp" />
     <ClCompile Include="Extensions\Extensions\Memory.cpp" />
     <ClCompile Include="Extensions\Extensions\UnrealMemory.cpp" />
     <ClCompile Include="Modules\Mods\Placeholder.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Detours\syelog.h" />
     <ClInclude Include="Extensions\Extensions\Colors.hpp" />
     <ClInclude Include="Extensions\Extensions\Filesystem.hpp" />
+    <ClInclude Include="Extensions\Extensions\Math.hpp" />
     <ClInclude Include="Extensions\Extensions\Memory.hpp" />
     <ClInclude Include="Extensions\Extensions\UnrealMemory.hpp" />
     <ClInclude Include="Extensions\Includes.hpp" />

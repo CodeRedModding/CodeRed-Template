@@ -1,4 +1,4 @@
-## CodeRed Universal v1.0.5
+## CodeRed Universal v1.0.6
 
 A bare-bones template to get your started in Unreal Engine 3 modding that can be used in any game.
 
