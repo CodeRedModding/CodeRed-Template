@@ -1,4 +1,14 @@
 /*
+    Changes in v.1.0.7:
+    - Added constructors in the CRColor structs for their retrospective unreal engine structs.
+    - Added the "Colors" namespace in "Colors.hpp" with some small color utils.
+    - Made the Command and Setting vector a map in "Manager.hpp", using their Command/Setting names as the key.
+    - Completely remade settings and commands, and changed the "Manager" module to match this, along with examples.
+    - Added "CreateCommand" and "CreateSetting" functions in "Manager.hpp".
+    - Remade how "GetCommand" and "GetSetting" work in "Manager.hpp".
+    - Removed the "ModifySetting" function in "Manager.hpp" as it's no longer needed.
+    - When an argument isn't provided for a setting, it now displays its current value to the console.
+
     Changes in v1.0.6:
     - Added a command queue, for executing Process Event functions outside of the games main thread (like in ImGui render scenes).
     - Added "Math.hpp" & "Math.cpp" which include custom vector and rotator structs, along with some helper functions.

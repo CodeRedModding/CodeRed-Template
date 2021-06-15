@@ -10,6 +10,7 @@ public:
 	CRColor();
 	CRColor(const uint8_t rgba);
 	CRColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a);
+	CRColor(const struct FColor& unrealColor);
 	~CRColor();
 
 public:
@@ -31,6 +32,7 @@ public:
 	CRLinearColor();
 	CRLinearColor(const float rgba);
 	CRLinearColor(const float r, const float g, const float b, const float a);
+	CRLinearColor(const struct FLinearColor& unrealColor);
 	~CRLinearColor();
 
 public:
@@ -162,3 +164,11 @@ public:
 	static inline struct FColor Wheat =					{ 191, 216, 216, 255 };
 	static inline struct FColor YellowGreen =			{ 50, 204, 153, 255 };
 };
+
+namespace Colors
+{
+	int32_t HexToDecimal(const std::string& hexString);
+	std::string DecimalToHex(const int32_t decimal, const bool bInlcudeHead);
+	struct CRColor DecimalToColor(const int32_t decimal);
+	struct CRLinearColor DecimalToLinearColor(const int32_t decimal);
+}

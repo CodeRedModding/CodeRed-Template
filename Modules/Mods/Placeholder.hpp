@@ -13,7 +13,7 @@ public:
 
 public: // Functions related to user settings.
 	void LoadSettings();
-	void SetPlaceholderEnabled(const class BoolSetting& placeholderEnabled);
+	void SetPlaceholderEnabled(const class Setting* setting);
 
 public: // Functions related to the module.
 	void DoAThing();

@@ -6,6 +6,8 @@ CRColor::CRColor(const uint8_t rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
 
 CRColor::CRColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) : R(r), G(g), B(b), A(a) { }
 
+CRColor::CRColor(const struct FColor& unrealColor) : R(unrealColor.R), G(unrealColor.G), B(unrealColor.B), A(unrealColor.A) { }
+
 CRColor::~CRColor() { }
 
 struct FColor CRColor::UnrealColor()
@@ -62,6 +64,8 @@ CRLinearColor::CRLinearColor() : R(255), G(255), B(255), A(255) { }
 CRLinearColor::CRLinearColor(const float rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
 
 CRLinearColor::CRLinearColor(const float r, const float g, const float b, const float a) : R(r), G(g), B(b), A(a) { }
+
+CRLinearColor::CRLinearColor(const struct FLinearColor& unrealColor) : R(unrealColor.R), G(unrealColor.G), B(unrealColor.B), A(unrealColor.A) { }
 
 CRLinearColor::~CRLinearColor() { }
 
@@ -142,4 +146,60 @@ void FRainbowColor::Tick()
 	}
 
 	LinearRainbow = FLinearColor{ static_cast<float>(ByteRainbow.R), static_cast<float>(ByteRainbow.G), static_cast<float>(ByteRainbow.B), static_cast<float>(ByteRainbow.A) };
+}
+
+namespace Colors
+{
+	int32_t HexToDecimal(const std::string& hexString)
+	{
+		static UClass* randomObj = nullptr;
+
+		if (!randomObj)
+		{
+			randomObj = UObject::StaticClass();
+		}
+
+		//return randomObj->FromHex(StringWrapper(hexString).ToUnrealString()); // I have my own custom wrappers, they are too game-specific to implement directly here.
+		return 0;
+	}
+
+	std::string DecimalToHex(const int32_t decimal, const bool bInlcudeHead)
+	{
+		std::string hexDigits = "0123456789ABCDEF";
+		std::string hexColor;
+
+		for (int32_t i = (3 * 2) - 1; i >= 0; i--)
+		{
+			hexColor += hexDigits[((decimal >> i * 4) & 0xF)];
+		}
+
+		if (bInlcudeHead)
+		{
+			hexColor = "#" + hexColor;
+		}
+
+		return hexColor;
+	}
+
+	struct CRColor DecimalToColor(const int32_t decimal)
+	{
+		CRColor returnColor;
+
+		returnColor.R = ((decimal >> 16) & 0xFF) / 255;
+		returnColor.G = ((decimal >> 8) & 0xFF) / 255;
+		returnColor.B = ((decimal) & 0xFF) / 255;
+
+		return returnColor;
+	}
+
+	struct CRLinearColor DecimalToLinearColor(const int32_t decimal)
+	{
+		CRLinearColor returnColor;
+
+		returnColor.R = ((decimal >> 16) & 0xFF) / 255;
+		returnColor.G = ((decimal >> 8) & 0xFF) / 255;
+		returnColor.B = ((decimal) & 0xFF) / 255;
+
+		return returnColor;
+	}
 }
