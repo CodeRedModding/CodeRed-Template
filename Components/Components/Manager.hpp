@@ -108,7 +108,6 @@ public:
 	{
 		if (CommandMap.find(command.GetName()) == CommandMap.end())
 		{
-			// Yes the std::reinterpret_pointer_cast can be dangerous here, but ONLY if you use a template that does NOT inherit from the Command class.
 			CommandMap.emplace(command.GetName(), std::make_shared<Command>(command));
 			return CommandMap[command.GetName()];
 		}
@@ -119,7 +118,6 @@ public:
 	{
 		if (SettingMap.find(setting.GetName()) == SettingMap.end())
 		{
-			// Yes the std::reinterpret_pointer_cast can be dangerous here, but ONLY if you use a template that does NOT inherit from the Setting class.
 			SettingMap.emplace(setting.GetName(), std::make_shared<Setting>(setting));
 			return SettingMap[setting.GetName()];
 		}
