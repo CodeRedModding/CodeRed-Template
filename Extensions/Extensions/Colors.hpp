@@ -167,7 +167,7 @@ public:
 
 namespace Colors
 {
-	int32_t HexToDecimal(const std::string& hexString);
+	int32_t HexToDecimal(std::string hexString);
 	std::string DecimalToHex(const int32_t decimal, const bool bInlcudeHead);
 	struct CRColor DecimalToColor(const int32_t decimal);
 	struct CRLinearColor DecimalToLinearColor(const int32_t decimal);

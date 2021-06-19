@@ -12,6 +12,15 @@ Setting::Setting(const std::string& name, const std::string& description, const 
 	Modifiable = bModifiable;
 	ShouldCallback = false;
 	Callback = nullptr;
+
+	if (GetType() == SettingTypes::TYPE_COLOR)
+	{
+		if (CurrentValue.find("#") == 0 || CurrentValue.find("0x") == 0)
+		{
+			CurrentValue = std::to_string(Colors::HexToDecimal(CurrentValue));
+			CurrentValue = DefaultValue;
+		}
+	}
 }
 
 Setting::Setting(const std::string& name, const std::string& description, const std::string& defaultValue, const SettingTypes valueType, const bool bModifiable, std::function<void(Setting*)> callback)
@@ -24,6 +33,15 @@ Setting::Setting(const std::string& name, const std::string& description, const 
 	Modifiable = bModifiable;
 	ShouldCallback = true;
 	Callback = callback;
+
+	if (GetType() == SettingTypes::TYPE_COLOR)
+	{
+		if (CurrentValue.find("#") == 0 || CurrentValue.find("0x") == 0)
+		{
+			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
+			CurrentValue = DefaultValue;
+		}
+	}
 }
 
 Setting::~Setting() { };
@@ -110,7 +128,7 @@ void Setting::SetValue(const std::string& value)
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (value.find("#") == 0)
+		if (value.find("#") == 0 || value.find("0x") == 0)
 		{
 			CurrentValue = std::to_string(Colors::HexToDecimal(value));
 		}

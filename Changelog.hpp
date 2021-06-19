@@ -1,5 +1,10 @@
 /*
-    Changes in v.1.0.7:
+    Changes in v1.0.8:
+    - Fixed the constructor for the "Setting" class not properly setting color values.
+    - Fixed the "HexToDecimal" function in "Colors.hpp".
+    - Updated the commenting in "Instances.hpp".
+
+    Changes in v1.0.7:
     - Added constructors in the CRColor structs for their retrospective unreal engine structs.
     - Added the "Colors" namespace in "Colors.hpp" with some small color utils.
     - Made the Command and Setting vector a map in "Manager.hpp", using their Command/Setting names as the key.

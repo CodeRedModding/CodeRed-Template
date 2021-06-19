@@ -150,17 +150,20 @@ void FRainbowColor::Tick()
 
 namespace Colors
 {
-	int32_t HexToDecimal(const std::string& hexString)
+	int32_t HexToDecimal(std::string hexString)
 	{
-		static UClass* randomObj = nullptr;
+		int32_t returnDecimal = 0;
 
-		if (!randomObj)
+		if (hexString.find("#") == 0)
 		{
-			randomObj = UObject::StaticClass();
+			hexString = hexString.erase(0, 1);
 		}
 
-		//return randomObj->FromHex(StringWrapper(hexString).ToUnrealString()); // I have my own custom wrappers, they are too game-specific to implement directly here.
-		return 0;
+		std::stringstream ss;
+		ss << std::hex << hexString;
+		ss >> returnDecimal;
+
+		return returnDecimal;
 	}
 
 	std::string DecimalToHex(const int32_t decimal, const bool bInlcudeHead)
@@ -185,9 +188,9 @@ namespace Colors
 	{
 		CRColor returnColor;
 
-		returnColor.R = ((decimal >> 16) & 0xFF) / 255;
-		returnColor.G = ((decimal >> 8) & 0xFF) / 255;
-		returnColor.B = ((decimal) & 0xFF) / 255;
+		returnColor.R = (decimal >> 16) & 0xFF;
+		returnColor.G = (decimal >> 8) & 0xFF;
+		returnColor.B = (decimal) & 0xFF;
 
 		return returnColor;
 	}
@@ -196,9 +199,9 @@ namespace Colors
 	{
 		CRLinearColor returnColor;
 
-		returnColor.R = ((decimal >> 16) & 0xFF) / 255;
-		returnColor.G = ((decimal >> 8) & 0xFF) / 255;
-		returnColor.B = ((decimal) & 0xFF) / 255;
+		returnColor.R = (decimal >> 16) & 0xFF;
+		returnColor.G = (decimal >> 8) & 0xFF;
+		returnColor.B = (decimal) & 0xFF;
 
 		return returnColor;
 	}
