@@ -1,6 +1,6 @@
 #pragma once
 #include "../Component.hpp"
-#include "../Extensions/Extensions/Filesystem.hpp"
+#include <filesystem>
 
 enum class TextColors : uint16_t
 {
@@ -25,7 +25,7 @@ enum class TextColors : uint16_t
 class ConsoleComponent : public Component
 {
 private:
-	Filesystem::File LogFile;
+	std::ofstream LogFile;
 	HANDLE OutputHandle;
 	FILE* OutputFile;
 	bool WriteToLog;
@@ -34,6 +34,7 @@ private:
 public:
 	ConsoleComponent();
 	ConsoleComponent(const std::string& directory, const std::string& fileName);
+	ConsoleComponent(const std::filesystem::path directory, const std::string& fileName);
 	~ConsoleComponent();
 
 public:
@@ -46,6 +47,7 @@ public:
 
 public:
 	void Initialize(const std::string& directory, const std::string& fileName);
+	void Initialize(const std::filesystem::path directory, const std::string& fileName);
 	void ToggleLogging(const bool& bWriteToLog);
 	void ToggleTimestamp(const bool& bWriteTimestamp);
 	void SetTextColor(const TextColors textColor);

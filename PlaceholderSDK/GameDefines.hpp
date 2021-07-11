@@ -269,8 +269,7 @@ struct FNameEntry
 public:
 	int64_t			Flags;										// 0x0000 (0x08)
 	int32_t			Index;										// 0x0008 (0x04)
-	uint8_t			UnknownData00[0xC];							// 0x000C (0x0C)
-	wchar_t			Name[0x400];								// 0x0018 (0x00)
+	wchar_t			Name[0x400];								// 0x000C (0x00)
 
 public:
 	int32_t GetIndex() const

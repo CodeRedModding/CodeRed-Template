@@ -62,9 +62,6 @@
     <ClCompile Include="Extensions\Extensions\Colors.cpp">
       <Filter>Extensions\Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="Extensions\Extensions\Filesystem.cpp">
-      <Filter>Extensions\Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="Extensions\Extensions\Memory.cpp">
       <Filter>Extensions\Extensions</Filter>
     </ClCompile>
@@ -84,6 +81,9 @@
       <Filter>Modules\Mods</Filter>
     </ClCompile>
     <ClCompile Include="Extensions\Extensions\Math.cpp">
+      <Filter>Extensions\Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="Extensions\Extensions\Formatting.cpp">
       <Filter>Extensions\Extensions</Filter>
     </ClCompile>
   </ItemGroup>
@@ -127,9 +127,6 @@
     <ClInclude Include="Extensions\Extensions\Colors.hpp">
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="Extensions\Extensions\Filesystem.hpp">
-      <Filter>Extensions\Extensions</Filter>
-    </ClInclude>
     <ClInclude Include="Extensions\Extensions\Memory.hpp">
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
@@ -155,6 +152,9 @@
       <Filter>Modules\Mods</Filter>
     </ClInclude>
     <ClInclude Include="Extensions\Extensions\Math.hpp">
+      <Filter>Extensions\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="Extensions\Extensions\Formatting.hpp">
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
   </ItemGroup>

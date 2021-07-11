@@ -6,39 +6,26 @@ ConsoleComponent::ConsoleComponent() : Component("Console", "Displays and manage
 	OutputFile = nullptr;
 	WriteToLog = false;
 	WriteTimestamp = false;
-
-	// Open the standard out stream and show the window, then grab its handle so we can set the text color.
-
-	AllocConsole();
-	freopen_s(&OutputFile, "CONOUT$", "w", stdout);
-	ShowWindow(GetConsoleWindow(), SW_SHOW);
-	OutputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 }
 
 ConsoleComponent::ConsoleComponent(const std::string& directory, const std::string& fileName) : Component("Console", "Displays and manages the standard out stream.")
 {
-	OutputHandle = nullptr;
-	OutputFile = nullptr;
-	WriteToLog = true;
-	WriteTimestamp = true;
+	Initialize(directory, fileName);
+}
 
-	// Open the standard out stream and show the window, then grab its handle so we can set the text color.
-
-	AllocConsole();
-	freopen_s(&OutputFile, "CONOUT$", "w", stdout);
-	ShowWindow(GetConsoleWindow(), SW_SHOW);
-	OutputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	if (WriteToLog)
-	{
-		LogFile.Create(directory, fileName);
-	}
+ConsoleComponent::ConsoleComponent(const std::filesystem::path directory, const std::string& fileName) : Component("Console", "Displays and manages the standard out stream.")
+{
+	Initialize(directory, fileName);
 }
 
 ConsoleComponent::~ConsoleComponent()
 {
-	LogFile.Close();
-	FreeConsole();
+	LogFile.close();
+
+	if (OutputFile)
+	{
+		FreeConsole();
+	}
 }
 
 void ConsoleComponent::Write(std::string text)
@@ -59,8 +46,8 @@ void ConsoleComponent::Write(std::string text, const TextColors textColor)
 
 	if (WriteToLog)
 	{
-		LogFile.WriteLine(text);
-		LogFile.Flush();
+		LogFile << text;
+		LogFile.flush();
 	}
 
 	SetTextColor(TextColors::BrightWhite);
@@ -102,7 +89,29 @@ void ConsoleComponent::Initialize(const std::string& directory, const std::strin
 
 	if (WriteToLog)
 	{
-		LogFile.Create(directory, fileName);
+		LogFile.open(directory + "//" + fileName);
+	}
+
+	Write(GetNameFormatted() + "Initialized!");
+}
+
+void ConsoleComponent::Initialize(const std::filesystem::path directory, const std::string& fileName)
+{
+	OutputHandle = nullptr;
+	OutputFile = nullptr;
+	WriteToLog = true;
+	WriteTimestamp = true;
+
+	// Open the standard out stream and show the window, then grab its handle so we can set the text color.
+
+	AllocConsole();
+	freopen_s(&OutputFile, "CONOUT$", "w", stdout);
+	ShowWindow(GetConsoleWindow(), SW_SHOW);
+	OutputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	if (WriteToLog)
+	{
+		LogFile.open(directory / fileName);
 	}
 
 	Write(GetNameFormatted() + "Initialized!");

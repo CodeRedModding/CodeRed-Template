@@ -47,6 +47,7 @@ enum class EInputEvent : uint8_t
 class UObject
 {
 public:
+	struct FPointer VfTableObject;
 	int32_t ObjectInternalInteger;
 
 public:
@@ -64,14 +65,9 @@ public:
 		return nullptr;
 	};
 
-	// I really dont give enough of a shit to make these all actually work for the placeholder sdk.
 	struct FColor MakeColor(int32_t r, int32_t g, int32_t b, int32_t a) { return FColor { static_cast<uint8_t>(b), static_cast<uint8_t>(g), static_cast<uint8_t>(r), static_cast<uint8_t>(a) }; }
 	struct FLinearColor ColorToLinearColor(struct FColor color) { return FLinearColor{ static_cast<float>(color.R), static_cast<float>(color.G), static_cast<float>(color.B), static_cast<float>(color.A) }; }
 	struct FColor LinearColorToColor(struct FLinearColor linearColor) { return FColor{ static_cast<uint8_t>(linearColor.B), static_cast<uint8_t>(linearColor.G), static_cast<uint8_t>(linearColor.R), static_cast<uint8_t>(linearColor.A) }; }
-	struct FColor FromHexColor(struct FString hexColor) { return FColor{}; }
-	struct FColor IntToColor(float decimalColor) { return FColor{}; }
-	int32_t LinearColorToInt(struct FLinearColor linearColor) { return 0; }
-	int32_t ColorToInt(struct FColor color) { return 0; }
 };
 
 class UClass : public UObject

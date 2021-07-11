@@ -1,4 +1,11 @@
 /*
+    Changes in v1.0.9:
+    - Added the Formatting extension files, includes helpful stream utils.
+    - Made the console logging in "Core.cpp" use the new formatting extensions.
+    - Made the console component to use std::ofstream and be more efficient in terms of initializing.
+    - Improved the "UnrealMemory" files which are based on UE4 source.
+    - Removed the "Filesystem" extension files as they have no real use (yet).
+ 
     Changes in v1.0.8:
     - Fixed the constructor for the "Setting" class not properly setting color values.
     - Fixed the "HexToDecimal" function in "Colors.hpp".

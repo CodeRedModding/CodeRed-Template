@@ -17,32 +17,14 @@ namespace FMemory
 		return memset(Dest, Char, Count);
 	}
 
-	template<typename T> 
-	void Memset(T& Src, uint8_t ValueToSet)
-	{
-		Memset(&Src, ValueToSet, sizeof(T));
-	}
-
 	void* Memzero(void* Dest, size_t Count)
 	{
 		return memset(Dest, 0, Count);
 	}
 
-	template< class T > 
-	void Memzero(T& Src)
-	{
-		Memzero(&Src, sizeof(T));
-	}
-
 	void* Memcpy(void* Dest, const void* Src, size_t Count)
 	{
 		return memcpy(Dest, Src, Count);
-	}
-
-	template<typename T > 
-	void Memcpy(T& Dest, const T& Src)
-	{
-		Memcpy(&Dest, &Src, sizeof(T));
 	}
 
 	void* BigBlockMemcpy(void* Dest, const void* Src, size_t Count)
@@ -80,7 +62,7 @@ namespace FMemory
 		SystemFree(Original);
 	}
 
-	void* MallocZeroed(size_t Count, uint32_t Alignment = 0)
+	void* MallocZeroed(size_t Count, uint32_t Alignment)
 	{
 		void* Memory = Malloc(Count, Alignment);
 		Memzero(Memory, Count);

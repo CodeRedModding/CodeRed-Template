@@ -12,7 +12,7 @@ public:
 public:
 	// All GetInstanceOf related functions loop through the entire GObject TArray, which can be resource heavy if you're using them everywhere.
 	// So rely on hooking functions and storing classes here instead, only use GetInstanceOf functions them when needed.
-	// 
+
 	// Get the default constructor of a class type. Example: UGameData_TA* gameData = GetDefaultInstanceOf<UGameData_TA>();
 	template<typename T> T* GetDefaultInstanceOf()
 	{
