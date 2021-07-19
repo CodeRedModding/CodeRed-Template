@@ -125,7 +125,7 @@ void InstancesComponent::MapObjects()
 	{
 		if (uObject)
 		{
-			if (uObject->GetPackageObj()->GetName() != "Transient")
+			if (uObject->GetPackageName() != FName(L"Transient"))
 			{
 				std::string objectFullName = uObject->GetFullName();
 
