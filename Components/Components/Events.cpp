@@ -72,94 +72,123 @@ namespace Functions
 
 EventsComponent::EventsComponent() : Component("Events", "Manages function hooks and process event.")
 {
-	LogFunctions = false;
 	ProcessEvent = nullptr;
 }
 
 EventsComponent::~EventsComponent() { }
 
-void EventsComponent::ToggleLogFunctions(const bool& bLog)
-{
-	if (bLog)
-	{
-		Console.ToggleTimestamp(false);
-		Console.Write(GetNameFormatted() + "Enabled Function Logging.");
-		LogFunctions = true;
-	}
-	else
-	{
-		Console.ToggleTimestamp(true);
-		Console.Write(GetNameFormatted() + "Disabled Function Logging.");
-		LogFunctions = false;
-	}
-}
-
-void EventsComponent::MapFunctions()
-{
-	for (UObject* uObject : *UObject::GObjObjects())
-	{
-		if (uObject && uObject->IsA(UFunction::StaticClass()))
-		{
-			UFunction* function = reinterpret_cast<UFunction*>(uObject);
-			std::string functionFullName = function->GetFullName();
-
-			if (FunctionIndexMap.find(functionFullName) == FunctionIndexMap.end())
-			{
-				FunctionIndexMap.emplace(functionFullName, function->ObjectInternalInteger);
-			}
-		}
-	}
-}
-
 void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result)
 {
-	if (ProcessEvent && function)
+	if (ProcessEvent)
 	{
-		if (LogFunctions)
-		{
-			Console.Write(function->GetFullName());
-		}
-
-		std::map<int32_t, PreEventType>::iterator preIt = PreHookedEvents.find(function->ObjectInternalInteger);
+		std::map<int32_t, std::vector<PreEventType>>::iterator preIt = PreHookedEvents.find(function->ObjectInternalInteger);
 
 		if (preIt != PreHookedEvents.end())
 		{
-			preIt->second(caller, function, params);
+			for (const PreEventType& preEvent : preIt->second)
+			{
+				preEvent(caller, function, params);
+			}
 		}
 
-		if (std::find(BlackHookedEvents.begin(), BlackHookedEvents.end(), function->ObjectInternalInteger) == BlackHookedEvents.end())
+		if (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), function->ObjectInternalInteger) == BlacklistedEvents.end())
 		{
 			ProcessEvent(caller, function, params, result);
 		}
 
-		std::map<int32_t, PostEventType>::iterator postIt = PostHookedEvents.find(function->ObjectInternalInteger);
+		std::map<int32_t, std::vector<PostEventType>>::iterator postIt = PostHookedEvents.find(function->ObjectInternalInteger);
 
 		if (postIt != PostHookedEvents.end())
 		{
-			postIt->second(caller, function, params, result);
+			for (const PostEventType& postEvent : postIt->second)
+			{
+				postEvent(caller, function, params, result);
+			}
 		}
 	}
 }
 
 void EventsComponent::HookEventPre(const std::string& functionFullName, const PreEventType& eventType)
 {
-	PreHookedEvents.emplace(FunctionIndexMap[functionFullName], eventType);
+	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(functionFullName);
+
+	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	{
+		int32_t functionIndex = functionIt->second->ObjectInternalInteger;
+
+		if (PreHookedEvents.find(functionIndex) != PreHookedEvents.end())
+		{
+			PreHookedEvents[functionIndex].push_back(eventType);
+		}
+		else
+		{
+			PreHookedEvents[functionIndex] = std::vector<PreEventType>{ eventType };
+		}
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + functionFullName + "\"!");
+	}
 }
 
 void EventsComponent::HookEventPost(const std::string& functionFullName, const PostEventType& eventType)
 {
-	PostHookedEvents.emplace(FunctionIndexMap[functionFullName], eventType);
+	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(functionFullName);
+
+	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	{
+		int32_t functionIndex = functionIt->second->ObjectInternalInteger;
+
+		if (PostHookedEvents.find(functionIndex) != PostHookedEvents.end())
+		{
+			PostHookedEvents[functionIndex].push_back(eventType);
+		}
+		else
+		{
+			PostHookedEvents[functionIndex] = std::vector<PostEventType>{ eventType };
+		}
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + functionFullName + "\"!");
+	}
 }
 
 void EventsComponent::BlacklistEvent(const std::string& functionFullName)
 {
-	BlackHookedEvents.emplace_back(FunctionIndexMap[functionFullName]);
+	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(functionFullName);
+
+	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	{
+		BlacklistedEvents.emplace_back(functionIt->second->ObjectInternalInteger);
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Failed to blacklist function \"" + functionFullName + "\"!");
+	}
+}
+
+void EventsComponent::WhitelistEvent(const std::string& functionFullName)
+{
+	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(functionFullName);
+
+	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	{
+		std::vector<int32_t>::iterator blackIt = std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), functionIt->second->ObjectInternalInteger);
+
+		if (blackIt != BlacklistedEvents.end())
+		{
+			BlacklistedEvents.erase(blackIt);
+		}
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Failed to whitelist function \"" + functionFullName + "\"!");
+	}
 }
 
 void EventsComponent::Initialize()
 {
-	MapFunctions();
-
 	// Example functions only, you will need to function scan in your game for your own.
 
 	BlacklistEvent("Function Engine.Tracker.ReportMetrics");
@@ -173,7 +202,7 @@ void EventsComponent::Initialize()
 
 	Console.Write(GetNameFormatted() + std::to_string(PreHookedEvents.size()) + " Pre-Hook(s) Initialized!");
 	Console.Write(GetNameFormatted() + std::to_string(PostHookedEvents.size()) + " Post-Hook(s) Initialized!");
-	Console.Write(GetNameFormatted() + std::to_string(BlackHookedEvents.size()) + " Backlisted Event(s) Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(BlacklistedEvents.size()) + " Backlisted Event(s) Initialized!");
 }
 
 class EventsComponent Events;

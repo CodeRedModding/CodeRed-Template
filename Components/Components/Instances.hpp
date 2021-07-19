@@ -10,6 +10,10 @@ public:
 	~InstancesComponent();
 
 public:
+	std::map<std::string, class UClass*> StaticClasses;
+	std::map<std::string, class UFunction*> StaticFunctions;
+
+public:
 	// All GetInstanceOf related functions loop through the entire GObject TArray, which can be resource heavy if you're using them everywhere.
 	// So rely on hooking functions and storing classes here instead, only use GetInstanceOf functions them when needed.
 
@@ -168,6 +172,7 @@ public: // These should only be used by function hooks, do not manually call the
 	void SetHUD(class AHUD* hud);
 	void SetGameViewportClient(class UGameViewportClient* viewportClient);
 	void SetPlayerController(class APlayerController* playerController);
+	void MapObjects(); // Maps all static objects to "StaticClasses" and "StaticFunctions".
 	void Initialize(); // Initialize classes that can't be grabbed from function hooks.
 };
 

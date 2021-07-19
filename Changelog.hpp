@@ -1,4 +1,11 @@
 /*
+     Changes in v1.1.0:
+     - Added a "WhitelistEvent" function in "Events.hpp".
+     - Added the maps "StaticClasses" and "StaticFunctions" in "Instances.hpp", here all of these objects are mapped by their full name to their pointer.
+     - Added extra saftey checks and warnings for hooking functions.
+     - Changed how hooking functions, and binding them work. Now you can hook multiple voids to a singluar function, before it would be limited to only one.
+     - Removed the toggle for logging functions in the EventsComponent, that was messy anyway.
+
     Changes in v1.0.9:
     - Added the Formatting extension files, includes helpful stream utils.
     - Made the console logging in "Core.cpp" use the new formatting extensions.

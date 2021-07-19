@@ -119,8 +119,33 @@ void InstancesComponent::SetPlayerController(class APlayerController* playerCont
 	I_APlayerController = playerController;
 }
 
+void InstancesComponent::MapObjects()
+{
+	for (UObject* uObject : *UObject::GObjObjects())
+	{
+		if (uObject)
+		{
+			if (uObject->GetPackageObj()->GetName() != "Transient")
+			{
+				std::string objectFullName = uObject->GetFullName();
+
+				if (objectFullName.find("Class ") == 0)
+				{
+					StaticClasses.emplace(objectFullName, reinterpret_cast<UClass*>(uObject));
+				}
+				else if (objectFullName.find("Function ") == 0)
+				{
+					StaticFunctions.emplace(objectFullName, reinterpret_cast<UFunction*>(uObject));
+				}
+			}
+		}
+	}
+}
+
+
 void InstancesComponent::Initialize()
 {
+	MapObjects();
 	SetEngine(GetInstanceOf<UEngine>());
 	SetDatTime(GetDefaultInstanceOf<UDateTime>());
 
