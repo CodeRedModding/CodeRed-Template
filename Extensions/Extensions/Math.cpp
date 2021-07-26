@@ -676,9 +676,9 @@ Vector Rotator::Rotate(Vector other) const
 	float sx = sin(roll);
 	float cx = cos(roll);
 
-	other = Vector(other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx); // Roll
-	other = Vector(other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z); // Pitch
-	other = Vector(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy); // Yaw
+	other = Vector{ other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx }; // Roll
+	other = Vector{ other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z }; // Pitch
+	other = Vector{ other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy }; // Yaw
 
 	float tmp = other.Z;
 	other.Z = other.Y;
