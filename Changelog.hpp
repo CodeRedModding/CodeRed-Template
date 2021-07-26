@@ -1,4 +1,11 @@
 /*
+    Changes in v1.1.1:
+    - Added a "Quat" class in "Math.cpp", along with a bunch of defines/math helpers.
+    - Added "Get" functions to the FRainbowColor class, this copies the data but guarantees you can't modify the original structs by mistake.
+    - Renamed all "CR" math classes to just normal structs in "Math.hpp", also added extra math functions and operators for already exsiting classes.
+    - Renamed all "CR" color classes to just normal structs in "Colors.hpp", also added some extra operators for them.
+    - Updated the placeholder sdk with the new math structs so the project can compile.
+
      Changes in v1.1.0:
      - Added a "WhitelistEvent" function in "Events.hpp".
      - Added the maps "StaticClasses" and "StaticFunctions" in "Instances.hpp", here all of these objects are mapped by their full name to their pointer.

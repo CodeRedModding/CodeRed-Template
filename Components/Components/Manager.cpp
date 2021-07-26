@@ -104,24 +104,24 @@ std::string Setting::GetStringValue() const
 	return CurrentValue;
 }
 
-struct CRColor Setting::GetColorValue() const
+Color Setting::GetColorValue() const
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
 		return Colors::DecimalToColor(std::stoi(CurrentValue));
 	}
 
-	return CRColor();
+	return Color();
 }
 
-struct CRLinearColor Setting::GetLinearValue() const
+LinearColor Setting::GetLinearValue() const
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
 		return Colors::DecimalToLinearColor(std::stoi(CurrentValue));
 	}
 
-	return CRLinearColor();
+	return LinearColor();
 }
 
 void Setting::SetValue(const std::string& value)

@@ -1,47 +1,53 @@
 #pragma once
 #include "../pch.hpp"
 
-struct CRColor
+struct Color
 {
 public:
 	uint8_t R, G, B, A;
 
 public:
-	CRColor();
-	CRColor(const uint8_t rgba);
-	CRColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a);
-	CRColor(const struct FColor& unrealColor);
-	~CRColor();
+	Color();
+	Color(const uint8_t rgba);
+	Color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a);
+	Color(const Color& other);
+	Color(const struct FColor& other);
+	~Color();
 
 public:
 	struct FColor UnrealColor();
 
 public:
-	struct CRColor operator=(const struct CRColor& other);
-	struct CRColor operator=(const struct FColor& other);
+	Color operator=(const Color& other);
+	Color operator=(const struct FColor& other);
+	bool operator==(const Color& other);
 	bool operator==(const struct FColor& other);
+	bool operator!=(const Color& other);
 	bool operator!=(const struct FColor& other);
 };
 
-struct CRLinearColor
+struct LinearColor
 {
 public:
 	float R, G, B, A;
 
 public:
-	CRLinearColor();
-	CRLinearColor(const float rgba);
-	CRLinearColor(const float r, const float g, const float b, const float a);
-	CRLinearColor(const struct FLinearColor& unrealColor);
-	~CRLinearColor();
+	LinearColor();
+	LinearColor(const float rgba);
+	LinearColor(const float r, const float g, const float b, const float a);
+	LinearColor(const LinearColor& other);
+	LinearColor(const struct FLinearColor& other);
+	~LinearColor();
 
 public:
 	struct FLinearColor UnrealColor();
 
 public:
-	struct CRLinearColor operator=(const struct CRLinearColor& other);
-	struct CRLinearColor operator=(const struct FLinearColor& other);
+	LinearColor operator=(const LinearColor& other);
+	LinearColor operator=(const struct FLinearColor& other);
+	bool operator==(const LinearColor& other);
 	bool operator==(const struct FLinearColor& other);
+	bool operator!=(const LinearColor& other);
 	bool operator!=(const struct FLinearColor& other);
 };
 
@@ -50,11 +56,13 @@ public:
 
 class FRainbowColor
 {
-public:
-	static inline struct CRColor ByteRainbow =			{ 0, 0, 255, 255 };
-	static inline struct CRLinearColor LinearRainbow =	{ 0, 0, 255, 255 };
+private:
+	static inline Color ByteRainbow =					{ 0, 0, 255, 255 };
+	static inline LinearColor LinearRainbow =			{ 0, 0, 255, 255 };
 
 public:
+	static Color GetByte();
+	static LinearColor GetLinear();
 	static void Tick();
 };
 
@@ -169,6 +177,6 @@ namespace Colors
 {
 	int32_t HexToDecimal(std::string hexString);
 	std::string DecimalToHex(const int32_t decimal, const bool bInlcudeHead);
-	struct CRColor DecimalToColor(const int32_t decimal);
-	struct CRLinearColor DecimalToLinearColor(const int32_t decimal);
+	Color DecimalToColor(const int32_t decimal);
+	struct LinearColor DecimalToLinearColor(const int32_t decimal);
 }

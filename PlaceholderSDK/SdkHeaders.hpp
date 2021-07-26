@@ -56,6 +56,7 @@ public:
 	std::string GetName() { return "CodeRed"; };
 	std::string GetNameCPP() { return "CodeRed"; };
 	std::string GetFullName() { return "CodeRed"; };
+	struct FName GetPackageName() { return L"None"; };
 	class UObject* GetPackageObj()  { return nullptr; };
 	bool IsA(class UClass* uClass) { return false; };
 	bool IsA(int objInternalInteger) { return false; };

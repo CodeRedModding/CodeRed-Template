@@ -525,6 +525,14 @@ struct FVector2D
 	float Y;
 };
 
+struct FQuat
+{
+	float X;
+	float Y;
+	float Z;
+	float W;
+};
+
 struct FRotator
 {
 	int32_t Pitch;

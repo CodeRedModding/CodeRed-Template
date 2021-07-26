@@ -1,6 +1,7 @@
 #pragma once
 #include "../Component.hpp"
 #include "../Modules/Includes.hpp"
+#include "../Extensions/Includes.hpp"
 
 enum class SettingTypes : uint8_t
 {
@@ -44,8 +45,8 @@ public:
 	bool GetBoolValue() const;
 	float GetFloatValue() const;
 	std::string GetStringValue() const;
-	struct CRColor GetColorValue() const;
-	struct CRLinearColor GetLinearValue() const;
+	Color GetColorValue() const;
+	LinearColor GetLinearValue() const;
 	void SetValue(const std::string& value);
 	void ResetToDefault();
 	bool IsModifiable() const;
