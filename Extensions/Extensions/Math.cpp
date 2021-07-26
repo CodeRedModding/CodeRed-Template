@@ -959,11 +959,6 @@ Quat Quat::GetNormalize(float tolerance) const
 	return mutableThis;
 }
 
-Vector Quat::GetVector() const
-{
-
-}
-
 Rotator Quat::GetRotator() const
 {
 	// http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -974,7 +969,7 @@ Rotator Quat::GetRotator() const
 	const float YawX = (1.f - 2.f * (sqrt(Y) + sqrt(Z)));
 
 	const float SINGULARITY_THRESHOLD = 0.4999995f;
-	const float RAD_TO_DEG = (180.f)/PI;
+	const float RAD_TO_DEG = (180.f) / PI;
 	Rotator RotatorFromQuat;
 
 	if (SingularityTest < -SINGULARITY_THRESHOLD)

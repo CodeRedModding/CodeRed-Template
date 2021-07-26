@@ -256,7 +256,6 @@ public:
 	Quat GetInverse() const;
 	void Normalize(float tolerance = SMALL_NUMBER);
 	Quat GetNormalize(float tolerance = SMALL_NUMBER) const;
-	Vector GetVector() const;
 	Rotator GetRotator() const;
 	Vector Rotate(const Vector& other) const;
 };
