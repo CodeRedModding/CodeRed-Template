@@ -195,7 +195,7 @@ public:
 	float NormalizeAxis(float a);
 	Rotator GetNormalize() const;
 	Vector GetVector() const;
-	Vector Rotate(const Vector& other) const;
+	Vector Rotate(Vector other) const;
 };
 
 inline Rotator operator+(const Rotator& a, const Rotator& b) { return Rotator(a.Pitch + b.Pitch, a.Yaw + b.Yaw, a.Roll + b.Roll); }

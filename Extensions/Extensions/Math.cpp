@@ -663,7 +663,7 @@ Vector Rotator::GetVector() const
 	return Vector(CP * CY, CP * SY, SP);
 }
 
-Vector Rotator::Rotate(const Vector& other) const
+Vector Rotator::Rotate(Vector other) const
 {
 	double pitch = (double)Pitch / Rotation180 * PI;
 	double yaw = (double)Yaw / Rotation180 * PI;
@@ -676,16 +676,15 @@ Vector Rotator::Rotate(const Vector& other) const
 	float sx = sin(roll);
 	float cx = cos(roll);
 
-	Vector newV;
-	newV = Vector(other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx); // Roll
-	newV = Vector(other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z); // Pitch
-	newV = Vector(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy); // Yaw
+	other = Vector(other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx); // Roll
+	other = Vector(other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z); // Pitch
+	other = Vector(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy); // Yaw
 
-	float tmp = newV.Z;
-	newV.Z = newV.Y;
-	newV.Y = tmp;
+	float tmp = other.Z;
+	other.Z = other.Y;
+	other.Y = tmp;
 
-	return newV;
+	return other;
 }
 
 Quat::Quat() : X(0.f), Y(0.f), Z(0.f), W(0.f) { }
