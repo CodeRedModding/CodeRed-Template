@@ -1,12 +1,11 @@
 #include "Module.hpp"
 #include "../Components/Includes.hpp"
 
-Module::Module(const std::string& name, const std::string& description, const uint32_t& states, const ModuleTypes& type)
+Module::Module(const std::string& name, const std::string& description, uint32_t states)
 {
 	Name = name;
-	FormattedName = std::string("[") + Name + std::string("] ");
+	FormattedName = "[" + Name + "] ";
 	Description = description;
-	Type = type;
 	AllowedStates = states;
 	Initialized = false;
 }
@@ -28,9 +27,9 @@ std::string Module::GetDescription() const
 	return Description;
 }
 
-ModuleTypes Module::GetType() const
+uint32_t Module::GetAllowedStates() const
 {
-	return Type;
+	return AllowedStates;
 }
 
 bool Module::IsAllowed() const

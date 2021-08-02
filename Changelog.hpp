@@ -1,4 +1,12 @@
 /*
+    Changes in v1.1.2:
+    - Added a "GetAllowedStates" function for Modules.
+    - Added the "ColorToLinear" and "LinearToColor" converter functions to the "Colors" namespace.
+    - Added a std::find check for blacklisting functions in "Events.cpp".
+    - Fixed one of the constructors for the LinearColor class in "Colors.hpp".
+    - Changed all the FColor structs in FColorList and FRainbowColor to use all the new Color classes in "Colors.hpp".
+    - Removed the "ModuleTypes" enum and field in the Module constructor, because why would you really need it in the first place.
+
     Changes in v1.1.1:
     - Added a "Quat" class in "Math.cpp", along with a bunch of defines/math helpers.
     - Added "Get" functions to the FRainbowColor class, this copies the data but guarantees you can't modify the original structs by mistake.

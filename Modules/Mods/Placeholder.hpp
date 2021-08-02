@@ -8,7 +8,7 @@ private:
 	bool PlaceholderEnabled;
 
 public:
-	PlaceholderModule(const std::string& name, const std::string& description, const uint32_t& states);
+	PlaceholderModule(const std::string& name, const std::string& description, uint32_t states);
 	~PlaceholderModule();
 
 public: // Functions related to user settings.

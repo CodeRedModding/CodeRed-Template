@@ -15,7 +15,7 @@ public:
 	~Color();
 
 public:
-	struct FColor UnrealColor();
+	struct FColor UnrealColor() const;
 
 public:
 	Color operator=(const Color& other);
@@ -40,7 +40,7 @@ public:
 	~LinearColor();
 
 public:
-	struct FLinearColor UnrealColor();
+	struct FLinearColor UnrealColor() const;
 
 public:
 	LinearColor operator=(const LinearColor& other);
@@ -56,7 +56,7 @@ public:
 
 class FRainbowColor
 {
-private:
+public:
 	static inline Color ByteRainbow =					{ 0, 0, 255, 255 };
 	static inline LinearColor LinearRainbow =			{ 0, 0, 255, 255 };
 
@@ -72,105 +72,105 @@ public:
 class FColorList
 {
 public:
-	static inline struct FColor White =					{ 255, 255, 255, 255 };
-	static inline struct FColor Red =					{ 0, 0, 255, 255 };
-	static inline struct FColor Green =					{ 0, 255, 0, 255 };
-	static inline struct FColor Blue =					{ 255, 0, 0, 255 };
-	static inline struct FColor Magenta =				{ 255, 0, 255, 255 };
-	static inline struct FColor Cyan =					{ 255, 255, 0, 255 };
-	static inline struct FColor Yellow =				{ 0, 255, 255, 255 };
-	static inline struct FColor Black =					{ 0, 0, 0, 255 };
-	static inline struct FColor Aquamarine =			{ 147, 219, 112, 255 };
-	static inline struct FColor BakerChocolate =		{ 23, 51, 92, 255 };
-	static inline struct FColor BlueViolet =			{ 159, 95, 159, 255 };
-	static inline struct FColor Brass =					{ 66, 166, 181, 255 };
-	static inline struct FColor BrightGold =			{ 25, 217, 217, 255 };
-	static inline struct FColor Brown =					{ 42, 42, 166, 255 };
-	static inline struct FColor Bronze =				{ 83, 120, 140, 255 };
-	static inline struct FColor BronzeII =				{ 61, 125, 166, 255 };
-	static inline struct FColor CadetBlue =				{ 159, 159, 95, 255 };
-	static inline struct FColor CoolCopper =			{ 25, 135, 217, 255 };
-	static inline struct FColor Copper =				{ 51, 115, 184, 255 };
-	static inline struct FColor Coral =					{ 0, 127, 255, 255 };
-	static inline struct FColor CornFlowerBlue =		{ 111, 66, 66, 255 };
-	static inline struct FColor DarkBrown =				{ 51, 64, 92, 255 };
-	static inline struct FColor DarkGreen =				{ 47, 79, 47, 255 };
-	static inline struct FColor DarkGreenCopper =		{ 110, 118, 74, 255 };
-	static inline struct FColor DarkOliveGreen =		{ 47, 79, 79, 255 };
-	static inline struct FColor DarkOrchid =			{ 205, 50, 153, 255 };
-	static inline struct FColor DarkPurple =			{ 120, 31, 135, 255 };
-	static inline struct FColor DarkSlateBlue =			{ 142, 35, 107, 255 };
-	static inline struct FColor DarkSlateGrey =			{ 79, 79, 47, 255 };
-	static inline struct FColor DarkTan =				{ 79, 105, 151, 255 };
-	static inline struct FColor DarkTurquoise =			{ 219, 147, 112, 255 };
-	static inline struct FColor DarkWood =				{ 66, 94, 133, 255 };
-	static inline struct FColor DimGrey =				{ 84, 84, 84, 255 };
-	static inline struct FColor DustyRose =				{ 99, 99, 133, 255 };
-	static inline struct FColor Feldspar =				{ 117, 146, 209, 255 };
-	static inline struct FColor Firebrick =				{ 35, 35, 142, 255 };
-	static inline struct FColor ForestGreen =			{ 35, 142, 35, 255 };
-	static inline struct FColor Gold =					{ 50, 127, 205, 255 };
-	static inline struct FColor Goldenrod =				{ 112, 219, 219, 255 };
-	static inline struct FColor Grey =					{ 192, 192, 192, 255 };
-	static inline struct FColor GreenCopper =			{ 118, 127, 82, 255 };
-	static inline struct FColor GreenYellow =			{ 112, 219, 147, 255 };
-	static inline struct FColor HunterGreen =			{ 33, 94, 33, 255 };
-	static inline struct FColor IndianRed =				{ 47, 47, 78, 255 };
-	static inline struct FColor Khaki =					{ 95, 159, 159, 255 };
-	static inline struct FColor LightBlue =				{ 217, 217, 192, 255 };
-	static inline struct FColor LightGrey =				{ 168, 168, 168, 255 };
-	static inline struct FColor LightSteelBlue =		{ 189, 143, 143, 255 };
-	static inline struct FColor LightWood =				{ 166, 194, 233, 255 };
-	static inline struct FColor LimeGreen =				{ 50, 205, 50, 255 };
-	static inline struct FColor MandarianOrange =		{ 51, 120, 228, 255 };
-	static inline struct FColor Maroon =				{ 107, 35, 142, 255 };
-	static inline struct FColor MediumAquamarine =		{ 153, 205, 50, 255 };
-	static inline struct FColor MediumBlue =			{ 205, 50, 50, 255 };
-	static inline struct FColor MediumForestGreen =		{ 35, 142, 107, 255 };
-	static inline struct FColor MediumGoldenrod  =		{ 174, 234, 234, 255 };
-	static inline struct FColor MediumOrchid =			{ 219, 112, 147, 255 };
-	static inline struct FColor MediumSeaGreen =		{ 66, 111, 66, 255 };
-	static inline struct FColor MediumSlateBlue =		{ 255, 0, 127, 255 };
-	static inline struct FColor MediumSpringGreen =		{ 0, 255, 127, 255 };
-	static inline struct FColor MediumTurquoise =		{ 219, 219, 112, 255 };
-	static inline struct FColor MediumVioletRed =		{ 147, 112, 219, 255 };
-	static inline struct FColor MediumWood =			{ 100, 128, 166, 255 };
-	static inline struct FColor MidnightBlue =			{ 79, 47, 47, 255 };
-	static inline struct FColor NavyBlue =				{ 142, 35, 35, 255 };
-	static inline struct FColor NeonBlue =				{ 255, 77, 77, 255 };
-	static inline struct FColor NeonPink =				{ 199, 110, 255, 255 };
-	static inline struct FColor NewMidnightBlue =		{ 156, 0, 0, 255 };
-	static inline struct FColor NewTan =				{ 158, 199, 235, 255 };
-	static inline struct FColor OldGold =				{ 59, 181, 207, 255 };
-	static inline struct FColor Orange =				{ 0, 127, 255, 255 };
-	static inline struct FColor OrangeRed =				{ 0, 36, 255, 255 };
-	static inline struct FColor Orchid =				{ 219, 112, 219, 255 };
-	static inline struct FColor PaleGreen =				{ 143, 188, 143, 255 };
-	static inline struct FColor Pink =					{ 143, 143, 188, 255 };
-	static inline struct FColor Plum =					{ 234, 173, 234, 255 };
-	static inline struct FColor Quartz =				{ 243, 217, 217, 255 };
-	static inline struct FColor RichBlue =				{ 171, 89, 89, 255 };
-	static inline struct FColor Salmon =				{ 66, 66, 111, 255 };
-	static inline struct FColor Scarlet =				{ 23, 23, 140, 255 };
-	static inline struct FColor SeaGreen =				{ 104, 142, 35, 255 };
-	static inline struct FColor SemiSweetChocolate  =	{ 38, 66, 107, 255 };
-	static inline struct FColor Sienna =				{ 35, 107, 142, 255 };
-	static inline struct FColor Silver =				{ 250, 232, 230, 255 };
-	static inline struct FColor SkyBlue =				{ 204, 153, 50, 255 };
-	static inline struct FColor SlateBlue =				{ 255, 127, 0, 255 };
-	static inline struct FColor SpicyPink =				{ 174, 28, 255, 255 };
-	static inline struct FColor SpringGreen =			{ 127, 255, 0, 255 };
-	static inline struct FColor SteelBlue =				{ 142, 107, 35, 255 };
-	static inline struct FColor SummerSky =				{ 222, 176, 56, 255 };
-	static inline struct FColor Tan =					{ 112, 147, 219, 255 };
-	static inline struct FColor Thistle =				{ 216, 191, 216, 255 };
-	static inline struct FColor Turquoise =				{ 234, 234, 173, 255 };
-	static inline struct FColor VeryDarkBrown =			{ 51, 64, 92, 255 };
-	static inline struct FColor VeryLightGrey =			{ 205, 205, 205, 255 };
-	static inline struct FColor Violet =				{ 79, 47, 79, 255 };
-	static inline struct FColor VioletRed =				{ 153, 50, 204, 255 };
-	static inline struct FColor Wheat =					{ 191, 216, 216, 255 };
-	static inline struct FColor YellowGreen =			{ 50, 204, 153, 255 };
+	static const Color White;
+	static const Color Red;
+	static const Color Green;
+	static const Color Blue;
+	static const Color Magenta;
+	static const Color Cyan;
+	static const Color Yellow;
+	static const Color Black;
+	static const Color Aquamarine;
+	static const Color BakerChocolate;
+	static const Color BlueViolet;
+	static const Color Brass;
+	static const Color BrightGold;
+	static const Color Brown;
+	static const Color Bronze;
+	static const Color BronzeII;
+	static const Color CadetBlue;
+	static const Color CoolCopper;
+	static const Color Copper;
+	static const Color Coral;
+	static const Color CornFlowerBlue;
+	static const Color DarkBrown;
+	static const Color DarkGreen;
+	static const Color DarkGreenCopper;
+	static const Color DarkOliveGreen;
+	static const Color DarkOrchid;
+	static const Color DarkPurple;
+	static const Color DarkSlateBlue;
+	static const Color DarkSlateGrey;
+	static const Color DarkTan;
+	static const Color DarkTurquoise;
+	static const Color DarkWood;
+	static const Color DimGrey;
+	static const Color DustyRose;
+	static const Color Feldspar;
+	static const Color Firebrick;
+	static const Color ForestGreen;
+	static const Color Gold;
+	static const Color Goldenrod;
+	static const Color Grey;
+	static const Color GreenCopper;
+	static const Color GreenYellow;
+	static const Color HunterGreen;
+	static const Color IndianRed;
+	static const Color Khaki;
+	static const Color LightBlue;
+	static const Color LightGrey;
+	static const Color LightSteelBlue;
+	static const Color LightWood;
+	static const Color LimeGreen;
+	static const Color MandarianOrange;
+	static const Color Maroon;
+	static const Color MediumAquamarine;
+	static const Color MediumBlue;
+	static const Color MediumForestGreen;
+	static const Color MediumGoldenrod ;
+	static const Color MediumOrchid;
+	static const Color MediumSeaGreen;
+	static const Color MediumSlateBlue;
+	static const Color MediumSpringGreen;
+	static const Color MediumTurquoise;
+	static const Color MediumVioletRed;
+	static const Color MediumWood;
+	static const Color MidnightBlue;
+	static const Color NavyBlue;
+	static const Color NeonBlue;
+	static const Color NeonPink;
+	static const Color NewMidnightBlue;
+	static const Color NewTan;
+	static const Color OldGold;
+	static const Color Orange;
+	static const Color OrangeRed;
+	static const Color Orchid;
+	static const Color PaleGreen;
+	static const Color Pink;
+	static const Color Plum;
+	static const Color Quartz;
+	static const Color RichBlue;
+	static const Color Salmon;
+	static const Color Scarlet;
+	static const Color SeaGreen;
+	static const Color SemiSweetChocolate ;
+	static const Color Sienna;
+	static const Color Silver;
+	static const Color SkyBlue;
+	static const Color SlateBlue;
+	static const Color SpicyPink;
+	static const Color SpringGreen;
+	static const Color SteelBlue;
+	static const Color SummerSky;
+	static const Color Tan;
+	static const Color Thistle;
+	static const Color Turquoise;
+	static const Color VeryDarkBrown;
+	static const Color VeryLightGrey;
+	static const Color Violet;
+	static const Color VioletRed;
+	static const Color Wheat;
+	static const Color YellowGreen;
 };
 
 namespace Colors
@@ -178,5 +178,7 @@ namespace Colors
 	int32_t HexToDecimal(std::string hexString);
 	std::string DecimalToHex(const int32_t decimal, const bool bInlcudeHead);
 	Color DecimalToColor(const int32_t decimal);
-	struct LinearColor DecimalToLinearColor(const int32_t decimal);
+	LinearColor DecimalToLinearColor(const int32_t decimal);
+	Color LinearToColor(const LinearColor& linear);
+	LinearColor ColorToLinear(const Color& color);
 }

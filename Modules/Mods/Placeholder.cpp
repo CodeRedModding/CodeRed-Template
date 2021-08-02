@@ -1,7 +1,7 @@
 #include "Placeholder.hpp"
 #include "../Components/Includes.hpp"
 
-PlaceholderModule::PlaceholderModule(const std::string& name, const std::string& description, const uint32_t& states) : Module(name, description, states, ModuleTypes::TYPE_PLACEHOLDER)
+PlaceholderModule::PlaceholderModule(const std::string& name, const std::string& description, uint32_t states) : Module(name, description, states)
 {
 	PlaceholderEnabled = false;
 }

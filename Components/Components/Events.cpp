@@ -160,7 +160,10 @@ void EventsComponent::BlacklistEvent(const std::string& functionFullName)
 
 	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
 	{
-		BlacklistedEvents.emplace_back(functionIt->second->ObjectInternalInteger);
+		if (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), functionIt->second->ObjectInternalInteger) == BlacklistedEvents.end())
+		{
+			BlacklistedEvents.emplace_back(functionIt->second->ObjectInternalInteger);
+		}
 	}
 	else
 	{

@@ -3,6 +3,7 @@
 
 // Base class for all components.
 // Stores it's name, formatted name, and description for retrieving later on.
+
 class Component
 {
 private:

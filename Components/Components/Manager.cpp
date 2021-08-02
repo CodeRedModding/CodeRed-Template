@@ -396,7 +396,7 @@ void ManagerComponent::Initialize()
 	PlaceholderMod = std::make_shared<PlaceholderModule>(PlaceholderModule("Paceholder", "An example module.", States::CasualMatch | States::RankedMatch));
 	
 	// When someone uses the console command "placeholder_some_bool true", we automatically callback to PlaceholderMod and tell it to update its "SomeBoolSetting" property.
-	CreateCommand(Command("placeholder_do_thing", "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback(std::bind(&PlaceholderModule::DoAThing, PlaceholderMod));
+	CreateCommand(Command("placeholder_do_thing", "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
 	CreateSetting(Setting("placeholder_enabled", "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true, std::bind(&PlaceholderModule::SetPlaceholderEnabled, PlaceholderMod, std::placeholders::_1)));
 	PlaceholderMod->LoadSettings();
 
