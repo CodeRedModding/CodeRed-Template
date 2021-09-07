@@ -124,6 +124,49 @@ LinearColor Setting::GetLinearValue() const
 	return LinearColor();
 }
 
+Vector Setting::GetVector3DValue() const
+{
+	if (GetType() == SettingTypes::TYPE_VECTOR_3D
+		|| GetType() == SettingTypes::TYPE_VECTOR_2D)
+	{
+		std::vector<std::string> values = Manager.SplitArguments(GetStringValue());
+
+		Vector returnVector;
+
+		if (values.size() == 3)
+		{
+			returnVector.X = std::stof(values[0]);
+			returnVector.Y = std::stof(values[1]);
+			returnVector.Z = std::stof(values[2]);
+		}
+
+		return returnVector;
+	}
+
+	return Vector();
+}
+
+Vector2D Setting::GetVector2DValue() const
+{
+	if (GetType() == SettingTypes::TYPE_VECTOR_3D
+		|| GetType() == SettingTypes::TYPE_VECTOR_2D)
+	{
+		std::vector<std::string> values = Manager.SplitArguments(GetStringValue());
+
+		Vector2D returnVector;
+
+		if (values.size() == 2)
+		{
+			returnVector.X = std::stof(values[0]);
+			returnVector.Y = std::stof(values[1]);
+		}
+
+		return returnVector;
+	}
+
+	return Vector2D();
+}
+
 void Setting::SetValue(const std::string& value)
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)

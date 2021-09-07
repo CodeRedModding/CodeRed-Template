@@ -10,7 +10,9 @@ enum class SettingTypes : uint8_t
 	TYPE_BOOL = 2,
 	TYPE_FLOAT = 3,
 	TYPE_STRING = 4,
-	TYPE_COLOR = 5
+	TYPE_COLOR = 5,
+	TYPE_VECTOR_3D = 6,
+	TYPE_VECTOR_2D = 7
 };
 
 enum class CommandTypes : uint8_t
@@ -47,6 +49,8 @@ public:
 	std::string GetStringValue() const;
 	Color GetColorValue() const;
 	LinearColor GetLinearValue() const;
+	Vector GetVector3DValue() const;
+	Vector2D GetVector2DValue() const;
 	void SetValue(const std::string& value);
 	void ResetToDefault();
 	bool IsModifiable() const;

@@ -1,4 +1,9 @@
 /*
+    Changes in v1.1.3:
+    - Renamed the project from CodeRedUniversal to CodeRedTemplate.
+    - Added support for Vector and Vector2D settings to "Manager.hpp".
+    - Added some unreal unit/cm constants in "Math.cpp" and reformatted some comments there.
+
     Changes in v1.1.2:
     - Added a "GetAllowedStates" function for Modules.
     - Added the "ColorToLinear" and "LinearToColor" converter functions to the "Colors" namespace.
