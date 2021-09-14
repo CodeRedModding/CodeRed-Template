@@ -53,7 +53,7 @@ namespace Math
 {
 	float GetDistance(const struct FVector& from, const struct FVector& to, const float scaling);
 	void SinCos(float* scalarSin, float* scalarCos, float value);
-	struct FVector Rotate(struct FVector point, const struct FRotator& rotation, const struct FVector& location);
+	struct FVector RotateUnreal(struct FVector point, const struct FRotator& rotation, const struct FVector& location);
 }
 
 class Vector
@@ -70,7 +70,7 @@ public:
 	~Vector();
 
 public:
-	struct FVector UnrealVector();
+	struct FVector UnrealVector() const;
 
 public:
 	Vector operator+=(const Vector& other);
@@ -124,7 +124,7 @@ public:
 	~Vector2D();
 
 public:
-	struct FVector2D UnrealVector();
+	struct FVector2D UnrealVector() const;
 
 public:
 	Vector2D operator+=(const Vector2D& other);
@@ -171,7 +171,7 @@ public:
 	~Rotator();
 
 public:
-	struct FRotator UnrealRotator();
+	struct FRotator UnrealRotator() const;
 
 public:
 	Rotator operator+=(const Rotator& other);
@@ -209,6 +209,7 @@ inline Rotator operator+(const Rotator& a, const int32_t b) { return Rotator(a.P
 inline Rotator operator-(const Rotator& a, const int32_t b) { return Rotator(a.Pitch - b, a.Yaw - b, a.Roll - b); }
 inline Rotator operator*(const Rotator& a, const int32_t b) { return Rotator(a.Pitch * b, a.Yaw * b, a.Roll * b); }
 inline Rotator operator/(const Rotator& a, const int32_t b) { return Rotator(a.Pitch / b, a.Yaw / b, a.Roll / b); }
+inline extern Vector Rotate(Vector point, const Rotator& rotation, const Vector& location);
 
 class Quat
 {
@@ -224,7 +225,7 @@ public:
 	~Quat();
 
 public:
-	struct FQuat UnrealQuat();
+	struct FQuat UnrealQuat() const;
 
 public:
 	Quat operator+=(const Quat& other);

@@ -1,4 +1,13 @@
 /*
+    Changes in v1.1.4:
+    - Added a "CreateInstance" function in "Instances.hpp", this allows you to create new objects of any type and have it be added to the GObjects table.
+    - Added the "ResetSetting" function to "Manager.hpp", resets a setting to its original default value.
+    - Added the "PrintModule" function to "Manager.hpp", prints out a modules information to the console.
+    - Remade how Modules, Settings, and Commands are created. Please see the changes in "Manager.hpp" and "Manager.cpp" for examples.
+    - Renamed the unreal rotator function in "Math.hpp" to RotateUnreal.
+    - Renamed some of the "States" enum names in "GameState.hpp" to include "STATE_" in front, because we are purposefully not making this enum an enum class.
+    - Added template flags to the PlaceholderSDK.
+
     Changes in v1.1.3:
     - Renamed the project from CodeRedUniversal to CodeRedTemplate.
     - Added support for Vector and Vector2D settings to "Manager.hpp".

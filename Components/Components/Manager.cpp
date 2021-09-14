@@ -400,6 +400,148 @@ void ManagerComponent::QueueTick()
 	}
 }
 
+void ManagerComponent::ResetSetting(const std::string& settingName, bool bLogToConsole)
+{
+	std::shared_ptr<Setting> setting = GetSetting(settingName);
+
+	if (setting)
+	{
+		setting->ResetToDefault();
+
+		if (bLogToConsole)
+		{
+			Console.Success(GetNameFormatted() + "Reset setting to its default value!");
+			Console.Notify(GetNameFormatted() + "Name: " + setting->GetName());
+			Console.Notify(GetNameFormatted() + "Description: " + setting->GetDescription());
+			Console.Notify(GetNameFormatted() + "Current Value: " + setting->GetStringValue());
+		}
+	}
+	else
+	{
+		if (bLogToConsole)
+		{
+			Console.Error(GetNameFormatted() + "Unrecognized setting: \"" + settingName + "\"");
+		}
+	}
+}
+
+void ManagerComponent::PrintModule(const std::string& moduleName)
+{
+	if (ModuleMap.find(moduleName) != ModuleMap.end())
+	{
+		std::shared_ptr<Module> mod = ModuleMap[moduleName];
+
+		bool first = true;
+		uint32_t states = mod->GetAllowedStates();
+		std::string allowedStates;
+
+		// Again, these states will all be game specific, please check ou the "GameState.hpp" file for more info.
+		if (states & States::STATES_MainMenu) { allowedStates += (first ? "(" : " | ") + std::string("MainMenu"); first = false; }
+		if (states & States::STATES_Trading) { allowedStates += (first ? "(" : " | ") + std::string("Trading"); first = false; }
+		if (states & States::STATES_CasualMatch) { allowedStates += (first ? "(" : " | ") + std::string("CasualMatch"); first = false; }
+		if (states & States::STATES_RankedMatch) { allowedStates += (first ? "(" : " | ") + std::string("RankedMatch"); first = false; }
+		if (states & States::STATES_All) { allowedStates += (first ? "(" : " | ") + std::string("All"); first = false; }
+
+		if (!first)
+		{
+			allowedStates += ")";
+		}
+
+		Console.Notify(GetNameFormatted() + "Module Name: " + mod->GetName());
+		Console.Notify(GetNameFormatted() + "Module Description: " + mod->GetDescription());
+		Console.Notify(GetNameFormatted() + "Allowed States/Permissions: " + allowedStates);
+		Console.Notify(GetNameFormatted() + "Allowed In Current State: " + (mod->IsAllowed() ? "true" : "false"));
+	}
+	else
+	{
+		Console.Error(GetNameFormatted() + "Failed to find module \"" + moduleName + "\"!");
+	}
+}
+
+template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind)
+{
+	std::string moduleName = mod->GetName();
+	moduleToBind = nullptr;
+
+	if (ModuleMap.find(moduleName) == ModuleMap.end())
+	{
+		ModuleMap.emplace(std::make_pair(moduleName, std::shared_ptr<Module>(mod)));
+		moduleToBind = std::static_pointer_cast<T>(ModuleMap[moduleName]);
+
+		return moduleToBind;
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Duplicate module name detected for \"" + moduleName + "\"!");
+	}
+
+	return nullptr;
+}
+
+template <typename T> std::shared_ptr<T> ManagerComponent::GetModule(const std::string& moduleName)
+{
+	if (ModuleMap.find(moduleName) != ModuleMap.end())
+	{
+		return std::static_pointer_cast<T>(ModuleMap[moduleName]);
+	}
+
+	return nullptr;
+}
+
+std::shared_ptr<Command> ManagerComponent::CreateCommand(Command* command)
+{
+	std::string commandName = command->GetName();
+
+	if (CommandMap.find(commandName) == CommandMap.end())
+	{
+		CommandMap.emplace(std::make_pair(commandName, std::shared_ptr<Command>(command)));
+		return CommandMap[commandName];
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Duplicate command name detected for \"" + commandName + "\"!");
+	}
+
+	return nullptr;
+}
+
+std::shared_ptr<Command> ManagerComponent::GetCommand(const std::string& commandName)
+{
+	if (CommandMap.find(commandName) != CommandMap.end())
+	{
+		return CommandMap[commandName];
+	}
+
+	return nullptr;
+}
+
+std::shared_ptr<Setting> ManagerComponent::CreateSetting(Setting* setting)
+{
+	std::string settingName = setting->GetName();
+
+	if (SettingMap.find(settingName) == SettingMap.end())
+	{
+		SettingMap.emplace(std::make_pair(settingName, std::shared_ptr<Setting>(setting)));
+		return SettingMap[settingName];
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Duplicate setting name detected for \"" + settingName + "\"!");
+	}
+
+	return nullptr;
+}
+
+std::shared_ptr<Setting> ManagerComponent::GetSetting(const std::string& settingName)
+{
+	if (SettingMap.find(settingName) != SettingMap.end())
+	{
+		return SettingMap[settingName];
+	}
+
+	return nullptr;
+}
+
 std::string ManagerComponent::PhraseArguments(std::string arguments)
 {
 	size_t spacePos = arguments.find(' ');
@@ -435,12 +577,12 @@ std::vector<std::string> ManagerComponent::SplitArguments(const std::string& arg
 
 void ManagerComponent::Initialize()
 {
-	// Assigning the shared pointer with the CasualMatch and RankedMatch flags, so this mod will only be able to be used in casual or ranked games.
-	PlaceholderMod = std::make_shared<PlaceholderModule>(PlaceholderModule("Paceholder", "An example module.", States::CasualMatch | States::RankedMatch));
+	// Assigning the CasualMatch and RankedMatch flags, so this module will only be able to be used in casual or ranked games.
+	CreateModule<PlaceholderModule>(new PlaceholderModule("Paceholder", "An example module.", States::STATES_CasualMatch | States::STATES_RankedMatch), PlaceholderMod);
 	
 	// When someone uses the console command "placeholder_some_bool true", we automatically callback to PlaceholderMod and tell it to update its "SomeBoolSetting" property.
-	CreateCommand(Command("placeholder_do_thing", "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
-	CreateSetting(Setting("placeholder_enabled", "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true, std::bind(&PlaceholderModule::SetPlaceholderEnabled, PlaceholderMod, std::placeholders::_1)));
+	CreateCommand(new Command("placeholder_do_thing", "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
+	CreateSetting(new Setting("placeholder_enabled", "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true, std::bind(&PlaceholderModule::SetPlaceholderEnabled, PlaceholderMod, std::placeholders::_1)));
 	PlaceholderMod->LoadSettings();
 
 	Console.Write(GetNameFormatted() + std::to_string(CommandMap.size() - 1) + " Command(s) Initialized!");

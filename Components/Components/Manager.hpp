@@ -92,6 +92,7 @@ class ManagerComponent : public Component
 private:
 	std::unordered_map<std::string, std::shared_ptr<Command>> CommandMap;
 	std::unordered_map<std::string, std::shared_ptr<Setting>> SettingMap;
+	std::unordered_map<std::string, std::shared_ptr<Module>> ModuleMap;
 	std::vector<std::pair<std::string, std::string>> Queue;
 
 public:
@@ -109,44 +110,14 @@ public:
 	void QueueTick(); // Checks the "Queue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
 
 public:
-	std::shared_ptr<Command> CreateCommand(const Command& command)
-	{
-		if (CommandMap.find(command.GetName()) == CommandMap.end())
-		{
-			CommandMap.emplace(command.GetName(), std::make_shared<Command>(command));
-			return CommandMap[command.GetName()];
-		}
-
-		return nullptr;
-	}
-	std::shared_ptr<Setting> CreateSetting(const Setting& setting)
-	{
-		if (SettingMap.find(setting.GetName()) == SettingMap.end())
-		{
-			SettingMap.emplace(setting.GetName(), std::make_shared<Setting>(setting));
-			return SettingMap[setting.GetName()];
-		}
-
-		return nullptr;
-	}
-	std::shared_ptr<Command> GetCommand(const std::string& commandName)
-	{
-		if (CommandMap.find(commandName) != CommandMap.end())
-		{
-			return CommandMap[commandName];
-		}
-
-		return nullptr;
-	}
-	std::shared_ptr<Setting> GetSetting(const std::string& settingName)
-	{
-		if (SettingMap.find(settingName) != SettingMap.end())
-		{
-			return SettingMap[settingName];
-		}
-
-		return nullptr;
-	}
+	void ResetSetting(const std::string& settingName, bool bLogToConsole = true);
+	void PrintModule(const std::string& moduleName);
+	template <typename T> std::shared_ptr<T> CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind);
+	template <typename T> std::shared_ptr<T> GetModule(const std::string& moduleName);
+	std::shared_ptr<Command> CreateCommand(Command* command);
+	std::shared_ptr<Command> GetCommand(const std::string& commandName);
+	std::shared_ptr<Setting> CreateSetting(Setting* setting);
+	std::shared_ptr<Setting> GetSetting(const std::string& settingName);
 	std::string PhraseArguments(std::string arguments);
 	std::vector<std::string> SplitArguments(const std::string& arguments);
 	void Initialize(); // Creates all settings, commands, and modules.

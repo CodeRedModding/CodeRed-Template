@@ -10,7 +10,7 @@ namespace Math
 
 	void SinCos(float* scalarSin, float* scalarCos, float value)
 	{
-		// Map Value to y in [-pi,pi], x = 2*pi*quotient + remainder.
+		// Map Value to y in [-pi, pi], x = 2 * pi * quotient + remainder.
 
 		float quotient = (INV_PI * 0.5f) * value;
 
@@ -25,7 +25,7 @@ namespace Math
 
 		float y = value - (2.f * PI) * quotient;
 
-		// Map y to [-pi/2,pi/2] with sin(y) = sin(Value).
+		// Map y to [-pi / 2, pi / 2] with sin(y) = sin(Value).
 
 		float sign;
 
@@ -54,7 +54,7 @@ namespace Math
 		*scalarCos = sign*p;
 	}
 
-	struct FVector Rotate(struct FVector point, const struct FRotator& rotation, const struct FVector& location)
+	struct FVector RotateUnreal(struct FVector point, const struct FRotator& rotation, const struct FVector& location)
 	{
 		double pitch = (double)rotation.Pitch / Rotation180 * PI;
 		double yaw = (double)rotation.Yaw / Rotation180 * PI;
@@ -81,6 +81,7 @@ namespace Math
 
 		return point;
 	}
+
 }
 
 Vector::Vector() : X(0.f), Y(0.f), Z(0.f) { }
@@ -95,7 +96,7 @@ Vector::Vector(const struct FVector& other) : X(other.X), Y(other.Y), Z(other.Z)
 
 Vector::~Vector() { }
 
-FVector Vector::UnrealVector()
+FVector Vector::UnrealVector() const
 {
 	return FVector { X, Y, Z };
 }
@@ -293,7 +294,7 @@ Vector Vector::Cross(const Vector& other) const
 	return Vector(x, y, z);
 }
 
-Vector Vector::Lerp(const Vector& other, const float percentage) const
+ Vector Vector::Lerp(const Vector& other, const float percentage) const
 {
 	Vector mutableThis = *this;
 	return Vector(mutableThis * percentage + (other * (1.f - percentage)));
@@ -311,7 +312,7 @@ Vector2D::Vector2D(const struct FVector2D& other) : X(other.X), Y(other.Y) { }
 
 Vector2D::~Vector2D() { }
 
-FVector2D Vector2D::UnrealVector()
+FVector2D Vector2D::UnrealVector() const
 {
 	return FVector2D { X, Y };
 }
@@ -460,7 +461,7 @@ Rotator::Rotator(const struct FRotator& other) : Pitch(other.Pitch), Yaw(other.Y
 
 Rotator::~Rotator() { }
 
-struct FRotator Rotator::UnrealRotator()
+struct FRotator Rotator::UnrealRotator() const
 {
 	return FRotator{ Pitch, Yaw, Roll };
 }
@@ -659,7 +660,7 @@ Vector Rotator::GetVector() const
 	float CP, SP, CY, SY;
 	Math::SinCos(&SP, &CP, PitchNoWinding * (PI / 180.f));
 	Math::SinCos(&SY, &CY, YawNoWinding * (PI / 180.f));
-
+	
 	return Vector(CP * CY, CP * SY, SP);
 }
 
@@ -687,6 +688,34 @@ Vector Rotator::Rotate(Vector other) const
 	return other;
 }
 
+Vector Rotate(Vector point, const Rotator& rotation, const Vector& location)
+{
+	double pitch = (double)rotation.Pitch / Rotation180 * PI;
+	double yaw = (double)rotation.Yaw / Rotation180 * PI;
+	double roll = (double)rotation.Roll / Rotation180 * PI;
+
+	float sz = sin(pitch);
+	float cz = cos(pitch);
+	float sy = sin(-yaw);
+	float cy = cos(-yaw);
+	float sx = sin(roll);
+	float cx = cos(roll);
+
+	point = FVector{ point.X, point.Y * cx - point.Z * sx, point.Y * sx + point.Z * cx }; // Roll
+	point = FVector{ point.X * cz - point.Y * sz, point.X * sz + point.Y * cz, point.Z }; // Pitch
+	point = FVector{ point.X * cy + point.Z * sy, point.Y, -point.X * sy + point.Z * cy }; // Yaw
+
+	float tmp = point.Z;
+	point.Z = point.Y;
+	point.Y = tmp;
+
+	point.X += location.X;
+	point.Y += location.Y;
+	point.Z += location.Z;
+
+	return point;
+}
+
 Quat::Quat() : X(0.f), Y(0.f), Z(0.f), W(0.f) { }
 
 Quat::Quat(float xyzw) : X(xyzw), Y(xyzw), Z(xyzw), W(xyzw) { }
@@ -699,7 +728,7 @@ Quat::Quat(const struct FQuat& other) : X(other.X), Y(other.Y), Z(other.Z), W(ot
 
 Quat::~Quat() { }
 
-struct FQuat Quat::UnrealQuat()
+struct FQuat Quat::UnrealQuat() const
 {
 	return FQuat{ X, Y, Z, W };
 }

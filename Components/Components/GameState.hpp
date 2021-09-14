@@ -6,12 +6,12 @@
 
 enum States
 {
-	Unknown = 0U,
-	MainMenu  = 1U << 0U,
-	Trading = 1U << 1U,
-	CasualMatch = 1U << 2U,
-	RankedMatch = 1U << 3U,
-	All = 1U << 4U
+	STATES_Unknown = 0U,
+	STATES_MainMenu  = 1U << 0U,
+	STATES_Trading = 1U << 1U,
+	STATES_CasualMatch = 1U << 2U,
+	STATES_RankedMatch = 1U << 3U,
+	STATES_All = 1U << 4U
 };
 
 // Tracks where the player is, very useful in knowing if it is safe to perform certain unreal functions or modules.

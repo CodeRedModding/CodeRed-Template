@@ -146,6 +146,32 @@ public:
 		return objectInstances;
 	}
 
+	// Creates a new transient instance of a class which then adds it to globals.
+	// YOU are required to make sure these objects eventually get eaten up by the garbage collector in some shape or form.
+	// Example: UObject* newObject = CreateInstance<UObject>();
+	template<typename T> T* CreateInstance()
+	{
+		T* returnObject = nullptr;
+		T* defaultObject = GetDefaultInstanceOf<T>();
+		UClass* staticClass = T::StaticClass();
+
+		if (defaultObject && staticClass)
+		{
+			returnObject = reinterpret_cast<T*>(defaultObject->DuplicateObject(defaultObject, defaultObject->Outer, staticClass));
+		}
+
+		// Making sure newly created object doesn't get randomly destoyed by the garbage collector when we don't want it do.
+		if (returnObject)
+		{
+			returnObject->ObjectFlags &= ~EObjectFlags::RF_Transient;
+			returnObject->ObjectFlags |= EObjectFlags::RF_Public;
+			returnObject->ObjectFlags |= EObjectFlags::RF_Standalone;
+			returnObject->ObjectFlags |= EObjectFlags::RF_MarkAsRootSet;
+		}
+
+		return returnObject;
+	}
+
 private: 
 	class UEngine* I_UEngine;
 	class UDateTime* I_UDateTime;

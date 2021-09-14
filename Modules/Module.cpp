@@ -34,7 +34,7 @@ uint32_t Module::GetAllowedStates() const
 
 bool Module::IsAllowed() const
 {
-	if (AllowedStates & States::All
+	if (AllowedStates & States::STATES_All
 		|| AllowedStates & GameState.GetStateId())
 	{
 		return true;

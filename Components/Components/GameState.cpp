@@ -25,8 +25,8 @@ std::string GameStateComponent::GetStateLabel()
 
 bool GameStateComponent::IsInGame() const
 {
-	if (GetStateId() & States::CasualMatch
-		|| GetStateId() & States::RankedMatch)
+	if (GetStateId() & States::STATES_CasualMatch
+		|| GetStateId() & States::STATES_RankedMatch)
 	{
 		return true;
 	}
@@ -36,21 +36,21 @@ bool GameStateComponent::IsInGame() const
 
 void GameStateComponent::MainMenuAdded()
 {
-	CurrentState = States::MainMenu;
+	CurrentState = States::STATES_MainMenu;
 }
 
 void GameStateComponent::WaitingForState()
 {
-	CurrentState = States::Unknown;
+	CurrentState = States::STATES_Unknown;
 }
 
 void GameStateComponent::Initialize()
 {
-	StateLabelMap.emplace(States::Unknown, "Unknown");
-	StateLabelMap.emplace(States::MainMenu, "MainMenu");
-	StateLabelMap.emplace(States::Trading, "Trading");
-	StateLabelMap.emplace(States::CasualMatch, "CasualMatch");
-	StateLabelMap.emplace(States::RankedMatch, "RankedMatch");
+	StateLabelMap.emplace(States::STATES_Unknown, "Unknown");
+	StateLabelMap.emplace(States::STATES_MainMenu, "MainMenu");
+	StateLabelMap.emplace(States::STATES_Trading, "Trading");
+	StateLabelMap.emplace(States::STATES_CasualMatch, "CasualMatch");
+	StateLabelMap.emplace(States::STATES_RankedMatch, "RankedMatch");
 
 	WaitingForState();
 
