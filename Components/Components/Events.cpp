@@ -75,9 +75,9 @@ void* PostEvent::Result() const
 
 template <typename T> T* PostEvent::GetResult() const
 {
-	if (Result)
+	if (PE_Result)
 	{
-		return reinterpret_cast<T*>(Result);
+		return reinterpret_cast<T*>(PE_Result);
 	}
 
 	return nullptr;
