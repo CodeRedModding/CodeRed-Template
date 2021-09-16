@@ -7,22 +7,22 @@ namespace Format
         stream.str(std::string());
     }
 
-    void FillRight(std::ostringstream& stream, const char& fill, uint64_t width)
+    void FillRight(std::ostringstream& stream, char fill, uint64_t width)
     {
         stream <<  std::setfill(fill) << std::setw(width) << std::right;
     }
 
-    void FillLeft(std::ostringstream& stream, const char& fill, uint64_t width)
+    void FillLeft(std::ostringstream& stream, char fill, uint64_t width)
     {
         stream <<  std::setfill(fill) << std::setw(width) << std::left;
     }
 
-    void FillRight(std::ofstream& stream, const char& fill, uint64_t width)
+    void FillRight(std::ofstream& stream, char fill, uint64_t width)
     {
         stream <<  std::setfill(fill) << std::setw(width) << std::right;
     }
 
-    void FillLeft(std::ofstream& stream, const char& fill, uint64_t width)
+    void FillLeft(std::ofstream& stream, char fill, uint64_t width)
     {
         stream <<  std::setfill(fill) << std::setw(width) << std::left;
     }
@@ -46,5 +46,40 @@ namespace Format
         std::ostringstream stream;
         stream << std::setprecision(precision) << value;
         return stream.str();
+    }
+
+    std::vector<std::string> SplitArguments(const std::string& arguments)
+    {
+        std::vector<std::string> returnVector;
+        std::string currentWord;
+
+        for (const char& x : arguments) 
+        {
+            if (x == ' ')
+            {
+                returnVector.push_back(currentWord);
+                currentWord.clear();
+            }
+            else
+            {
+                currentWord = currentWord + x;
+            }
+        }
+
+        returnVector.push_back(currentWord);
+
+        return returnVector;
+    }
+
+    std::string ParseArguments(std::string arguments)
+    {
+        size_t spacePos = arguments.find(' ');
+
+        if (spacePos != std::string::npos)
+        {
+            arguments = arguments.substr(0, spacePos);
+        }
+
+        return arguments;
     }
 }

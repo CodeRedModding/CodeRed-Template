@@ -93,7 +93,7 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Command>> CommandMap;
 	std::unordered_map<std::string, std::shared_ptr<Setting>> SettingMap;
 	std::unordered_map<std::string, std::shared_ptr<Module>> ModuleMap;
-	std::vector<std::pair<std::string, std::string>> Queue;
+	std::vector<std::pair<std::string, std::string>> CommandQueue;
 
 public:
 	std::shared_ptr<class PlaceholderModule> PlaceholderMod;
@@ -118,8 +118,6 @@ public:
 	std::shared_ptr<Command> GetCommand(const std::string& commandName);
 	std::shared_ptr<Setting> CreateSetting(Setting* setting);
 	std::shared_ptr<Setting> GetSetting(const std::string& settingName);
-	std::string PhraseArguments(std::string arguments);
-	std::vector<std::string> SplitArguments(const std::string& arguments);
 	void Initialize(); // Creates all settings, commands, and modules.
 };
 

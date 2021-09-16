@@ -1,6 +1,13 @@
 /*
+    Changes in v1.1.5:
+    - Changed all function hooks to use the new "PreEvent" and "PostEvent" arguments, they have neat template functions that auto recast for you as well as an option to not detour the function through Process Event.
+    - Removed the "ParseArguments" and "SplitArguments" functions in "Manager.hpp" and instead moved it to the "Format" namespace in "Formatting.hpp".
+    - Renamed the "Functions" namespace to "Hooks" in "Events.hpp".
+    - Renamed the "Queue" vector in "Manager.hpp" to "CommandQueue".
+    - Moved the function hook typedefs in "Events.hpp" to inside the "EventsComponent" class.
+
     Changes in v1.1.4:
-    - Added a "CreateInstance" function in "Instances.hpp", this allows you to create new objects of any type and have it be added to the GObjects table.
+    - Added the "CreateInstance" function in "Instances.hpp", this allows you to create new objects of any type and have it be added to the GObjects table.
     - Added the "ResetSetting" function to "Manager.hpp", resets a setting to its original default value.
     - Added the "PrintModule" function to "Manager.hpp", prints out a modules information to the console.
     - Remade how Modules, Settings, and Commands are created. Please see the changes in "Manager.hpp" and "Manager.cpp" for examples.

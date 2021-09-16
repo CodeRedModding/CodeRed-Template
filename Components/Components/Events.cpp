@@ -2,15 +2,106 @@
 #include "../Includes.hpp"
 #include "../Extensions/Includes.hpp"
 
-namespace Functions
+PreEvent::PreEvent() : PE_Caller(nullptr), PE_Function(nullptr), PE_Params(nullptr), PE_Detour(true) { }
+
+PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params) : PE_Caller(caller), PE_Function(function), PE_Params(params), PE_Detour(true) { }
+
+PreEvent::~PreEvent() { }
+
+class UObject* PreEvent::Caller() const
 {
-	void HUDPostRender(class UObject* caller, class UFunction* function, void* params)
+	return PE_Caller;
+}
+
+template <typename T> T* PreEvent::GetCaller() const
+{
+	if (PE_Caller)
 	{
-		if (caller)
+		return static_cast<T*>(PE_Caller);
+	}
+
+	return nullptr;
+}
+
+class UFunction* PreEvent::Function() const
+{
+	return PE_Function;
+}
+
+void* PreEvent::Params() const
+{
+	return PE_Params;
+}
+
+template <typename T> T* PreEvent::GetParams() const
+{
+	if (PE_Params)
+	{
+		return reinterpret_cast<T*>(PE_Params);
+	}
+
+	return nullptr;
+}
+
+bool PreEvent::Detour() const
+{
+	return PE_Detour;
+}
+
+void PreEvent::SetDetour(bool bDetour)
+{
+	PE_Detour = bDetour;
+}
+
+PreEvent PreEvent::operator=(const PreEvent& other)
+{
+	PE_Caller = other.PE_Caller;
+	PE_Function = other.PE_Function;
+	PE_Params = other.PE_Params;
+	PE_Detour = other.PE_Detour;
+	return *this;
+}
+
+PostEvent::PostEvent() : PE_Result(nullptr) { }
+
+PostEvent::PostEvent(class UObject* caller, class UFunction* function, void* params, void* result) : PreEvent(caller, function, params), PE_Result(result) { }
+
+PostEvent::~PostEvent() { }
+
+void* PostEvent::Result() const
+{
+	return PE_Result;
+}
+
+template <typename T> T* PostEvent::GetResult() const
+{
+	if (Result)
+	{
+		return reinterpret_cast<T*>(Result);
+	}
+
+	return nullptr;
+}
+
+PostEvent PostEvent::operator=(const PostEvent& other)
+{
+	PE_Caller = other.PE_Caller;
+	PE_Function = other.PE_Function;
+	PE_Params = other.PE_Params;
+	PE_Detour = other.PE_Detour;
+	PE_Result = other.PE_Result;
+	return *this;
+}
+
+namespace Hooks
+{
+	void HUDPostRender(PreEvent& event)
+	{
+		if (event.Caller())
 		{
-			if (Instances.IAHUD() != caller)
+			if (Instances.IAHUD() != event.Caller())
 			{
-				Instances.SetHUD(reinterpret_cast<AHUD*>(caller));
+				Instances.SetHUD(event.GetCaller<AHUD>());
 			}
 				
 			if (Instances.IUCanvas() != Instances.IAHUD()->Canvas)
@@ -20,39 +111,39 @@ namespace Functions
 		}
 	}
 
-	void HUDPostRenderPost(class UObject* caller, class UFunction* function, void* params, void* result)
+	void HUDPostRenderPost(const PostEvent& event)
 	{
 		FRainbowColor::Tick(); // Example of where you could put your rainbow color hook.
 		Manager.QueueTick(); // Example of where you could put your command queue tick.
 	}
 
-	void GameViewPortPostRender(class UObject* caller, class UFunction* function, void* params)
+	void GameViewPortPostRender(PreEvent& event)
 	{
-		if (caller)
+		if (event.Caller())
 		{
-			if (Instances.IUGameViewportClient() != caller)
+			if (Instances.IUGameViewportClient() != event.Caller())
 			{
-				Instances.SetGameViewportClient(reinterpret_cast<UGameViewportClient*>(caller));
+				Instances.SetGameViewportClient(event.GetCaller<UGameViewportClient>());
 			}				
 		}
 	}
 
-	void PlayerControllerTick(class UObject* caller, class UFunction* function, void* params)
+	void PlayerControllerTick(PreEvent& event)
 	{
-		if (caller)
+		if (event.Caller())
 		{
-			if (Instances.IAPlayerController() != caller)
+			if (Instances.IAPlayerController() != event.Caller())
 			{
-				Instances.SetPlayerController(reinterpret_cast<APlayerController*>(caller));
+				Instances.SetPlayerController(event.GetCaller<APlayerController>());
 			}
 		}
 	}
 
-	void GameViewPortKeyPress(class UObject* caller, class UFunction* function, void* params)
+	void GameViewPortKeyPress(PreEvent& event)
 	{
-		if (params)
+		if (event.Params())
 		{
-			UGameViewportClient_TA_execHandleKeyPress_Params* handleKeyPress = reinterpret_cast<UGameViewportClient_TA_execHandleKeyPress_Params*>(params);
+			UGameViewportClient_TA_execHandleKeyPress_Params* handleKeyPress = event.GetParams<UGameViewportClient_TA_execHandleKeyPress_Params>();
 
 			if (handleKeyPress->EventType == static_cast<uint8_t>(EInputEvent::IE_Released))
 			{
@@ -61,12 +152,14 @@ namespace Functions
 		}
 	}
 
-	void GFxDataMainMenuAdded(class UObject* caller, class UFunction* function, void* params)
+	void GFxDataMainMenuAdded(PreEvent& event)
 	{
-		if (caller)
-		{
-			GameState.MainMenuAdded();
-		}
+		GameState.MainMenuAdded();
+
+		// Purely an example only, if you were to "SetDetour(false)" your hooked function will NOT go through Process Event, so the game will never recognize that it was called.
+
+		bool badEgg = false;
+		event.SetDetour(badEgg);
 	}
 }
 
@@ -83,17 +176,23 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 	{
 		std::map<int32_t, std::vector<PreEventType>>::iterator preIt = PreHookedEvents.find(function->ObjectInternalInteger);
 
+		PreEvent event; // In the default constructor we set "PE_Detour" to true, so even if a function hook is found it will correctly go through Process Event.
+
 		if (preIt != PreHookedEvents.end())
 		{
 			for (const PreEventType& preEvent : preIt->second)
 			{
-				preEvent(caller, function, params);
+				event = PreEvent(caller, function, params);
+				preEvent(event);
 			}
 		}
 
 		if (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), function->ObjectInternalInteger) == BlacklistedEvents.end())
 		{
-			ProcessEvent(caller, function, params, result);
+			if (event.Detour())
+			{
+				ProcessEvent(caller, function, params, result);
+			}
 		}
 
 		std::map<int32_t, std::vector<PostEventType>>::iterator postIt = PostHookedEvents.find(function->ObjectInternalInteger);
@@ -102,7 +201,7 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 		{
 			for (const PostEventType& postEvent : postIt->second)
 			{
-				postEvent(caller, function, params, result);
+				postEvent(PostEvent(caller, function, params, result));
 			}
 		}
 	}
@@ -192,16 +291,16 @@ void EventsComponent::WhitelistEvent(const std::string& functionFullName)
 
 void EventsComponent::Initialize()
 {
-	// Example functions only, you will need to function scan in your game for your own.
+	// Example functions only, you will need to function scan in your game for your own to hook!
 
 	BlacklistEvent("Function Engine.Tracker.ReportMetrics");
 
-	HookEventPre("Function Engine.HUD.PostRender", &Functions::HUDPostRender);
-	HookEventPost("Function Engine.HUD.PostRender", &Functions::HUDPostRenderPost);
-	HookEventPre("Function Engine.GameViewportClient.PostRender", &Functions::GameViewPortPostRender);
-	HookEventPre("Function Engine.PlayerController.PlayerTick", &Functions::PlayerControllerTick);
-	HookEventPre("Function Engine.GameViewportClient.HandleKeyPress", &Functions::GameViewPortKeyPress);
-	HookEventPre("Function Engine.GFxData_MainMenu.MainMenuAdded", &Functions::GFxDataMainMenuAdded);
+	HookEventPre("Function Engine.HUD.PostRender", &Hooks::HUDPostRender);
+	HookEventPost("Function Engine.HUD.PostRender", &Hooks::HUDPostRenderPost);
+	HookEventPre("Function Engine.GameViewportClient.PostRender", &Hooks::GameViewPortPostRender);
+	HookEventPre("Function Engine.PlayerController.PlayerTick", &Hooks::PlayerControllerTick);
+	HookEventPre("Function Engine.GameViewportClient.HandleKeyPress", &Hooks::GameViewPortKeyPress);
+	HookEventPre("Function Engine.GFxData_MainMenu.MainMenuAdded", &Hooks::GFxDataMainMenuAdded);
 
 	Console.Write(GetNameFormatted() + std::to_string(PreHookedEvents.size()) + " Pre-Hook(s) Initialized!");
 	Console.Write(GetNameFormatted() + std::to_string(PostHookedEvents.size()) + " Post-Hook(s) Initialized!");

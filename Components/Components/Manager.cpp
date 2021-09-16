@@ -129,7 +129,7 @@ Vector Setting::GetVector3DValue() const
 	if (GetType() == SettingTypes::TYPE_VECTOR_3D
 		|| GetType() == SettingTypes::TYPE_VECTOR_2D)
 	{
-		std::vector<std::string> values = Manager.SplitArguments(GetStringValue());
+		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
 
 		Vector returnVector;
 
@@ -151,7 +151,7 @@ Vector2D Setting::GetVector2DValue() const
 	if (GetType() == SettingTypes::TYPE_VECTOR_3D
 		|| GetType() == SettingTypes::TYPE_VECTOR_2D)
 	{
-		std::vector<std::string> values = Manager.SplitArguments(GetStringValue());
+		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
 
 		Vector2D returnVector;
 
@@ -384,19 +384,19 @@ void ManagerComponent::ConsoleCommand(const std::string& command, const std::str
 
 void ManagerComponent::AddToQueue(const std::string& command, const std::string& arguments)
 {
-	Queue.emplace_back(command, arguments);
+	CommandQueue.emplace_back(command, arguments);
 }
 
 void ManagerComponent::QueueTick()
 {
-	if (Queue.size() > 0)
+	if (CommandQueue.size() > 0)
 	{
-		for (const auto& command : Queue)
+		for (const std::pair<std::string, std::string>& command : CommandQueue)
 		{
 			ConsoleCommand(command.first, command.second);
 		}
 
-		Queue.clear();
+		CommandQueue.clear();
 	}
 }
 
@@ -540,39 +540,6 @@ std::shared_ptr<Setting> ManagerComponent::GetSetting(const std::string& setting
 	}
 
 	return nullptr;
-}
-
-std::string ManagerComponent::PhraseArguments(std::string arguments)
-{
-	size_t spacePos = arguments.find(' ');
-
-	if (spacePos != std::string::npos)
-	{
-		arguments = arguments.substr(0, spacePos);
-	}
-
-	return arguments;
-}
-
-std::vector<std::string> ManagerComponent::SplitArguments(const std::string& arguments)
-{
-	std::vector<std::string> returnValue;
-	std::string word;
-
-	for (const char& x : arguments) 
-	{
-		if (x == ' ')
-		{
-			returnValue.push_back(word);
-			word = "";
-		}
-		else
-		{
-			word = word + x;
-		}
-	}
-
-	return returnValue;
 }
 
 void ManagerComponent::Initialize()
