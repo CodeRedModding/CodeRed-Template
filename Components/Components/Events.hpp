@@ -67,7 +67,7 @@ private:
 	static inline std::vector<int32_t> BlacklistedEvents; // Blacklisted function's internal integer.
 
 public:
-	inline static ProcessEventType ProcessEvent; // This is the function that we send our detoured process event to.
+	static inline ProcessEventType ProcessEvent; // This is the function that we send our detoured process event to.
 
 public:
 	EventsComponent();
