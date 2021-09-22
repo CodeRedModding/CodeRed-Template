@@ -81,180 +81,63 @@ namespace Math
 
 		return point;
 	}
-
 }
 
-Vector::Vector() : X(0.f), Y(0.f), Z(0.f) { }
-
-Vector::Vector(const float xyz) : X(xyz), Y(xyz), Z(xyz) { }
-
-Vector::Vector(const float x, const float y, const float z) : X(x), Y(y), Z(z) { }
-
-Vector::Vector(const Vector& other) : X(other.X), Y(other.Y), Z(other.Z) { }
-
-Vector::Vector(const struct FVector& other) : X(other.X), Y(other.Y), Z(other.Z) { }
-
-Vector::~Vector() { }
-
-FVector Vector::UnrealVector() const
+FVector2D Vector2DF::UnrealVector() const
 {
-	return FVector { X, Y, Z };
+	return FVector2D { X, Y };
 }
 
-Vector Vector::operator+=(const Vector& other)
+void Vector2DF::Erase()
 {
-	X += other.X;
-	Y += other.Y;
-	Z += other.Z;
-	return *this;
+	X = 0.f;
+	Y = 0.f;
 }
 
-Vector Vector::operator-=(const Vector& other)
+Vector2DF Vector2DF::Copy() const
 {
-	X -= other.X;
-	Y -= other.Y;
-	Z -= other.Z;
-	return *this;
+	return Vector2DF(X, Y);
 }
 
-Vector Vector::operator*=(const Vector& other)
+FVector2D Vector2DI::UnrealVector() const
 {
-	X *= other.X;
-	Y *= other.Y;
-	Z *= other.Z;
-	return *this;
+	return FVector2D { static_cast<float>(X), static_cast<float>(Y) };
 }
 
-Vector Vector::operator/=(const Vector& other)
+void Vector2DI::Erase()
 {
-	X /= other.X;
-	Y /= other.Y;
-	Z /= other.Z;
-	return *this;
+	X = 0;
+	Y = 0;
 }
 
-Vector Vector::operator+=(const float other)
+Vector2DI Vector2DI::Copy() const
 {
-	X += other;
-	Y += other;
-	Z += other;
-	return *this;
+	return Vector2DI(X, Y);
 }
 
-Vector Vector::operator-=(const float other)
+struct FVector VectorF::UnrealVector() const
 {
-	X -= other;
-	Y -= other;
-	Z -= other;
-	return *this;
+	return { X, Y, Z };
 }
 
-Vector Vector::operator*=(const float other)
-{
-	X *= other;
-	Y *= other;
-	Z *= other;
-	return *this;
-}
-
-Vector Vector::operator/=(const float other)
-{
-	X /= other;
-	Y /= other;
-	Z /= other;
-	return *this;
-}
-
-Vector Vector::operator=(const Vector& other)
-{
-	X = other.X;
-	Y = other.Y;
-	Z = other.Z;
-	return *this;
-}
-
-Vector Vector::operator=(const struct FVector& other)
-{
-	X = other.X;
-	Y = other.Y;
-	Z = other.Z;
-	return *this;
-}
-
-Vector Vector::operator=(const float other)
-{
-	X = other;
-	Y = other;
-	Z = other;
-	return *this;
-}
-
-bool Vector::operator==(const Vector& other)
-{
-	if (X != other.X
-		|| Y != other.Y
-		|| Z != other.Z)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool Vector::operator==(const struct FVector& other)
-{
-	if (X != other.X
-		|| Y != other.Y
-		|| Z != other.Z)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool Vector::operator!=(const Vector& other)
-{
-	if (X != other.X
-		|| Y != other.Y
-		|| Z != other.Z)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-bool Vector::operator!=(const struct FVector& other)
-{
-	if (X != other.X
-		|| Y != other.Y
-		|| Z != other.Z)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void Vector::Erase()
+void VectorF::Erase()
 {
 	X = 0.f;
 	Y = 0.f;
 	Z = 0.f;
 }
 
-Vector Vector::Copy() const
+VectorF VectorF::Copy() const
 {
-	return Vector(X, Y, Z);
+	return VectorF(X, Y, Z);
 }
 
-float Vector::Magnitude() const
+float VectorF::Magnitude() const
 {
 	return std::sqrtf(X * X + Y * Y + Z * Z);
 }
 
-void Vector::Normalize()
+void VectorF::Normalize()
 {
 	float magnitude = Magnitude();
 	X = X / magnitude;
@@ -262,17 +145,17 @@ void Vector::Normalize()
 	Z = Z / magnitude;
 }
 
-Vector Vector::GetNormalize() const
+VectorF VectorF::GetNormalize() const
 {
 	float magnitude = Magnitude();
-	Vector mutableThis = *this;
+	VectorF mutableThis = *this;
 	mutableThis.X = X / magnitude;
 	mutableThis.Y = Y / magnitude;
 	mutableThis.Z = Z / magnitude;
 	return mutableThis;
 }
 
-class Rotator Vector::GetRotator() const
+class Rotator VectorF::GetRotator() const
 {
 	Rotator result;
 	result.Yaw = atan2(Y, X) * (180.f / PI);
@@ -281,179 +164,98 @@ class Rotator Vector::GetRotator() const
 	return result;
 }
 
-Vector Vector::Dot(const Vector& other) const
+VectorF VectorF::Dot(const VectorF& other) const
 {
-	return Vector(X * other.X + Y * other.Y + Z * other.Z);
+	return VectorF(X * other.X + Y * other.Y + Z * other.Z);
 }
 
-Vector Vector::Cross(const Vector& other) const
+VectorF VectorF::Cross(const VectorF& other) const
 {
 	float x = Y * other.Z - Z * other.Y;
 	float y = Z * other.X - X * other.Z;
 	float z = X * other.Y - Y * other.X;
-	return Vector(x, y, z);
+	return VectorF(x, y, z);
 }
 
- Vector Vector::Lerp(const Vector& other, const float percentage) const
+VectorF VectorF::Lerp(const VectorF& other, float percentage) const
 {
-	Vector mutableThis = *this;
-	return Vector(mutableThis * percentage + (other * (1.f - percentage)));
+	VectorF mutableThis = *this;
+	return VectorF(mutableThis * percentage + (other * (1.f - percentage)));
 }
 
-Vector2D::Vector2D() : X(0.f), Y(0.f) { }
-
-Vector2D::Vector2D(const float xy) : X(xy), Y(xy) { }
-
-Vector2D::Vector2D(const float x, const float y) : X(x), Y(y) { }
-
-Vector2D::Vector2D(const Vector2D& other) : X(other.X), Y(other.Y) { }
-
-Vector2D::Vector2D(const struct FVector2D& other) : X(other.X), Y(other.Y) { }
-
-Vector2D::~Vector2D() { }
-
-FVector2D Vector2D::UnrealVector() const
+struct FVector VectorI::UnrealVector() const
 {
-	return FVector2D { X, Y };
+	return { static_cast<float>(X), static_cast<float>(Y), static_cast<float>(Z) };
 }
 
-Vector2D Vector2D::operator+=(const Vector2D& other)
+void VectorI::Erase()
 {
-	X += other.X;
-	Y += other.Y;
-	return *this;
+	X = 0;
+	Y = 0;
+	Z = 0;
 }
 
-Vector2D Vector2D::operator-=(const Vector2D& other)
+VectorI VectorI::Copy() const
 {
-	X -= other.X;
-	Y -= other.Y;
-	return *this;
+	return VectorI(X, Y, Z);
 }
 
-Vector2D Vector2D::operator*=(const Vector2D& other)
+float VectorI::Magnitude() const
 {
-	X *= other.X;
-	Y *= other.Y;
-	return *this;
+	return std::sqrtf(X * X + Y * Y + Z * Z);
 }
 
-Vector2D Vector2D::operator/=(const Vector2D& other)
+void VectorI::Normalize()
 {
-	X /= other.X;
-	Y /= other.Y;
-	return *this;
+	float magnitude = Magnitude();
+	X = X / magnitude;
+	Y = Y / magnitude;
+	Z = Z / magnitude;
 }
 
-Vector2D Vector2D::operator+=(const float other)
+VectorI VectorI::GetNormalize() const
 {
-	X += other;
-	Y += other;
-	return *this;
+	float magnitude = Magnitude();
+	VectorI mutableThis = *this;
+	mutableThis.X = X / magnitude;
+	mutableThis.Y = Y / magnitude;
+	mutableThis.Z = Z / magnitude;
+	return mutableThis;
 }
 
-Vector2D Vector2D::operator-=(const float other)
+class Rotator VectorI::GetRotator() const
 {
-	X -= other;
-	Y -= other;
-	return *this;
+	Rotator result;
+	result.Yaw = atan2(Y, X) * (180.f / PI);
+	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.f / PI);
+	result.Roll = 0.f;
+	return result;
 }
 
-Vector2D Vector2D::operator*=(const float other)
+VectorI VectorI::Dot(const VectorI& other) const
 {
-	X *= other;
-	Y *= other;
-	return *this;
+	return VectorI(X * other.X + Y * other.Y + Z * other.Z);
 }
 
-Vector2D Vector2D::operator/=(const float other)
+VectorI VectorI::Cross(const VectorI& other) const
 {
-	X /= other;
-	Y /= other;
-	return *this;
+	int32_t x = Y * other.Z - Z * other.Y;
+	int32_t y = Z * other.X - X * other.Z;
+	int32_t z = X * other.Y - Y * other.X;
+	return VectorI(x, y, z);
 }
 
-Vector2D Vector2D::operator=(const Vector2D& other)
+VectorI VectorI::Lerp(const VectorI& other, float percentage) const
 {
-	X = other.X;
-	Y = other.Y;
-	return *this;
-}
-
-Vector2D Vector2D::operator=(const struct FVector2D& other)
-{
-	X = other.X;
-	Y = other.Y;
-	return *this;
-}
-
-Vector2D Vector2D::operator=(const float other)
-{
-	X = other;
-	Y = other;
-	return *this;
-}
-
-bool Vector2D::operator==(const Vector2D& other)
-{
-	if (X != other.X
-		|| Y != other.Y)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool Vector2D::operator==(const struct FVector2D& other)
-{
-	if (X != other.X
-		|| Y != other.Y)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool Vector2D::operator!=(const Vector2D& other)
-{
-	if (X != other.X
-		|| Y != other.Y)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-bool Vector2D::operator!=(const struct FVector2D& other)
-{
-	if (X != other.X
-		|| Y != other.Y)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void Vector2D::Erase()
-{
-	X = 0.f;
-	Y = 0.f;
-}
-
-Vector2D Vector2D::Copy() const
-{
-	return Vector2D(X, Y);
+	VectorI mutableThis = *this;
+	return VectorI(mutableThis * percentage + (other * (1 - percentage)));
 }
 
 Rotator::Rotator() : Pitch(0), Yaw(0), Roll(0) { }
 
-Rotator::Rotator(const int32_t pyr) : Pitch(pyr), Yaw(pyr), Roll(pyr) { }
+Rotator::Rotator(int32_t pyr) : Pitch(pyr), Yaw(pyr), Roll(pyr) { }
 
-Rotator::Rotator(const int32_t pitch, const int32_t yaw, const int32_t roll) : Pitch(pitch), Yaw(yaw), Roll(roll) { }
+Rotator::Rotator(int32_t pitch, int32_t yaw, int32_t roll) : Pitch(pitch), Yaw(yaw), Roll(roll) { }
 
 Rotator::Rotator(const Rotator& other) : Pitch(other.Pitch), Yaw(other.Yaw), Roll(other.Roll) { }
 
@@ -498,7 +300,7 @@ struct Rotator Rotator::operator/=(const Rotator& other)
 	return *this;
 }
 
-struct Rotator Rotator::operator+=(const int32_t other)
+struct Rotator Rotator::operator+=(int32_t other)
 {
 	Pitch += other;
 	Yaw += other;
@@ -506,7 +308,7 @@ struct Rotator Rotator::operator+=(const int32_t other)
 	return *this;
 }
 
-struct Rotator Rotator::operator-=(const int32_t other)
+struct Rotator Rotator::operator-=(int32_t other)
 {
 	Pitch -= other;
 	Yaw -= other;
@@ -514,7 +316,7 @@ struct Rotator Rotator::operator-=(const int32_t other)
 	return *this;
 }
 
-struct Rotator Rotator::operator*=(const int32_t other)
+struct Rotator Rotator::operator*=(int32_t other)
 {
 	Pitch *= other;
 	Yaw *= other;
@@ -522,7 +324,7 @@ struct Rotator Rotator::operator*=(const int32_t other)
 	return *this;
 }
 
-struct Rotator Rotator::operator/=(const int32_t other)
+struct Rotator Rotator::operator/=(int32_t other)
 {
 	Pitch /= other;
 	Yaw /= other;
@@ -546,7 +348,7 @@ struct Rotator Rotator::operator=(const struct FRotator& other)
 	return *this;
 }
 
-struct Rotator Rotator::operator=(const int32_t other)
+struct Rotator Rotator::operator=(int32_t other)
 {
 	Pitch = other;
 	Yaw = other;
@@ -554,7 +356,7 @@ struct Rotator Rotator::operator=(const int32_t other)
 	return *this;
 }
 
-bool Rotator::operator==(const Rotator& other)
+bool Rotator::operator==(const Rotator& other) const
 {
 	if (Pitch != other.Pitch
 		|| Yaw != other.Yaw
@@ -566,7 +368,7 @@ bool Rotator::operator==(const Rotator& other)
 	return true;
 }
 
-bool Rotator::operator==(const struct FRotator& other)
+bool Rotator::operator==(const struct FRotator& other) const
 {
 	if (Pitch != other.Pitch
 		|| Yaw != other.Yaw
@@ -578,7 +380,7 @@ bool Rotator::operator==(const struct FRotator& other)
 	return true;
 }
 
-bool Rotator::operator!=(const Rotator& other)
+bool Rotator::operator!=(const Rotator& other) const
 {
 	if (Pitch != other.Pitch
 		|| Yaw != other.Yaw
@@ -590,7 +392,7 @@ bool Rotator::operator!=(const Rotator& other)
 	return false;
 }
 
-bool Rotator::operator!=(const struct FRotator& other)
+bool Rotator::operator!=(const struct FRotator& other) const
 {
 	if (Pitch != other.Pitch
 		|| Yaw != other.Yaw
@@ -652,7 +454,7 @@ Rotator Rotator::GetNormalize() const
 	return mutableThis;
 }
 
-Vector Rotator::GetVector() const
+VectorF Rotator::GetVector() const
 {
 	const float PitchNoWinding = fmod(Pitch, 360.0f);
 	const float YawNoWinding = fmod(Yaw, 360.0f);
@@ -660,11 +462,11 @@ Vector Rotator::GetVector() const
 	float CP, SP, CY, SY;
 	Math::SinCos(&SP, &CP, PitchNoWinding * (PI / 180.f));
 	Math::SinCos(&SY, &CY, YawNoWinding * (PI / 180.f));
-	
-	return Vector(CP * CY, CP * SY, SP);
+
+	return VectorF(CP * CY, CP * SY, SP);
 }
 
-Vector Rotator::Rotate(Vector other) const
+VectorF Rotator::Rotate(VectorF other) const
 {
 	double pitch = (double)Pitch / Rotation180 * PI;
 	double yaw = (double)Yaw / Rotation180 * PI;
@@ -677,9 +479,9 @@ Vector Rotator::Rotate(Vector other) const
 	float sx = sin(roll);
 	float cx = cos(roll);
 
-	other = Vector{ other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx }; // Roll
-	other = Vector{ other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z }; // Pitch
-	other = Vector{ other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy }; // Yaw
+	other = VectorF(other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx); // Roll
+	other = VectorF(other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z); // Pitch
+	other = VectorF(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy ); // Yaw
 
 	float tmp = other.Z;
 	other.Z = other.Y;
@@ -688,7 +490,7 @@ Vector Rotator::Rotate(Vector other) const
 	return other;
 }
 
-Vector Rotate(Vector point, const Rotator& rotation, const Vector& location)
+VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
 {
 	double pitch = (double)rotation.Pitch / Rotation180 * PI;
 	double yaw = (double)rotation.Yaw / Rotation180 * PI;
@@ -701,9 +503,9 @@ Vector Rotate(Vector point, const Rotator& rotation, const Vector& location)
 	float sx = sin(roll);
 	float cx = cos(roll);
 
-	point = FVector{ point.X, point.Y * cx - point.Z * sx, point.Y * sx + point.Z * cx }; // Roll
-	point = FVector{ point.X * cz - point.Y * sz, point.X * sz + point.Y * cz, point.Z }; // Pitch
-	point = FVector{ point.X * cy + point.Z * sy, point.Y, -point.X * sy + point.Z * cy }; // Yaw
+	point = VectorF(point.X, point.Y * cx - point.Z * sx, point.Y * sx + point.Z * cx); // Roll
+	point = VectorF(point.X * cz - point.Y * sz, point.X * sz + point.Y * cz, point.Z); // Pitch
+	point = VectorF(point.X * cy + point.Z * sy, point.Y, -point.X * sy + point.Z * cy ); // Yaw
 
 	float tmp = point.Z;
 	point.Z = point.Y;
@@ -769,7 +571,7 @@ Quat Quat::operator/=(const Quat& other)
 	return *this;
 }
 
-Quat Quat::operator+=(const float other)
+Quat Quat::operator+=(float other)
 {
 	X += other;
 	Y += other;
@@ -778,7 +580,7 @@ Quat Quat::operator+=(const float other)
 	return *this;
 }
 
-Quat Quat::operator-=(const float other)
+Quat Quat::operator-=(float other)
 {
 	X -= other;
 	Y -= other;
@@ -787,7 +589,7 @@ Quat Quat::operator-=(const float other)
 	return *this;
 }
 
-Quat Quat::operator*=(const float other)
+Quat Quat::operator*=(float other)
 {
 	X *= other;
 	Y *= other;
@@ -796,7 +598,7 @@ Quat Quat::operator*=(const float other)
 	return *this;
 }
 
-Quat Quat::operator/=(const float other)
+Quat Quat::operator/=(float other)
 {
 	X /= other;
 	Y /= other;
@@ -823,7 +625,7 @@ Quat Quat::operator=(const struct FQuat& other)
 	return *this;
 }
 
-Quat Quat::operator=(const float other)
+Quat Quat::operator=(float other)
 {
 	X = other;
 	Y = other;
@@ -832,7 +634,7 @@ Quat Quat::operator=(const float other)
 	return *this;
 }
 
-bool Quat::operator==(const Quat& other)
+bool Quat::operator==(const Quat& other) const
 {
 	if (X != other.X
 		|| Y != other.Y
@@ -845,7 +647,7 @@ bool Quat::operator==(const Quat& other)
 	return true;
 }
 
-bool Quat::operator==(const struct FQuat& other)
+bool Quat::operator==(const struct FQuat& other) const
 {
 	if (X != other.X
 		|| Y != other.Y
@@ -858,7 +660,7 @@ bool Quat::operator==(const struct FQuat& other)
 	return true;
 }
 
-bool Quat::operator!=(const Quat& other)
+bool Quat::operator!=(const Quat& other) const
 {
 	if (X != other.X
 		|| Y != other.Y
@@ -871,7 +673,7 @@ bool Quat::operator!=(const Quat& other)
 	return false;
 }
 
-bool Quat::operator!=(const struct FQuat& other)
+bool Quat::operator!=(const struct FQuat& other) const
 {
 	if (X != other.X
 		|| Y != other.Y
@@ -928,32 +730,32 @@ float Quat::GetAngle() const
 	return (2.f * acos(W));
 }
 
-Vector Quat::GetAxisX() const
+VectorF Quat::GetAxisX() const
 {
-	return Rotate(Vector(1.f, 0.f, 0.f));
+	return Rotate(VectorF(1.f, 0.f, 0.f));
 }
 
-Vector Quat::GetAxisY() const
+VectorF Quat::GetAxisY() const
 {
-	return Rotate(Vector(0.f, 1.f, 0.f));
+	return Rotate(VectorF(0.f, 1.f, 0.f));
 }
 
-Vector Quat::GetAxisZ() const
+VectorF Quat::GetAxisZ() const
 {
-	return Rotate(Vector(0.f, 0.f, 1.f));
+	return Rotate(VectorF(0.f, 0.f, 1.f));
 }
 
-Vector Quat::GetRotationAxis() const
+VectorF Quat::GetRotationAxis() const
 {
 	const float sqrSum = X * X + Y * Y + Z * Z;
 
 	if (sqrSum < SMALL_NUMBER)
 	{
-		return Vector(1.f, 0.f, 0.f);
+		return VectorF(1.f, 0.f, 0.f);
 	}
 
 	const float scale = 1.f / sqrtf(sqrSum);
-	return Vector(X * scale, Y * scale, Z * scale);
+	return VectorF(X * scale, Y * scale, Z * scale);
 }
 
 Quat Quat::GetInverse() const
@@ -1022,9 +824,9 @@ Rotator Quat::GetRotator() const
 	return RotatorFromQuat;
 }
 
-Vector Quat::Rotate(const Vector& other) const
+VectorF Quat::Rotate(const VectorF& other) const
 {
-	Vector q(X, Y, Z);
-	Vector t = 2.f * q.Cross(other);
-	return Vector(other + (W * t) + q.Cross(t));
+	VectorF q(X, Y, Z);
+	VectorF t = 2.f * q.Cross(other);
+	return VectorF(other + (W * t) + q.Cross(t));
 }

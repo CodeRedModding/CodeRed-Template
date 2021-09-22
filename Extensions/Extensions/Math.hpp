@@ -56,106 +56,191 @@ namespace Math
 	struct FVector RotateUnreal(struct FVector point, const struct FRotator& rotation, const struct FVector& location);
 }
 
-class Vector
+// Template based 2D vector, a base class for other type-specific vectors with built in operators.
+template <typename TElementType>
+class TVector2D
 {
 public:
-	float X, Y, Z;
+	using TType = TElementType;
+	TType X, Y;
 
 public:
-	Vector();
-	Vector(const float xyz);
-	Vector(const float x, const float y, const float z);
-	Vector(const Vector& other);
-	Vector(const struct FVector& other);
-	~Vector();
+	TVector2D() : X(0), Y(0) { }
+	TVector2D(TType xy) : X(xy), Y(xy) { }
+	TVector2D(TType x, TType y) : X(x), Y(y) { }
+	TVector2D(const TVector2D& other) : X(other.X), Y(other.Y) { }
+	~TVector2D() { }
 
 public:
-	struct FVector UnrealVector() const;
-
-public:
-	Vector operator+=(const Vector& other);
-	Vector operator-=(const Vector& other);
-	Vector operator*=(const Vector& other);
-	Vector operator/=(const Vector& other);
-	Vector operator+=(const float other);
-	Vector operator-=(const float other);
-	Vector operator*=(const float other);
-	Vector operator/=(const float other);
-	Vector operator=(const Vector& other);
-	Vector operator=(const struct FVector& other);
-	Vector operator=(const float other);
-	bool operator==(const Vector& other);
-	bool operator==(const struct FVector& other);
-	bool operator!=(const Vector& other);
-	bool operator!=(const struct FVector& other);
-
-public:
-	void Erase();
-	Vector Copy() const;
-	float Magnitude() const;
-	void Normalize();
-	class Rotator GetRotator() const;
-	Vector GetNormalize() const;
-	Vector Dot(const Vector& other) const;
-	Vector Cross(const Vector& other) const;
-	Vector Lerp(const Vector& other, const float percentage) const;
+	TVector2D operator+=(const TVector2D& other) { X += other.X, Y += other.Y; }
+	TVector2D operator-=(const TVector2D& other) { X -= other.X, Y -= other.Y; }
+	TVector2D operator*=(const TVector2D& other) { X *= other.X, Y *= other.Y; }
+	TVector2D operator/=(const TVector2D& other) { X /= other.X, Y /= other.Y; }
+	TVector2D operator+=(TType other) { X += other; Y += other; }
+	TVector2D operator-=(TType other) { X -= other; Y -= other; }
+	TVector2D operator*=(TType other) { X *= other; Y *= other; }
+	TVector2D operator/=(TType other) { X /= other; Y /= other; }
+	TVector2D operator=(const TVector2D& other) { X = other.X, Y = other.Y; return *this; }
+	TVector2D operator=(TType other) { X = other; Y = other; return *this; }
+	bool operator==(const TVector2D& other) const { return (X == other.X && Y == other.Y); }
+	bool operator!=(const TVector2D& other) const { return (X != other.X && Y != other.Y); }
 };
 
-inline Vector operator+(const Vector& a, const Vector& b) { return Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z); }
-inline Vector operator-(const Vector& a, const Vector& b) { return Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z); }
-inline Vector operator*(const Vector& a, const Vector& b) { return Vector(a.X * b.X, a.Y * b.Y, a.Z * b.Z); }
-inline Vector operator/(const Vector& a, const Vector& b) { return Vector(a.X / b.X, a.Y / b.Y, a.Z / b.Z); }
-inline Vector operator+(const Vector& a, const float b) { return Vector(a.X + b, a.Y + b, a.Z + b); }
-inline Vector operator-(const Vector& a, const float b) { return Vector(a.X - b, a.Y - b, a.Z - b); }
-inline Vector operator*(const Vector& a, const float b) { return Vector(a.X * b, a.Y * b, a.Z * b); }
-inline Vector operator/(const Vector& a, const float b) { return Vector(a.X / b, a.Y / b, a.Z / b); }
-
-class Vector2D
+// Template based 3D vector, a base class for other type-specific vectors with built in operators.
+template <typename TElementType>
+class TVector3D
 {
 public:
-	float X, Y;
+	using TType = TElementType;
+	TType X, Y, Z;
 
 public:
-	Vector2D();
-	Vector2D(const float xy);
-	Vector2D(const float x, const float y);
-	Vector2D(const Vector2D& other);
-	Vector2D(const struct FVector2D& other);
-	~Vector2D();
+	TVector3D() : X(0), Y(0), Z(0) { }
+	TVector3D(TType xyz) : X(xyz), Y(xyz), Z(xyz) { }
+	TVector3D(TType x, TType y, TType z) : X(x), Y(y), Z(z) { }
+	TVector3D(const TVector3D& other) : X(other.X), Y(other.Y), Z(other.Z) { }
+	~TVector3D() { }
+
+public:
+	TVector3D operator+=(const TVector3D& other) { X += other.X, Y += other.Y; Z += other.Z; }
+	TVector3D operator-=(const TVector3D& other) { X -= other.X, Y -= other.Y; Z -= other.Z; }
+	TVector3D operator*=(const TVector3D& other) { X *= other.X, Y *= other.Y; Z *= other.Z; }
+	TVector3D operator/=(const TVector3D& other) { X /= other.X, Y /= other.Y; Z /= other.Z; }
+	TVector3D operator+=(TType other) { X += other; Y += other; Z += other; }
+	TVector3D operator-=(TType other) { X -= other; Y -= other; Z -= other; }
+	TVector3D operator*=(TType other) { X *= other; Y *= other; Z *= other; }
+	TVector3D operator/=(TType other) { X /= other; Y /= other; Z /= other; }
+	TVector3D operator=(const TVector3D& other) { X = other.X, Y = other.Y; Z = other.Z; return *this; }
+	TVector3D operator=(TType other) { X = other; Y = other; Z = other; return *this; }
+	bool operator==(const TVector3D& other) const { return (X == other.X && Y == other.Y && Z == other.Z); }
+	bool operator!=(const TVector3D& other) const { return (X != other.X && Y != other.Y && Z != other.Z); }
+};
+
+// These classes below rely on the templated base classes for ease of use.
+// Want to have a vector that uses doubles or even long longs? Not a problem, just copy the class below and replace the variable type.
+// All base operators are also templated so they are calculated on compile time.
+
+class Vector2DF : public TVector2D<float>
+{
+public:
+	Vector2DF() : TVector2D(0) { }
+	Vector2DF(float xy) : TVector2D(xy) { }
+	Vector2DF(float x, float y) : TVector2D(x, y) { }
+	Vector2DF(const Vector2DF& other) : TVector2D(other) { }
+	Vector2DF(const struct FVector2D& other) : TVector2D(other.X, other.Y) { }
+	~Vector2DF() { }
 
 public:
 	struct FVector2D UnrealVector() const;
 
 public:
-	Vector2D operator+=(const Vector2D& other);
-	Vector2D operator-=(const Vector2D& other);
-	Vector2D operator*=(const Vector2D& other);
-	Vector2D operator/=(const Vector2D& other);
-	Vector2D operator+=(const float other);
-	Vector2D operator-=(const float other);
-	Vector2D operator*=(const float other);
-	Vector2D operator/=(const float other);
-	Vector2D operator=(const Vector2D& other);
-	Vector2D operator=(const struct FVector2D& other);
-	Vector2D operator=(const float other);
-	bool operator==(const Vector2D& other);
-	bool operator==(const struct FVector2D& other);
-	bool operator!=(const Vector2D& other);
-	bool operator!=(const struct FVector2D& other);
+	void Erase();
+	Vector2DF Copy() const;
+};
+
+inline Vector2DF operator+(const Vector2DF& a, const Vector2DF& b) { return Vector2DF(a.X + b.X, a.Y + b.Y); }
+inline Vector2DF operator-(const Vector2DF& a, const Vector2DF& b) { return Vector2DF(a.X - b.X, a.Y - b.Y); }
+inline Vector2DF operator*(const Vector2DF& a, const Vector2DF& b) { return Vector2DF(a.X * b.X, a.Y * b.Y); }
+inline Vector2DF operator/(const Vector2DF& a, const Vector2DF& b) { return Vector2DF(a.X / b.X, a.Y / b.Y); }
+inline Vector2DF operator+(const Vector2DF& a, float b) { return Vector2DF(a.X + b, a.Y + b); }
+inline Vector2DF operator-(const Vector2DF& a, float b) { return Vector2DF(a.X - b, a.Y - b); }
+inline Vector2DF operator*(const Vector2DF& a, float b) { return Vector2DF(a.X * b, a.Y * b); }
+inline Vector2DF operator/(const Vector2DF& a, float b) { return Vector2DF(a.X / b, a.Y / b); }
+
+class Vector2DI : public TVector2D<int32_t>
+{
+public:
+	Vector2DI() : TVector2D(0) { }
+	Vector2DI(int32_t xy) : TVector2D(xy) { }
+	Vector2DI(int32_t x, int32_t y) : TVector2D(x, y) { }
+	Vector2DI(const Vector2DI& other) : TVector2D(other) { }
+	Vector2DI(const struct FVector2D& other) : TVector2D(other.X, other.Y) { }
+	~Vector2DI() { }
+
+public:
+	struct FVector2D UnrealVector() const;
 
 public:
 	void Erase();
-	Vector2D Copy() const;
+	Vector2DI Copy() const;
 };
 
-inline Vector2D operator+(const Vector2D& a, const Vector2D& b) { return Vector2D(a.X + b.X, a.Y + b.Y); }
-inline Vector2D operator-(const Vector2D& a, const Vector2D& b) { return Vector2D(a.X - b.X, a.Y - b.Y); }
-inline Vector2D operator*(const Vector2D& a, const Vector2D& b) { return Vector2D(a.X * b.X, a.Y * b.Y); }
-inline Vector2D operator/(const Vector2D& a, const Vector2D& b) { return Vector2D(a.X / b.X, a.Y / b.Y); }
-inline Vector2D operator+(const Vector2D& a, const float b) { return Vector2D(a.X + b, a.Y + b); }
-inline Vector2D operator-(const Vector2D& a, const float b) { return Vector2D(a.X - b, a.Y - b); }
-inline Vector2D operator*(const Vector2D& a, const float b) { return Vector2D(a.X * b, a.Y * b); }
-inline Vector2D operator/(const Vector2D& a, const float b) { return Vector2D(a.X / b, a.Y / b); }
+inline Vector2DI operator+(const Vector2DI& a, const Vector2DI& b) { return Vector2DI(a.X + b.X, a.Y + b.Y); }
+inline Vector2DI operator-(const Vector2DI& a, const Vector2DI& b) { return Vector2DI(a.X - b.X, a.Y - b.Y); }
+inline Vector2DI operator*(const Vector2DI& a, const Vector2DI& b) { return Vector2DI(a.X * b.X, a.Y * b.Y); }
+inline Vector2DI operator/(const Vector2DI& a, const Vector2DI& b) { return Vector2DI(a.X / b.X, a.Y / b.Y); }
+inline Vector2DI operator+(const Vector2DI& a, int32_t b) { return Vector2DI(a.X + b, a.Y + b); }
+inline Vector2DI operator-(const Vector2DI& a, int32_t b) { return Vector2DI(a.X - b, a.Y - b); }
+inline Vector2DI operator*(const Vector2DI& a, int32_t b) { return Vector2DI(a.X * b, a.Y * b); }
+inline Vector2DI operator/(const Vector2DI& a, int32_t b) { return Vector2DI(a.X / b, a.Y / b); }
+
+class VectorF : public TVector3D<float>
+{
+public:
+	VectorF() : TVector3D(0.f) { }
+	VectorF(TType xyz) : TVector3D(xyz) { }
+	VectorF(TType x, TType y, TType z) : TVector3D(x, y, z) { }
+	VectorF(const TVector3D& other) : TVector3D(other) { }
+	VectorF(const struct FVector& other) : TVector3D(other.X, other.Y, other.Z) { }
+	~VectorF() { }
+
+public:
+	struct FVector UnrealVector() const;
+
+public:
+	void Erase();
+	VectorF Copy() const;
+	float Magnitude() const;
+	void Normalize();
+	class Rotator GetRotator() const;
+	VectorF GetNormalize() const;
+	VectorF Dot(const VectorF& other) const;
+	VectorF Cross(const VectorF& other) const;
+	VectorF Lerp(const VectorF& other, float percentage) const;
+};
+
+inline VectorF operator+(const VectorF& a, const VectorF& b) { return VectorF(a.X + b.X, a.Y + b.Y, a.Z + b.Z); }
+inline VectorF operator-(const VectorF& a, const VectorF& b) { return VectorF(a.X - b.X, a.Y - b.Y, a.Z - b.Z); }
+inline VectorF operator*(const VectorF& a, const VectorF& b) { return VectorF(a.X * b.X, a.Y * b.Y, a.Z * b.Z); }
+inline VectorF operator/(const VectorF& a, const VectorF& b) { return VectorF(a.X / b.X, a.Y / b.Y, a.Z / b.Z); }
+inline VectorF operator+(const VectorF& a, float b) { return VectorF(a.X + b, a.Y + b, a.Z + b); }
+inline VectorF operator-(const VectorF& a, float b) { return VectorF(a.X - b, a.Y - b, a.Z - b); }
+inline VectorF operator*(const VectorF& a, float b) { return VectorF(a.X * b, a.Y * b, a.Z * b); }
+inline VectorF operator/(const VectorF& a, float b) { return VectorF(a.X / b, a.Y / b, a.Z / b); }
+
+class VectorI : public TVector3D<int32_t>
+{
+public:
+	VectorI() : TVector3D(0) { }
+	VectorI(TType xyz) : TVector3D(xyz) { }
+	VectorI(TType x, TType y, TType z) : TVector3D(x, y, z) { }
+	VectorI(const TVector3D& other) : TVector3D(other) { }
+	VectorI(const struct FVector& other) : TVector3D(other.X, other.Y, other.Z) { }
+	~VectorI() { }
+
+public:
+	struct FVector UnrealVector() const;
+
+public:
+	void Erase();
+	VectorI Copy() const;
+	float Magnitude() const;
+	void Normalize();
+	class Rotator GetRotator() const;
+	VectorI GetNormalize() const;
+	VectorI Dot(const VectorI& other) const;
+	VectorI Cross(const VectorI& other) const;
+	VectorI Lerp(const VectorI& other, float percentage) const;
+};
+
+inline VectorI operator+(const VectorI& a, const VectorI& b) { return VectorI(a.X + b.X, a.Y + b.Y, a.Z + b.Z); }
+inline VectorI operator-(const VectorI& a, const VectorI& b) { return VectorI(a.X - b.X, a.Y - b.Y, a.Z - b.Z); }
+inline VectorI operator*(const VectorI& a, const VectorI& b) { return VectorI(a.X * b.X, a.Y * b.Y, a.Z * b.Z); }
+inline VectorI operator/(const VectorI& a, const VectorI& b) { return VectorI(a.X / b.X, a.Y / b.Y, a.Z / b.Z); }
+inline VectorI operator+(const VectorI& a, int32_t b) { return VectorI(a.X + b, a.Y + b, a.Z + b); }
+inline VectorI operator-(const VectorI& a, int32_t b) { return VectorI(a.X - b, a.Y - b, a.Z - b); }
+inline VectorI operator*(const VectorI& a, int32_t b) { return VectorI(a.X * b, a.Y * b, a.Z * b); }
+inline VectorI operator/(const VectorI& a, int32_t b) { return VectorI(a.X / b, a.Y / b, a.Z / b); }
 
 class Rotator
 {
@@ -164,8 +249,8 @@ public:
 
 public:
 	Rotator();
-	Rotator(const int32_t pyr);
-	Rotator(const int32_t pitch, const int32_t yaw, const int32_t roll);
+	Rotator(int32_t pyr);
+	Rotator(int32_t pitch, int32_t yaw, int32_t roll);
 	Rotator(const Rotator& other);
 	Rotator(const struct FRotator& other);
 	~Rotator();
@@ -178,17 +263,17 @@ public:
 	Rotator operator-=(const Rotator& other);
 	Rotator operator*=(const Rotator& other);
 	Rotator operator/=(const Rotator& other);
-	Rotator operator+=(const int32_t other);
-	Rotator operator-=(const int32_t other);
-	Rotator operator*=(const int32_t other);
-	Rotator operator/=(const int32_t other);
+	Rotator operator+=(int32_t other);
+	Rotator operator-=(int32_t other);
+	Rotator operator*=(int32_t other);
+	Rotator operator/=(int32_t other);
 	Rotator operator=(const Rotator& other);
 	Rotator operator=(const struct FRotator& other);
-	Rotator operator=(const int32_t other);
-	bool operator==(const Rotator& other);
-	bool operator==(const struct FRotator& other);
-	bool operator!=(const Rotator& other);
-	bool operator!=(const struct FRotator& other);
+	Rotator operator=(int32_t other);
+	bool operator==(const Rotator& other) const;
+	bool operator==(const struct FRotator& other) const;
+	bool operator!=(const Rotator& other) const;
+	bool operator!=(const struct FRotator& other) const;
 
 public:
 	void Erase();
@@ -197,19 +282,19 @@ public:
 	void Normalize();
 	float NormalizeAxis(float a);
 	Rotator GetNormalize() const;
-	Vector GetVector() const;
-	Vector Rotate(Vector other) const;
+	VectorF GetVector() const;
+	VectorF Rotate(VectorF other) const;
 };
 
 inline Rotator operator+(const Rotator& a, const Rotator& b) { return Rotator(a.Pitch + b.Pitch, a.Yaw + b.Yaw, a.Roll + b.Roll); }
 inline Rotator operator-(const Rotator& a, const Rotator& b) { return Rotator(a.Pitch - b.Pitch, a.Yaw - b.Yaw, a.Roll - b.Roll); }
 inline Rotator operator*(const Rotator& a, const Rotator& b) { return Rotator(a.Pitch * b.Pitch, a.Yaw * b.Yaw, a.Roll * b.Roll); }
 inline Rotator operator/(const Rotator& a, const Rotator& b) { return Rotator(a.Pitch / b.Pitch, a.Yaw / b.Yaw, a.Roll / b.Roll); }
-inline Rotator operator+(const Rotator& a, const int32_t b) { return Rotator(a.Pitch + b, a.Yaw + b, a.Roll + b); }
-inline Rotator operator-(const Rotator& a, const int32_t b) { return Rotator(a.Pitch - b, a.Yaw - b, a.Roll - b); }
-inline Rotator operator*(const Rotator& a, const int32_t b) { return Rotator(a.Pitch * b, a.Yaw * b, a.Roll * b); }
-inline Rotator operator/(const Rotator& a, const int32_t b) { return Rotator(a.Pitch / b, a.Yaw / b, a.Roll / b); }
-inline extern Vector Rotate(Vector point, const Rotator& rotation, const Vector& location);
+inline Rotator operator+(const Rotator& a, int32_t b) { return Rotator(a.Pitch + b, a.Yaw + b, a.Roll + b); }
+inline Rotator operator-(const Rotator& a, int32_t b) { return Rotator(a.Pitch - b, a.Yaw - b, a.Roll - b); }
+inline Rotator operator*(const Rotator& a, int32_t b) { return Rotator(a.Pitch * b, a.Yaw * b, a.Roll * b); }
+inline Rotator operator/(const Rotator& a, int32_t b) { return Rotator(a.Pitch / b, a.Yaw / b, a.Roll / b); }
+inline extern VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location);
 
 class Quat
 {
@@ -232,17 +317,17 @@ public:
 	Quat operator-=(const Quat& other);
 	Quat operator*=(const Quat& other);
 	Quat operator/=(const Quat& other);
-	Quat operator+=(const float other);
-	Quat operator-=(const float other);
-	Quat operator*=(const float other);
-	Quat operator/=(const float other);
+	Quat operator+=(float other);
+	Quat operator-=(float other);
+	Quat operator*=(float other);
+	Quat operator/=(float other);
 	Quat operator=(const Quat& other);
 	Quat operator=(const struct FQuat& other);
-	Quat operator=(const float other);
-	bool operator==(const Quat& other);
-	bool operator==(const struct FQuat& other);
-	bool operator!=(const Quat& other);
-	bool operator!=(const struct FQuat& other);
+	Quat operator=(float other);
+	bool operator==(const Quat& other) const;
+	bool operator==(const struct FQuat& other) const;
+	bool operator!=(const Quat& other) const;
+	bool operator!=(const struct FQuat& other) const;
 
 public:
 	void Erase();
@@ -253,22 +338,22 @@ public:
 	float Size() const;
 	float SizeSquared() const;
 	float GetAngle() const;
-	Vector GetAxisX() const;
-	Vector GetAxisY() const;
-	Vector GetAxisZ() const;
-	Vector GetRotationAxis() const;
+	VectorF GetAxisX() const;
+	VectorF GetAxisY() const;
+	VectorF GetAxisZ() const;
+	VectorF GetRotationAxis() const;
 	Quat GetInverse() const;
 	void Normalize(float tolerance = SMALL_NUMBER);
 	Quat GetNormalize(float tolerance = SMALL_NUMBER) const;
 	Rotator GetRotator() const;
-	Vector Rotate(const Vector& other) const;
+	VectorF Rotate(const VectorF& other) const;
 };
 
 inline Quat operator+(const Quat& a, const Quat& b) { return Quat(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W); }
 inline Quat operator-(const Quat& a, const Quat& b) { return Quat(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W); }
 inline Quat operator*(const Quat& a, const Quat& b) { return Quat(a.X * b.X, a.Y * b.Y, a.Z * b.Z, a.W * b.W); }
 inline Quat operator/(const Quat& a, const Quat& b) { return Quat(a.X / b.X, a.Y / b.Y, a.Z / b.Z, a.W / b.W); }
-inline Quat operator+(const Quat& a, const float b) { return Quat(a.X + b, a.Y + b, a.Z + b, a.W + b); }
-inline Quat operator-(const Quat& a, const float b) { return Quat(a.X - b, a.Y - b, a.Z - b, a.W - b); }
-inline Quat operator*(const Quat& a, const float b) { return Quat(a.X * b, a.Y * b, a.Z * b, a.W * b); }
-inline Quat operator/(const Quat& a, const float b) { return Quat(a.X / b, a.Y / b, a.Z / b, a.W / b); }
+inline Quat operator+(const Quat& a, float b) { return Quat(a.X + b, a.Y + b, a.Z + b, a.W + b); }
+inline Quat operator-(const Quat& a, float b) { return Quat(a.X - b, a.Y - b, a.Z - b, a.W - b); }
+inline Quat operator*(const Quat& a, float b) { return Quat(a.X * b, a.Y * b, a.Z * b, a.W * b); }
+inline Quat operator/(const Quat& a, float b) { return Quat(a.X / b, a.Y / b, a.Z / b, a.W / b); }

@@ -8,18 +8,11 @@ PlaceholderModule::PlaceholderModule(const std::string& name, const std::string&
 
 PlaceholderModule::~PlaceholderModule() { }
 
-// This is where you would load your custom settings for this module, for example from an external file.
-void PlaceholderModule::LoadSettings()
+void PlaceholderModule::UpdateSettings()
 {
-	SetInitialized(); // Make sure this is always placed after you load your settings.
-}
-
-void PlaceholderModule::SetPlaceholderEnabled(const class Setting* setting)
-{
-	if (setting->GetType() == SettingTypes::TYPE_BOOL)
-	{
-		PlaceholderEnabled = setting->GetBoolValue();
-	}
+	SetInitialized(false);
+	PlaceholderEnabled = Manager.GetSetting(VariableIds::PLACEHOLDER_ENABLED)->GetBoolValue();
+	SetInitialized(true);
 }
 
 void PlaceholderModule::DoAThing()

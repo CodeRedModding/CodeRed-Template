@@ -2,9 +2,9 @@
 
 Color::Color() : R(255), G(255), B(255), A(255) { }
 
-Color::Color(const uint8_t rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
+Color::Color(uint8_t rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
 
-Color::Color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) : R(r), G(g), B(b), A(a) { }
+Color::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : R(r), G(g), B(b), A(a) { }
 
 Color::Color(const Color& other) : R(other.R), G(other.G), B(other.B), A(other.A) { }
 
@@ -35,63 +35,34 @@ Color Color::operator=(const struct FColor& other)
 	return *this;
 }
 
-bool Color::operator==(const Color& other)
+bool Color::operator==(const Color& other) const
 {
-	if (R != other.R
-		|| G != other.G
-		|| B != other.B
-		|| A != other.A)
-	{
-		return false;
-	}
-
-	return true;
+	return (R == other.R && G == other.G && B == other.B && A == other.A);
 }
 
-bool Color::operator==(const struct FColor& other)
+bool Color::operator==(const struct FColor& other) const
 {
-	if (R != other.R
-		|| G != other.G
-		|| B != other.B
-		|| A != other.A)
-	{
-		return false;
-	}
-
-	return true;
+	return (R == other.R && G == other.G && B == other.B && A == other.A);
 }
 
-bool Color::operator!=(const Color& other)
+bool Color::operator!=(const Color& other) const
 {
-	if (R != other.R
-		|| G != other.G
-		|| B != other.B
-		|| A != other.A)
-	{
-		return true;
-	}
-
-	return false;
+	return (R != other.R && G != other.G && B != other.B && A != other.A);
 }
 
-bool Color::operator!=(const struct FColor& other)
+bool Color::operator!=(const struct FColor& other) const
 {
-	if (R != other.R
-		|| G != other.G
-		|| B != other.B
-		|| A != other.A)
-	{
-		return true;
-	}
-
-	return false;
+	return (R != other.R && G != other.G && B != other.B && A != other.A);
 }
 
 LinearColor::LinearColor() : R(1.f), G(1.f), B(1.f), A(1.f) { }
 
-LinearColor::LinearColor(const float rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
+LinearColor::LinearColor(float rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
 
-LinearColor::LinearColor(const float r, const float g, const float b, const float a) : R(r), G(g), B(b), A(a) { }
+LinearColor::LinearColor(float r, float g, float b, float a) : R(r), G(g), B(b), A(a)
+{
+	Recalculate();
+}
 
 LinearColor::LinearColor(const LinearColor& other) : R(other.R), G(other.G), B(other.B), A(other.A) { }
 
@@ -103,6 +74,15 @@ struct FLinearColor LinearColor::UnrealColor() const
 {
 	return FLinearColor { R, G, B, A };
 }
+
+void LinearColor::Recalculate()
+{
+	if (R > 1.f) { R /= 255.f; }
+	if (G > 1.f) { G /= 255.f; }
+	if (B > 1.f) { B /= 255.f; }
+	if (A > 1.f) { A /= 255.f; }
+}
+
 
 LinearColor LinearColor::operator=(const LinearColor& other)
 {
@@ -122,56 +102,24 @@ LinearColor LinearColor::operator=(const struct FLinearColor& other)
 	return *this;
 }
 
-bool LinearColor::operator==(const LinearColor& other)
+bool LinearColor::operator==(const LinearColor& other) const
 {
-	if (R != other.R
-		|| G != other.G
-		|| B != other.B
-		|| A != other.A)
-	{
-		return false;
-	}
-
-	return true;
+	return (R == other.R && G == other.G && B == other.B && A == other.A);
 }
 
-bool LinearColor::operator==(const struct FLinearColor& other)
+bool LinearColor::operator==(const struct FLinearColor& other) const
 {
-	if (R != other.R
-		|| G != other.G
-		|| B != other.B
-		|| A != other.A)
-	{
-		return false;
-	}
-
-	return true;
+	return (R == other.R && G == other.G && B == other.B && A == other.A);
 }
 
-bool LinearColor::operator!=(const LinearColor& other)
+bool LinearColor::operator!=(const LinearColor& other) const
 {
-	if (R != other.R
-		|| G != other.G
-		|| B != other.B
-		|| A != other.A)
-	{
-		return true;
-	}
-
-	return false;
+	return (R != other.R && G != other.G && B != other.B && A != other.A);
 }
 
-bool LinearColor::operator!=(const struct FLinearColor& other)
+bool LinearColor::operator!=(const struct FLinearColor& other) const
 {
-	if (R != other.R
-		|| G != other.G
-		|| B != other.B
-		|| A != other.A)
-	{
-		return true;
-	}
-
-	return false;
+	return (R != other.R && G != other.G && B != other.B && A != other.A);
 }
 
 Color FRainbowColor::GetByte()

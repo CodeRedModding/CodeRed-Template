@@ -2,9 +2,9 @@
 #include "../Components/Includes.hpp"
 #include "../Extensions/Includes.hpp"
 
-Setting::Setting(const std::string& name, const std::string& description, const std::string& defaultValue, const SettingTypes valueType, const bool bModifiable)
+Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable)
 {
-	Name = name;
+	Variable = variable;
 	Description = description;
 	Type = valueType;
 	DefaultValue = defaultValue;
@@ -15,17 +15,17 @@ Setting::Setting(const std::string& name, const std::string& description, const 
 
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (CurrentValue.find("#") == 0 || CurrentValue.find("0x") == 0)
+		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
 		{
-			CurrentValue = std::to_string(Colors::HexToDecimal(CurrentValue));
+			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
 			CurrentValue = DefaultValue;
 		}
 	}
 }
 
-Setting::Setting(const std::string& name, const std::string& description, const std::string& defaultValue, const SettingTypes valueType, const bool bModifiable, std::function<void(Setting*)> callback)
+Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void()> callback)
 {
-	Name = name;
+	Variable = variable;
 	Description = description;
 	Type = valueType;
 	DefaultValue = defaultValue;
@@ -36,7 +36,7 @@ Setting::Setting(const std::string& name, const std::string& description, const 
 
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (CurrentValue.find("#") == 0 || CurrentValue.find("0x") == 0)
+		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
 		{
 			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
 			CurrentValue = DefaultValue;
@@ -48,7 +48,7 @@ Setting::~Setting() { };
 
 std::string Setting::GetName() const
 {
-	return Name;
+	return Manager.GetVariableName(Variable);
 }
 
 std::string Setting::GetDescription() const
@@ -124,14 +124,14 @@ LinearColor Setting::GetLinearValue() const
 	return LinearColor();
 }
 
-Vector Setting::GetVector3DValue() const
+VectorF Setting::GetVector3DValue() const
 {
 	if (GetType() == SettingTypes::TYPE_VECTOR_3D
 		|| GetType() == SettingTypes::TYPE_VECTOR_2D)
 	{
 		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
 
-		Vector returnVector;
+		VectorF returnVector;
 
 		if (values.size() == 3)
 		{
@@ -143,17 +143,17 @@ Vector Setting::GetVector3DValue() const
 		return returnVector;
 	}
 
-	return Vector();
+	return VectorF();
 }
 
-Vector2D Setting::GetVector2DValue() const
+Vector2DF Setting::GetVector2DValue() const
 {
 	if (GetType() == SettingTypes::TYPE_VECTOR_3D
 		|| GetType() == SettingTypes::TYPE_VECTOR_2D)
 	{
 		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
 
-		Vector2D returnVector;
+		Vector2DF returnVector;
 
 		if (values.size() == 2)
 		{
@@ -164,7 +164,7 @@ Vector2D Setting::GetVector2DValue() const
 		return returnVector;
 	}
 
-	return Vector2D();
+	return Vector2DF();
 }
 
 void Setting::SetValue(const std::string& value)
@@ -192,6 +192,7 @@ void Setting::SetValue(const std::string& value)
 void Setting::ResetToDefault()
 {
 	CurrentValue = DefaultValue;
+	TriggerCallback();
 }
 
 bool Setting::IsModifiable() const
@@ -208,11 +209,11 @@ void Setting::TriggerCallback()
 {
 	if (HasCallback() && Callback)
 	{
-		Callback(this);
+		Callback();
 	}
 }
 
-void Setting::BindCallback(const std::function<void(Setting*)>& callback)
+void Setting::BindCallback(const std::function<void()>& callback)
 {
 	ShouldCallback = true;
 	Callback = callback;
@@ -224,9 +225,9 @@ void Setting::UnbindCallback()
 	Callback = nullptr;
 }
 
-Command::Command(const std::string& name, const std::string& description)
+Command::Command(VariableIds variable, const std::string& description)
 {
-	Name = name;
+	Variable = variable;
 	Description = description;
 	Type = CommandTypes::TYPE_NONE;
 	Callback = nullptr;
@@ -237,7 +238,7 @@ Command::~Command() { }
 
 std::string Command::GetName() const
 {
-	return Name;
+	return Manager.GetVariableName(Variable);
 }
 
 std::string Command::GetDescription() const
@@ -305,7 +306,23 @@ void Command::TriggerCallback(const std::string& arguments)
 	}
 }
 
-ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, commands, and mods.") { }
+ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, commands, and mods.")
+{
+	PlaceholderMod = nullptr;
+
+	// Here is where we are mapping commands to their internal "VariableId", this is done on runtime.
+	VariableMap_SID.emplace(std::make_pair("reset_to_default", VariableIds::MANAGER_RESET_SETTING));
+	VariableMap_SID.emplace(std::make_pair("print_module", VariableIds::MANAGER_PRINT_MODULE));
+	VariableMap_SID.emplace(std::make_pair("unreal_command", VariableIds::MANAGER_UNREAL_COMMAND));
+
+	VariableMap_SID.emplace(std::make_pair("placeholder_do_thing", VariableIds::PLACEHOLDER_DO_THING));
+	VariableMap_SID.emplace(std::make_pair("placeholder_can_do_thing", VariableIds::PLACEHOLDER_ENABLED));
+
+	for (const std::pair<std::string, VariableIds>& variable : VariableMap_SID)
+	{
+		VariableMap_IDS.emplace(std::make_pair(variable.second, variable.first));
+	}
+}
 
 ManagerComponent::~ManagerComponent() { }
 
@@ -458,6 +475,16 @@ void ManagerComponent::PrintModule(const std::string& moduleName)
 	}
 }
 
+std::string ManagerComponent::GetVariableName(VariableIds variable)
+{
+	if (VariableMap_IDS.find(variable) != VariableMap_IDS.end())
+	{
+		return VariableMap_IDS[variable];
+	}
+
+	return "UnknownVariable";
+}
+
 template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind)
 {
 	std::string moduleName = mod->GetName();
@@ -515,6 +542,11 @@ std::shared_ptr<Command> ManagerComponent::GetCommand(const std::string& command
 	return nullptr;
 }
 
+std::shared_ptr<Command> ManagerComponent::GetCommand(VariableIds variable)
+{
+	return GetCommand(GetVariableName(variable));
+}
+
 std::shared_ptr<Setting> ManagerComponent::CreateSetting(Setting* setting)
 {
 	std::string settingName = setting->GetName();
@@ -542,15 +574,25 @@ std::shared_ptr<Setting> ManagerComponent::GetSetting(const std::string& setting
 	return nullptr;
 }
 
+std::shared_ptr<Setting> ManagerComponent::GetSetting(VariableIds variable)
+{
+	return GetSetting(GetVariableName(variable));
+}
+
 void ManagerComponent::Initialize()
 {
 	// Assigning the CasualMatch and RankedMatch flags, so this module will only be able to be used in casual or ranked games.
 	CreateModule<PlaceholderModule>(new PlaceholderModule("Paceholder", "An example module.", States::STATES_CasualMatch | States::STATES_RankedMatch), PlaceholderMod);
 	
-	// When someone uses the console command "placeholder_some_bool true", we automatically callback to PlaceholderMod and tell it to update its "SomeBoolSetting" property.
-	CreateCommand(new Command("placeholder_do_thing", "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
-	CreateSetting(new Setting("placeholder_enabled", "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true, std::bind(&PlaceholderModule::SetPlaceholderEnabled, PlaceholderMod, std::placeholders::_1)));
-	PlaceholderMod->LoadSettings();
+	CreateCommand(new Command(VariableIds::MANAGER_RESET_SETTING, "Reset a setting to its default/original value."))->BindArguments([&](const std::string& arguments) { ResetSetting(arguments); });
+	CreateCommand(new Command(VariableIds::MANAGER_PRINT_MODULE, "Print information about a given module."))->BindArguments([&](const std::string& arguments) { PrintModule(arguments); });
+	CreateCommand(new Command(VariableIds::MANAGER_UNREAL_COMMAND, "Execute a Unreal Engine 3 command with the given arguments."))->BindArguments([&](const std::string& arguments) { UnrealCommand(arguments); });
+
+	// When someone uses the command "placeholder_do_thing", this will trigger the function "DoAThing" in "PlaceholderModule".
+	CreateCommand(new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
+	// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
+	CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+	PlaceholderMod->UpdateSettings();
 
 	Console.Write(GetNameFormatted() + std::to_string(CommandMap.size() - 1) + " Command(s) Initialized!");
 	Console.Write(GetNameFormatted() + std::to_string(SettingMap.size() - 1) + " Setting(s) Initialized!");

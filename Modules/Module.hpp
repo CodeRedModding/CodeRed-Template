@@ -23,5 +23,5 @@ public:
 	uint32_t GetAllowedStates() const;
 	bool IsAllowed() const;
 	bool IsInitialized() const;
-	void SetInitialized();
+	void SetInitialized(bool bInitialized);
 };

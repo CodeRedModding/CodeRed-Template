@@ -1,6 +1,15 @@
 /*
+    Changes in v1.1.6:
+    - Changed how settings and commands names are stored, in their classes they are now identified by an enum value; their names are assigned in the constructor for the "ManagerComponent" in "Manager.cpp".
+    - Changed how settings and commands are created to go along with the new enum identifier, as well as how their shared pointers are now retrieved.
+    - Changed how the "UpdateSettings" function works in "Module.hpp", there you can retrieve setting values all at once from "ManagerComponent" when a setting updates.
+    - Added examples for how the "ResetSetting", "PrintModule", and "UnrealCommand" functions from "ManagerComponent" can be used as actual commands.
+    - Remade all the math classes to use templated base classes in "Math.hpp", along with changing their names to pair with their underlying types.
+    - Added a "Recalculate" function for the "LinearColor" class in "Colors.hpp", this is auto called in one of the constructors to recalculate the values if the user inputs an incorrect color space. For example they mistakenly put in a value from 0-255 instead of 0f-1f.
+    - Added a few const variables to operators in both "Colors.hpp" and "Math.hpp".
+
     Changes in v1.1.5:
-    - Changed all function hooks to use the new "PreEvent" and "PostEvent" arguments, they have neat template functions that auto recast for you as well as an option to not detour the function through Process Event.
+    - Changed all function hooks to use the new "PreEvent" and "PostEvent" classes, they have neat template functions that auto recast for you as well as an option to not detour the function through Process Event.
     - Removed the "ParseArguments" and "SplitArguments" functions in "Manager.hpp" and instead moved it to the "Format" namespace in "Formatting.hpp".
     - Renamed the "Functions" namespace to "Hooks" in "Events.hpp".
     - Renamed the "Queue" vector in "Manager.hpp" to "CommandQueue".

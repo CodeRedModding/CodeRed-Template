@@ -8,8 +8,8 @@ public:
 
 public:
 	Color();
-	Color(const uint8_t rgba);
-	Color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a);
+	Color(uint8_t rgba);
+	Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 	Color(const Color& other);
 	Color(const struct FColor& other);
 	~Color();
@@ -20,10 +20,10 @@ public:
 public:
 	Color operator=(const Color& other);
 	Color operator=(const struct FColor& other);
-	bool operator==(const Color& other);
-	bool operator==(const struct FColor& other);
-	bool operator!=(const Color& other);
-	bool operator!=(const struct FColor& other);
+	bool operator==(const Color& other) const;
+	bool operator==(const struct FColor& other) const;
+	bool operator!=(const Color& other) const;
+	bool operator!=(const struct FColor& other) const;
 };
 
 struct LinearColor
@@ -33,22 +33,23 @@ public:
 
 public:
 	LinearColor();
-	LinearColor(const float rgba);
-	LinearColor(const float r, const float g, const float b, const float a);
+	LinearColor(float rgba);
+	LinearColor(float r, float g, float b, float a);
 	LinearColor(const LinearColor& other);
 	LinearColor(const struct FLinearColor& other);
 	~LinearColor();
 
 public:
 	struct FLinearColor UnrealColor() const;
+	void Recalculate();
 
 public:
 	LinearColor operator=(const LinearColor& other);
 	LinearColor operator=(const struct FLinearColor& other);
-	bool operator==(const LinearColor& other);
-	bool operator==(const struct FLinearColor& other);
-	bool operator!=(const LinearColor& other);
-	bool operator!=(const struct FLinearColor& other);
+	bool operator==(const LinearColor& other) const;
+	bool operator==(const struct FLinearColor& other) const;
+	bool operator!=(const LinearColor& other) const;
+	bool operator!=(const struct FLinearColor& other) const;
 };
 
 // This is a global rainbow color class, hook your own function to the "Tick" function for it to update.
@@ -58,7 +59,7 @@ class FRainbowColor
 {
 public:
 	static inline Color ByteRainbow =					{ 0, 0, 255, 255 };
-	static inline LinearColor LinearRainbow =			{ 0, 0, 255, 255 };
+	static inline LinearColor LinearRainbow =			{ 0.f, 0.f, 1.f, 1.f };
 
 public:
 	static Color GetByte();

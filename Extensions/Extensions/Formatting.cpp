@@ -53,7 +53,7 @@ namespace Format
         std::vector<std::string> returnVector;
         std::string currentWord;
 
-        for (const char& x : arguments) 
+        for (const char x : arguments) 
         {
             if (x == ' ')
             {

@@ -48,8 +48,7 @@ bool Module::IsInitialized() const
 	return Initialized;
 }
 
-void Module::SetInitialized()
+void Module::SetInitialized(bool bInitialized)
 {
-	Initialized = true;
-	Console.Success(GetNameFormatted() + "Initialized!");
+	Initialized = bInitialized;
 }

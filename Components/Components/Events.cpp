@@ -302,9 +302,9 @@ void EventsComponent::Initialize()
 	HookEventPre("Function Engine.GameViewportClient.HandleKeyPress", &Hooks::GameViewPortKeyPress);
 	HookEventPre("Function Engine.GFxData_MainMenu.MainMenuAdded", &Hooks::GFxDataMainMenuAdded);
 
-	Console.Write(GetNameFormatted() + std::to_string(PreHookedEvents.size()) + " Pre-Hook(s) Initialized!");
-	Console.Write(GetNameFormatted() + std::to_string(PostHookedEvents.size()) + " Post-Hook(s) Initialized!");
-	Console.Write(GetNameFormatted() + std::to_string(BlacklistedEvents.size()) + " Backlisted Event(s) Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(PreHookedEvents.size() - 1) + " Pre-Hook(s) Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(PostHookedEvents.size() - 1) + " Post-Hook(s) Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(BlacklistedEvents.size() - 1) + " Backlisted Event(s) Initialized!");
 }
 
 class EventsComponent Events;
