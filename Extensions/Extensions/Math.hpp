@@ -123,7 +123,7 @@ public:
 class Vector2DF : public TVector2D<float>
 {
 public:
-	Vector2DF() : TVector2D(0) { }
+	Vector2DF() : TVector2D(0.f) { }
 	Vector2DF(float xy) : TVector2D(xy) { }
 	Vector2DF(float x, float y) : TVector2D(x, y) { }
 	Vector2DF(const Vector2DF& other) : TVector2D(other) { }
