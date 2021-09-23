@@ -136,6 +136,10 @@ public:
 public:
 	void Erase();
 	Vector2DF Copy() const;
+
+public:
+	Vector2DF operator=(const Vector2DF& other);
+	Vector2DF operator=(const struct FVector2D& other);
 };
 
 inline Vector2DF operator+(const Vector2DF& a, const Vector2DF& b) { return Vector2DF(a.X + b.X, a.Y + b.Y); }
@@ -163,6 +167,10 @@ public:
 public:
 	void Erase();
 	Vector2DI Copy() const;
+
+public:
+	Vector2DI operator=(const Vector2DI& other);
+	Vector2DI operator=(const struct FVector2D& other);
 };
 
 inline Vector2DI operator+(const Vector2DI& a, const Vector2DI& b) { return Vector2DI(a.X + b.X, a.Y + b.Y); }
@@ -197,6 +205,10 @@ public:
 	VectorF Dot(const VectorF& other) const;
 	VectorF Cross(const VectorF& other) const;
 	VectorF Lerp(const VectorF& other, float percentage) const;
+
+public:
+	VectorF operator=(const VectorF& other);
+	VectorF operator=(const struct FVector& other);
 };
 
 inline VectorF operator+(const VectorF& a, const VectorF& b) { return VectorF(a.X + b.X, a.Y + b.Y, a.Z + b.Z); }
@@ -231,6 +243,10 @@ public:
 	VectorI Dot(const VectorI& other) const;
 	VectorI Cross(const VectorI& other) const;
 	VectorI Lerp(const VectorI& other, float percentage) const;
+
+public:
+	VectorI operator=(const VectorI& other);
+	VectorI operator=(const struct FVector& other);
 };
 
 inline VectorI operator+(const VectorI& a, const VectorI& b) { return VectorI(a.X + b.X, a.Y + b.Y, a.Z + b.Z); }
@@ -259,6 +275,16 @@ public:
 	struct FRotator UnrealRotator() const;
 
 public:
+	void Erase();
+	Rotator Copy() const;
+	float ClampAxis(float a);
+	void Normalize();
+	float NormalizeAxis(float a);
+	Rotator GetNormalize() const;
+	VectorF GetVector() const;
+	VectorF Rotate(VectorF other) const;
+
+public:
 	Rotator operator+=(const Rotator& other);
 	Rotator operator-=(const Rotator& other);
 	Rotator operator*=(const Rotator& other);
@@ -274,16 +300,6 @@ public:
 	bool operator==(const struct FRotator& other) const;
 	bool operator!=(const Rotator& other) const;
 	bool operator!=(const struct FRotator& other) const;
-
-public:
-	void Erase();
-	Rotator Copy() const;
-	float ClampAxis(float a);
-	void Normalize();
-	float NormalizeAxis(float a);
-	Rotator GetNormalize() const;
-	VectorF GetVector() const;
-	VectorF Rotate(VectorF other) const;
 };
 
 inline Rotator operator+(const Rotator& a, const Rotator& b) { return Rotator(a.Pitch + b.Pitch, a.Yaw + b.Yaw, a.Roll + b.Roll); }
@@ -313,23 +329,6 @@ public:
 	struct FQuat UnrealQuat() const;
 
 public:
-	Quat operator+=(const Quat& other);
-	Quat operator-=(const Quat& other);
-	Quat operator*=(const Quat& other);
-	Quat operator/=(const Quat& other);
-	Quat operator+=(float other);
-	Quat operator-=(float other);
-	Quat operator*=(float other);
-	Quat operator/=(float other);
-	Quat operator=(const Quat& other);
-	Quat operator=(const struct FQuat& other);
-	Quat operator=(float other);
-	bool operator==(const Quat& other) const;
-	bool operator==(const struct FQuat& other) const;
-	bool operator!=(const Quat& other) const;
-	bool operator!=(const struct FQuat& other) const;
-
-public:
 	void Erase();
 	Quat Copy() const;
 	bool Equals(const Quat& q, float tolerance = SMALL_NUMBER) const;
@@ -347,6 +346,23 @@ public:
 	Quat GetNormalize(float tolerance = SMALL_NUMBER) const;
 	Rotator GetRotator() const;
 	VectorF Rotate(const VectorF& other) const;
+
+public:
+	Quat operator+=(const Quat& other);
+	Quat operator-=(const Quat& other);
+	Quat operator*=(const Quat& other);
+	Quat operator/=(const Quat& other);
+	Quat operator+=(float other);
+	Quat operator-=(float other);
+	Quat operator*=(float other);
+	Quat operator/=(float other);
+	Quat operator=(const Quat& other);
+	Quat operator=(const struct FQuat& other);
+	Quat operator=(float other);
+	bool operator==(const Quat& other) const;
+	bool operator==(const struct FQuat& other) const;
+	bool operator!=(const Quat& other) const;
+	bool operator!=(const struct FQuat& other) const;
 };
 
 inline Quat operator+(const Quat& a, const Quat& b) { return Quat(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W); }

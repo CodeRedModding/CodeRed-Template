@@ -99,6 +99,20 @@ Vector2DF Vector2DF::Copy() const
 	return Vector2DF(X, Y);
 }
 
+Vector2DF Vector2DF::operator=(const Vector2DF& other)
+{
+	X = other.X;
+	Y = other.Y;
+	return *this;
+}
+
+Vector2DF Vector2DF::operator=(const struct FVector2D& other)
+{
+	X = other.X;
+	Y = other.Y;
+	return *this;
+}
+
 FVector2D Vector2DI::UnrealVector() const
 {
 	return FVector2D { static_cast<float>(X), static_cast<float>(Y) };
@@ -113,6 +127,20 @@ void Vector2DI::Erase()
 Vector2DI Vector2DI::Copy() const
 {
 	return Vector2DI(X, Y);
+}
+
+Vector2DI Vector2DI::operator=(const Vector2DI& other)
+{
+	X = other.X;
+	Y = other.Y;
+	return *this;
+}
+
+Vector2DI Vector2DI::operator=(const struct FVector2D& other)
+{
+	X = other.X;
+	Y = other.Y;
+	return *this;
 }
 
 struct FVector VectorF::UnrealVector() const
@@ -183,6 +211,22 @@ VectorF VectorF::Lerp(const VectorF& other, float percentage) const
 	return VectorF(mutableThis * percentage + (other * (1.f - percentage)));
 }
 
+VectorF VectorF::operator=(const VectorF& other)
+{
+	X = other.X;
+	Y = other.Y;
+	Z = other.Z;
+	return *this;
+}
+
+VectorF VectorF::operator=(const struct FVector& other)
+{
+	X = other.X;
+	Y = other.Y;
+	Z = other.Z;
+	return *this;
+}
+
 struct FVector VectorI::UnrealVector() const
 {
 	return { static_cast<float>(X), static_cast<float>(Y), static_cast<float>(Z) };
@@ -251,6 +295,22 @@ VectorI VectorI::Lerp(const VectorI& other, float percentage) const
 	return VectorI(mutableThis * percentage + (other * (1 - percentage)));
 }
 
+VectorI VectorI::operator=(const VectorI& other)
+{
+	X = other.X;
+	Y = other.Y;
+	Z = other.Z;
+	return *this;
+}
+
+VectorI VectorI::operator=(const struct FVector& other)
+{
+	X = other.X;
+	Y = other.Y;
+	Z = other.Z;
+	return *this;
+}
+
 Rotator::Rotator() : Pitch(0), Yaw(0), Roll(0) { }
 
 Rotator::Rotator(int32_t pyr) : Pitch(pyr), Yaw(pyr), Roll(pyr) { }
@@ -266,6 +326,92 @@ Rotator::~Rotator() { }
 struct FRotator Rotator::UnrealRotator() const
 {
 	return FRotator{ Pitch, Yaw, Roll };
+}
+
+void Rotator::Erase()
+{
+	Pitch = 0;
+	Yaw = 0;
+	Roll = 0;
+}
+
+Rotator Rotator::Copy() const
+{
+	return Rotator(Pitch, Yaw, Roll);
+}
+
+float Rotator::ClampAxis(float a)
+{
+	a = fmod(a, 360.f);
+
+	if (a < 0.f)
+	{
+		a += 360.f;
+	}
+
+	return a;
+}
+
+void Rotator::Normalize()
+{
+	Pitch = NormalizeAxis(Pitch);
+	Yaw = NormalizeAxis(Yaw);
+	Roll = NormalizeAxis(Roll);
+}
+
+float Rotator::NormalizeAxis(float a)
+{
+	a = ClampAxis(a);
+
+	if (a > 180.f)
+	{
+		a -= 360.f;
+	}
+
+	return a;
+}
+
+Rotator Rotator::GetNormalize() const
+{
+	Rotator mutableThis = *this;
+	mutableThis.Normalize();
+	return mutableThis;
+}
+
+VectorF Rotator::GetVector() const
+{
+	const float PitchNoWinding = fmod(Pitch, 360.0f);
+	const float YawNoWinding = fmod(Yaw, 360.0f);
+
+	float CP, SP, CY, SY;
+	Math::SinCos(&SP, &CP, PitchNoWinding * (PI / 180.f));
+	Math::SinCos(&SY, &CY, YawNoWinding * (PI / 180.f));
+
+	return VectorF(CP * CY, CP * SY, SP);
+}
+
+VectorF Rotator::Rotate(VectorF other) const
+{
+	double pitch = (double)Pitch / Rotation180 * PI;
+	double yaw = (double)Yaw / Rotation180 * PI;
+	double roll = (double)Roll / Rotation180 * PI;
+
+	float sz = sin(pitch);
+	float cz = cos(pitch);
+	float sy = sin(-yaw);
+	float cy = cos(-yaw);
+	float sx = sin(roll);
+	float cx = cos(roll);
+
+	other = VectorF(other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx); // Roll
+	other = VectorF(other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z); // Pitch
+	other = VectorF(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy ); // Yaw
+
+	float tmp = other.Z;
+	other.Z = other.Y;
+	other.Y = tmp;
+
+	return other;
 }
 
 struct Rotator Rotator::operator+=(const Rotator& other)
@@ -358,136 +504,22 @@ struct Rotator Rotator::operator=(int32_t other)
 
 bool Rotator::operator==(const Rotator& other) const
 {
-	if (Pitch != other.Pitch
-		|| Yaw != other.Yaw
-		|| Roll != other.Roll)
-	{
-		return false;
-	}
-
-	return true;
+	return (Pitch == other.Pitch && Yaw == other.Yaw && Roll == other.Roll);
 }
 
 bool Rotator::operator==(const struct FRotator& other) const
 {
-	if (Pitch != other.Pitch
-		|| Yaw != other.Yaw
-		|| Roll != other.Roll)
-	{
-		return false;
-	}
-
-	return true;
+	return (Pitch == other.Pitch && Yaw == other.Yaw && Roll == other.Roll);
 }
 
 bool Rotator::operator!=(const Rotator& other) const
 {
-	if (Pitch != other.Pitch
-		|| Yaw != other.Yaw
-		|| Roll != other.Roll)
-	{
-		return true;
-	}
-
-	return false;
+	return (Pitch != other.Pitch && Yaw != other.Yaw && Roll != other.Roll);
 }
 
 bool Rotator::operator!=(const struct FRotator& other) const
 {
-	if (Pitch != other.Pitch
-		|| Yaw != other.Yaw
-		|| Roll != other.Roll)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void Rotator::Erase()
-{
-	Pitch = 0;
-	Yaw = 0;
-	Roll = 0;
-}
-
-Rotator Rotator::Copy() const
-{
-	return Rotator(Pitch, Yaw, Roll);
-}
-
-float Rotator::ClampAxis(float a)
-{
-	a = fmod(a, 360.f);
-
-	if (a < 0.f)
-	{
-		a += 360.f;
-	}
-
-	return a;
-}
-
-void Rotator::Normalize()
-{
-	Pitch = NormalizeAxis(Pitch);
-	Yaw = NormalizeAxis(Yaw);
-	Roll = NormalizeAxis(Roll);
-}
-
-float Rotator::NormalizeAxis(float a)
-{
-	a = ClampAxis(a);
-
-	if (a > 180.f)
-	{
-		a -= 360.f;
-	}
-
-	return a;
-}
-
-Rotator Rotator::GetNormalize() const
-{
-	Rotator mutableThis = *this;
-	mutableThis.Normalize();
-	return mutableThis;
-}
-
-VectorF Rotator::GetVector() const
-{
-	const float PitchNoWinding = fmod(Pitch, 360.0f);
-	const float YawNoWinding = fmod(Yaw, 360.0f);
-
-	float CP, SP, CY, SY;
-	Math::SinCos(&SP, &CP, PitchNoWinding * (PI / 180.f));
-	Math::SinCos(&SY, &CY, YawNoWinding * (PI / 180.f));
-
-	return VectorF(CP * CY, CP * SY, SP);
-}
-
-VectorF Rotator::Rotate(VectorF other) const
-{
-	double pitch = (double)Pitch / Rotation180 * PI;
-	double yaw = (double)Yaw / Rotation180 * PI;
-	double roll = (double)Roll / Rotation180 * PI;
-
-	float sz = sin(pitch);
-	float cz = cos(pitch);
-	float sy = sin(-yaw);
-	float cy = cos(-yaw);
-	float sx = sin(roll);
-	float cx = cos(roll);
-
-	other = VectorF(other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx); // Roll
-	other = VectorF(other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z); // Pitch
-	other = VectorF(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy ); // Yaw
-
-	float tmp = other.Z;
-	other.Z = other.Y;
-	other.Y = tmp;
-
-	return other;
+	return (Pitch != other.Pitch && Yaw != other.Yaw && Roll != other.Roll);
 }
 
 VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
@@ -533,157 +565,6 @@ Quat::~Quat() { }
 struct FQuat Quat::UnrealQuat() const
 {
 	return FQuat{ X, Y, Z, W };
-}
-
-Quat Quat::operator+=(const Quat& other)
-{
-	X += other.X;
-	Y += other.Y;
-	Z += other.Z;
-	W += other.W;
-	return *this;
-}
-
-Quat Quat::operator-=(const Quat& other)
-{
-	X -= other.X;
-	Y -= other.Y;
-	Z -= other.Z;
-	W -= other.W;
-	return *this;
-}
-
-Quat Quat::operator*=(const Quat& other)
-{
-	X *= other.X;
-	Y *= other.Y;
-	Z *= other.Z;
-	W *= other.W;
-	return *this;
-}
-
-Quat Quat::operator/=(const Quat& other)
-{
-	X /= other.X;
-	Y /= other.Y;
-	Z /= other.Z;
-	W /= other.W;
-	return *this;
-}
-
-Quat Quat::operator+=(float other)
-{
-	X += other;
-	Y += other;
-	Z += other;
-	W += other;
-	return *this;
-}
-
-Quat Quat::operator-=(float other)
-{
-	X -= other;
-	Y -= other;
-	Z -= other;
-	W -= other;
-	return *this;
-}
-
-Quat Quat::operator*=(float other)
-{
-	X *= other;
-	Y *= other;
-	Z *= other;
-	W *= other;
-	return *this;
-}
-
-Quat Quat::operator/=(float other)
-{
-	X /= other;
-	Y /= other;
-	Z /= other;
-	W /= other;
-	return *this;
-}
-
-Quat Quat::operator=(const Quat& other)
-{
-	X = other.X;
-	Y = other.Y;
-	Z = other.Z;
-	W = other.W;
-	return *this;
-}
-
-Quat Quat::operator=(const struct FQuat& other)
-{
-	X = other.X;
-	Y = other.Y;
-	Z = other.Z;
-	W = other.W;
-	return *this;
-}
-
-Quat Quat::operator=(float other)
-{
-	X = other;
-	Y = other;
-	Z = other;
-	W = other;
-	return *this;
-}
-
-bool Quat::operator==(const Quat& other) const
-{
-	if (X != other.X
-		|| Y != other.Y
-		|| Z != other.Z
-		|| W != other.W)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool Quat::operator==(const struct FQuat& other) const
-{
-	if (X != other.X
-		|| Y != other.Y
-		|| Z != other.Z
-		|| W != other.W)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool Quat::operator!=(const Quat& other) const
-{
-	if (X != other.X
-		|| Y != other.Y
-		|| Z != other.Z
-		|| W != other.W)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-bool Quat::operator!=(const struct FQuat& other) const
-{
-	if (X != other.X
-		|| Y != other.Y
-		|| Z != other.Z
-		|| W != other.W)
-	{
-		return true;
-	}
-
-	return false;
 }
 
 void Quat::Erase()
@@ -829,4 +710,123 @@ VectorF Quat::Rotate(const VectorF& other) const
 	VectorF q(X, Y, Z);
 	VectorF t = 2.f * q.Cross(other);
 	return VectorF(other + (W * t) + q.Cross(t));
+}
+
+Quat Quat::operator+=(const Quat& other)
+{
+	X += other.X;
+	Y += other.Y;
+	Z += other.Z;
+	W += other.W;
+	return *this;
+}
+
+Quat Quat::operator-=(const Quat& other)
+{
+	X -= other.X;
+	Y -= other.Y;
+	Z -= other.Z;
+	W -= other.W;
+	return *this;
+}
+
+Quat Quat::operator*=(const Quat& other)
+{
+	X *= other.X;
+	Y *= other.Y;
+	Z *= other.Z;
+	W *= other.W;
+	return *this;
+}
+
+Quat Quat::operator/=(const Quat& other)
+{
+	X /= other.X;
+	Y /= other.Y;
+	Z /= other.Z;
+	W /= other.W;
+	return *this;
+}
+
+Quat Quat::operator+=(float other)
+{
+	X += other;
+	Y += other;
+	Z += other;
+	W += other;
+	return *this;
+}
+
+Quat Quat::operator-=(float other)
+{
+	X -= other;
+	Y -= other;
+	Z -= other;
+	W -= other;
+	return *this;
+}
+
+Quat Quat::operator*=(float other)
+{
+	X *= other;
+	Y *= other;
+	Z *= other;
+	W *= other;
+	return *this;
+}
+
+Quat Quat::operator/=(float other)
+{
+	X /= other;
+	Y /= other;
+	Z /= other;
+	W /= other;
+	return *this;
+}
+
+Quat Quat::operator=(const Quat& other)
+{
+	X = other.X;
+	Y = other.Y;
+	Z = other.Z;
+	W = other.W;
+	return *this;
+}
+
+Quat Quat::operator=(const struct FQuat& other)
+{
+	X = other.X;
+	Y = other.Y;
+	Z = other.Z;
+	W = other.W;
+	return *this;
+}
+
+Quat Quat::operator=(float other)
+{
+	X = other;
+	Y = other;
+	Z = other;
+	W = other;
+	return *this;
+}
+
+bool Quat::operator==(const Quat& other) const
+{
+	return (X == other.X && Y == other.Y && Z == other.Z && W == other.W);
+}
+
+bool Quat::operator==(const struct FQuat& other) const
+{
+	return (X == other.X && Y == other.Y && Z == other.Z && W == other.W);
+}
+
+bool Quat::operator!=(const Quat& other) const
+{
+	return (X != other.X && Y != other.Y && Z != other.Z && W != other.W);
+}
+
+bool Quat::operator!=(const struct FQuat& other) const
+{
+	return (X != other.X && Y != other.Y && Z != other.Z && W != other.W);
 }
