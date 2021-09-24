@@ -514,12 +514,12 @@ bool Rotator::operator==(const struct FRotator& other) const
 
 bool Rotator::operator!=(const Rotator& other) const
 {
-	return (Pitch != other.Pitch && Yaw != other.Yaw && Roll != other.Roll);
+	return (Pitch != other.Pitch || Yaw != other.Yaw || Roll != other.Roll);
 }
 
 bool Rotator::operator!=(const struct FRotator& other) const
 {
-	return (Pitch != other.Pitch && Yaw != other.Yaw && Roll != other.Roll);
+	return (Pitch != other.Pitch || Yaw != other.Yaw || Roll != other.Roll);
 }
 
 VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
@@ -823,10 +823,10 @@ bool Quat::operator==(const struct FQuat& other) const
 
 bool Quat::operator!=(const Quat& other) const
 {
-	return (X != other.X && Y != other.Y && Z != other.Z && W != other.W);
+	return (X != other.X || Y != other.Y || Z != other.Z || W != other.W);
 }
 
 bool Quat::operator!=(const struct FQuat& other) const
 {
-	return (X != other.X && Y != other.Y && Z != other.Z && W != other.W);
+	return (X != other.X || Y != other.Y || Z != other.Z || W != other.W);
 }

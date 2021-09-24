@@ -83,7 +83,7 @@ public:
 	TVector2D operator=(const TVector2D& other) { X = other.X, Y = other.Y; return *this; }
 	TVector2D operator=(TType other) { X = other; Y = other; return *this; }
 	bool operator==(const TVector2D& other) const { return (X == other.X && Y == other.Y); }
-	bool operator!=(const TVector2D& other) const { return (X != other.X && Y != other.Y); }
+	bool operator!=(const TVector2D& other) const { return (X != other.X || Y != other.Y); }
 };
 
 // Template based 3D vector, a base class for other type-specific vectors with built in operators.
@@ -113,7 +113,7 @@ public:
 	TVector3D operator=(const TVector3D& other) { X = other.X, Y = other.Y; Z = other.Z; return *this; }
 	TVector3D operator=(TType other) { X = other; Y = other; Z = other; return *this; }
 	bool operator==(const TVector3D& other) const { return (X == other.X && Y == other.Y && Z == other.Z); }
-	bool operator!=(const TVector3D& other) const { return (X != other.X && Y != other.Y && Z != other.Z); }
+	bool operator!=(const TVector3D& other) const { return (X != other.X || Y != other.Y || Z != other.Z); }
 };
 
 // These classes below rely on the templated base classes for ease of use.
