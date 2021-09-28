@@ -1,4 +1,9 @@
 /*
+    Changes in v1.1.7:
+    - Added the "MarkForDestory" function in "Instances.hpp", and updated the PlaceholderSDK to accommodate this.
+    - Changed some cast types for the template functions in "Instances.hpp".
+    - Renamed some of the example settings in "Manager.cpp".
+
     Changes in v1.1.6:
     - Changed how settings and commands names are stored, in their classes they are now identified by an enum value; their names are assigned in the constructor for the "ManagerComponent" in "Manager.cpp".
     - Changed how settings and commands are created to go along with the new enum identifier, as well as how their shared pointers are now retrieved.

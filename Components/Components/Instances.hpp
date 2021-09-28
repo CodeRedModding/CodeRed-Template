@@ -30,7 +30,7 @@ public:
 			{
 				if (uObject->GetFullName().find("Default") != std::string::npos)
 				{
-					return reinterpret_cast<T*>(uObject);
+					return static_cast<T*>(uObject);
 				}
 			}
 		}
@@ -51,7 +51,7 @@ public:
 			{
 				if (uObject->GetFullName().find("Default") == std::string::npos)
 				{
-					return reinterpret_cast<T*>(uObject);
+					return static_cast<T*>(uObject);
 				}
 			}
 		}
@@ -71,7 +71,7 @@ public:
 			{
 				if (uObject->GetFullName().find("Default") == std::string::npos)
 				{
-					objectInstances.push_back(reinterpret_cast<T*>(uObject));
+					objectInstances.push_back(static_cast<T*>(uObject));
 				}
 			}
 		}
@@ -91,7 +91,7 @@ public:
 			{
 				if (uObject->GetFullName().find("Default") != std::string::npos)
 				{
-					objectInstances.push_back(reinterpret_cast<T*>(uObject));
+					objectInstances.push_back(static_cast<T*>(uObject));
 				}
 			}
 		}
@@ -114,7 +114,7 @@ public:
 
 				if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
 				{
-					return reinterpret_cast<T*>(uObject);
+					return static_cast<T*>(uObject);
 				}
 			}
 		}
@@ -138,7 +138,7 @@ public:
 
 				if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
 				{
-					objectInstances.push_back(reinterpret_cast<T*>(uObject));
+					objectInstances.push_back(static_cast<T*>(uObject));
 				}
 			}
 		}
@@ -157,7 +157,7 @@ public:
 
 		if (defaultObject && staticClass)
 		{
-			returnObject = reinterpret_cast<T*>(defaultObject->DuplicateObject(defaultObject, defaultObject->Outer, staticClass));
+			returnObject = static_cast<T*>(defaultObject->DuplicateObject(defaultObject, defaultObject->Outer, staticClass));
 		}
 
 		// Making sure newly created object doesn't get randomly destoyed by the garbage collector when we don't want it do.
@@ -179,6 +179,9 @@ private:
 	class AHUD* I_AHUD;
 	class UGameViewportClient* I_UGameViewportClient;
 	class APlayerController* I_APlayerController;
+
+public:
+	void MarkForDestory(class UObject* object); // Set object as a temporary object and marks it for the garbage collector to destroy.
 
 public: // Use these functions to access these specific class instances, they will be set automatically; always remember to null check!
 	class UEngine* IUEngine();

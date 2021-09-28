@@ -311,7 +311,7 @@ ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, c
 	PlaceholderMod = nullptr;
 
 	// Here is where we are mapping commands to their internal "VariableId", this is done on runtime.
-	VariableMap_SID.emplace(std::make_pair("reset_to_default", VariableIds::MANAGER_RESET_SETTING));
+	VariableMap_SID.emplace(std::make_pair("reset_setting", VariableIds::MANAGER_RESET_SETTING));
 	VariableMap_SID.emplace(std::make_pair("print_module", VariableIds::MANAGER_PRINT_MODULE));
 	VariableMap_SID.emplace(std::make_pair("unreal_command", VariableIds::MANAGER_UNREAL_COMMAND));
 
@@ -594,8 +594,8 @@ void ManagerComponent::Initialize()
 	CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
 	PlaceholderMod->UpdateSettings();
 
-	Console.Write(GetNameFormatted() + std::to_string(CommandMap.size() - 1) + " Command(s) Initialized!");
-	Console.Write(GetNameFormatted() + std::to_string(SettingMap.size() - 1) + " Setting(s) Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(CommandMap.size()) + " Command(s) Initialized!");
+	Console.Write(GetNameFormatted() + std::to_string(SettingMap.size()) + " Setting(s) Initialized!");
 }
 
 class ManagerComponent Manager;

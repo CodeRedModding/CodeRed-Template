@@ -13,6 +13,13 @@ InstancesComponent::InstancesComponent() : Component("Instances", "Manages class
 
 InstancesComponent::~InstancesComponent() { }
 
+void InstancesComponent::MarkForDestory(class UObject* object)
+{
+	object->ObjectFlags = 0;
+	object->ObjectFlags |= EObjectFlags::RF_Transient;
+	object->MarkPendingKill();
+}
+
 class UEngine* InstancesComponent::IUEngine()
 {
 	return I_UEngine;
