@@ -9,7 +9,7 @@ private:
 
 public:
 	PlaceholderModule(const std::string& name, const std::string& description, uint32_t states);
-	~PlaceholderModule();
+	~PlaceholderModule() override;
 
 public:
 	void UpdateSettings();

@@ -14,7 +14,7 @@ private:
 
 public:
 	Module(const std::string& name, const std::string& description, uint32_t states);
-	~Module();
+	virtual ~Module();
 
 public:
 	std::string GetName() const;

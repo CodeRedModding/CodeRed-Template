@@ -7,7 +7,7 @@ class InstancesComponent : public Component
 {
 public:
 	InstancesComponent();
-	~InstancesComponent();
+	~InstancesComponent() override;
 
 public:
 	std::map<std::string, class UClass*> StaticClasses;
@@ -163,10 +163,7 @@ public:
 		// Making sure newly created object doesn't get randomly destoyed by the garbage collector when we don't want it do.
 		if (returnObject)
 		{
-			returnObject->ObjectFlags &= ~EObjectFlags::RF_Transient;
-			returnObject->ObjectFlags |= EObjectFlags::RF_Public;
-			returnObject->ObjectFlags |= EObjectFlags::RF_Standalone;
-			returnObject->ObjectFlags |= EObjectFlags::RF_MarkAsRootSet;
+			MarkInvincible(returnObject);
 		}
 
 		return returnObject;
@@ -181,6 +178,7 @@ private:
 	class APlayerController* I_APlayerController;
 
 public:
+	void MarkInvincible(class UObject* object); // Set an object's flags to prevent it from being destoryed.
 	void MarkForDestory(class UObject* object); // Set object as a temporary object and marks it for the garbage collector to destroy.
 
 public: // Use these functions to access these specific class instances, they will be set automatically; always remember to null check!

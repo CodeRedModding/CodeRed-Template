@@ -35,7 +35,7 @@ public:
 	ConsoleComponent();
 	ConsoleComponent(const std::string& directory, const std::string& fileName);
 	ConsoleComponent(const std::filesystem::path directory, const std::string& fileName);
-	~ConsoleComponent();
+	~ConsoleComponent() override;
 
 public:
 	void Write(std::string text);

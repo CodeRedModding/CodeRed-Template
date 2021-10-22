@@ -23,17 +23,15 @@ private:
 
 public:
 	GameStateComponent();
-	~GameStateComponent();
+	~GameStateComponent() override;
 
 public:
 	States GetState() const;
 	uint32_t GetStateId() const;
 	std::string GetStateLabel();
-
 	bool IsInGame() const;
 	void MainMenuAdded();
 	void WaitingForState();
-
 	void Initialize();
 };
 

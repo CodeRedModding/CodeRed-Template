@@ -71,7 +71,7 @@ public:
 
 public:
 	EventsComponent();
-	~EventsComponent();
+	~EventsComponent() override;
 
 public:
 	static void ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result); // Process event gets detoured to this function, then we manually proxy it through to "ProcessEvent".

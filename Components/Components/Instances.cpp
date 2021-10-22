@@ -13,11 +13,25 @@ InstancesComponent::InstancesComponent() : Component("Instances", "Manages class
 
 InstancesComponent::~InstancesComponent() { }
 
+void InstancesComponent::MarkInvincible(class UObject* object)
+{
+	if (object)
+	{
+		object->ObjectFlags &= ~EObjectFlags::RF_Transient;
+		object->ObjectFlags |= EObjectFlags::RF_Public;
+		object->ObjectFlags |= EObjectFlags::RF_Standalone;
+		object->ObjectFlags |= EObjectFlags::RF_MarkAsRootSet;
+	}
+}
+
 void InstancesComponent::MarkForDestory(class UObject* object)
 {
-	object->ObjectFlags = 0;
-	object->ObjectFlags |= EObjectFlags::RF_Transient;
-	object->MarkPendingKill();
+	if (object)
+	{
+		object->ObjectFlags = 0;
+		object->ObjectFlags |= EObjectFlags::RF_Transient;
+		object->MarkPendingKill();
+	}
 }
 
 class UEngine* InstancesComponent::IUEngine()

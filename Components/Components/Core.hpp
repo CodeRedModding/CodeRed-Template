@@ -9,7 +9,7 @@ private:
 
 public:
 	CoreComponent();
-	~CoreComponent();
+	~CoreComponent() override;
 
 public:
 	void InitializeThread();

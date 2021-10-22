@@ -1,6 +1,14 @@
 /*
+    Changes in v1.1.8:
+    - Added the "MarkInvincible" function in "Manager.hpp" which lets you easily prevent objects from being destroyed.
+    - Added saftey checks for the "invincible" functions in "Manager.cpp".
+    - Added a null check for updating modules settings when the "Initialize" function is called in "Manager.cpp".
+    - Added virtual deconstructors for components and modules.
+    - Reformatted some of the constructors for the color classes in "Colors.cpp".
+
     Changes in v1.1.7:
     - Added the "MarkForDestory" function in "Instances.hpp", and updated the PlaceholderSDK to accommodate this.
+    - Fixed the "GetVector3DValue" function for the "Setting" class in "Manager.cpp", it still passed the type check even if it were a "TYPE_VECTOR_2D".
     - Changed some cast types for the template functions in "Instances.hpp".
     - Renamed some of the example settings in "Manager.cpp".
 

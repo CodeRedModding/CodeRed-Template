@@ -115,7 +115,7 @@ public:
 
 public:
 	ManagerComponent();
-	~ManagerComponent();
+	~ManagerComponent() override;
 
 public:
 	void KeyPressed(const std::string& key);

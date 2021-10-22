@@ -1,14 +1,49 @@
 #include "Colors.hpp"
 
-Color::Color() : R(255), G(255), B(255), A(255) { }
+Color::Color() :
+	R(255),
+	G(255),
+	B(255),
+	A(255)
+{
 
-Color::Color(uint8_t rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
+}
 
-Color::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : R(r), G(g), B(b), A(a) { }
+Color::Color(uint8_t rgba) :
+	R(rgba),
+	G(rgba),
+	B(rgba),
+	A(rgba)
+{
 
-Color::Color(const Color& other) : R(other.R), G(other.G), B(other.B), A(other.A) { }
+}
 
-Color::Color(const struct FColor& other) : R(other.R), G(other.G), B(other.B), A(other.A) { }
+Color::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) :
+	R(r),
+	G(g),
+	B(b),
+	A(a)
+{
+
+}
+
+Color::Color(const Color& other) :
+	R(other.R),
+	G(other.G),
+	B(other.B),
+	A(other.A)
+{
+
+}
+
+Color::Color(const struct FColor& other) :
+	R(other.R),
+	G(other.G),
+	B(other.B),
+	A(other.A)
+{
+
+}
 
 Color::~Color() { }
 
@@ -55,18 +90,50 @@ bool Color::operator!=(const struct FColor& other) const
 	return (R != other.R && G != other.G && B != other.B && A != other.A);
 }
 
-LinearColor::LinearColor() : R(1.f), G(1.f), B(1.f), A(1.f) { }
+LinearColor::LinearColor() :
+	R(1.f),
+	G(1.f),
+	B(1.f),
+	A(1.f)
+{
 
-LinearColor::LinearColor(float rgba) : R(rgba), G(rgba), B(rgba), A(rgba) { }
+}
 
-LinearColor::LinearColor(float r, float g, float b, float a) : R(r), G(g), B(b), A(a)
+LinearColor::LinearColor(float rgba) :
+	R(rgba),
+	G(rgba),
+	B(rgba),
+	A(rgba)
+{
+
+}
+
+LinearColor::LinearColor(float r, float g, float b, float a) :
+	R(r),
+	G(g),
+	B(b),
+	A(a)
 {
 	Recalculate();
 }
 
-LinearColor::LinearColor(const LinearColor& other) : R(other.R), G(other.G), B(other.B), A(other.A) { }
+LinearColor::LinearColor(const LinearColor& other) :
+	R(other.R),
+	G(other.G),
+	B(other.B),
+	A(other.A)
+{
 
-LinearColor::LinearColor(const struct FLinearColor& other) : R(other.R), G(other.G), B(other.B), A(other.A) { }
+}
+
+LinearColor::LinearColor(const struct FLinearColor& other) :
+	R(other.R),
+	G(other.G),
+	B(other.B),
+	A(other.A)
+{
+
+}
 
 LinearColor::~LinearColor() { }
 

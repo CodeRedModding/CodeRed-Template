@@ -13,7 +13,7 @@ private:
 
 public:
 	Component(const std::string& name, const std::string& description);
-	~Component();
+	virtual ~Component();
 
 public:
 	std::string GetName() const;
