@@ -1,4 +1,10 @@
-/*
+/* 
+    Changes in v1.1.9:
+    - Removed the pointless additional constructors for the console component in "Console.hpp".
+    - Improved functions for the console component such as writing and timestamp formatting in "Console.hpp".
+    - Changed the null check for modules in the "Initialize" function to use ternaries in "Manager.cpp".
+    - Improved/added extra comments in classes around the project.
+
     Changes in v1.1.8:
     - Added the "MarkInvincible" function in "Manager.hpp" which lets you easily prevent objects from being destroyed.
     - Added saftey checks for the "invincible" functions in "Manager.cpp".

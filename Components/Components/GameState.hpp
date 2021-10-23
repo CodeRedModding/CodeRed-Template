@@ -2,7 +2,7 @@
 #include "../Component.hpp"
 
 // This component is largely dependent on your game, this is just a bare bones example of how it would look.
-// You will need to set your own function hooks here via scanning your game to determine what gets triggered when your game state changes.
+// You will need to set your own function hooks here through function scanning to determine what gets triggered when your game state changes.
 
 enum States
 {
@@ -14,7 +14,8 @@ enum States
 	STATES_All = 1U << 4U
 };
 
-// Tracks where the player is, very useful in knowing if it is safe to perform certain unreal functions or modules.
+// THIS COMPONENT IS LARGELY DEPENDENT ON YOUR GAME
+// Manages where the player is at all times, informs us when it is safe to perform certain actions or functions inside of modules.
 class GameStateComponent : public Component
 {
 private:

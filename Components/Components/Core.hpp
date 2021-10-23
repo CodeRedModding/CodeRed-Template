@@ -1,7 +1,7 @@
 #pragma once
 #include "../Component.hpp"
 
-// Manages global objects and names, along with initializing a new thread for everything to run on.
+// Manages global objects and names, along with initializing a new thread for the mod to run on.
 class CoreComponent : public Component
 {
 private:

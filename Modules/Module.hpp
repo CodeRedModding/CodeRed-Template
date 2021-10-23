@@ -1,8 +1,7 @@
 #pragma once
 #include "../pch.hpp"
 
-// Base class for all modules.
-
+// Base class for all in-game modules.
 class Module
 {
 private:

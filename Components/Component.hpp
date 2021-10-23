@@ -1,9 +1,7 @@
 #pragma once
 #include "../pch.hpp"
 
-// Base class for all components.
-// Stores it's name, formatted name, and description for retrieving later on.
-
+// Base class for all components, stores its name, formatted name, and description.
 class Component
 {
 private:

@@ -591,9 +591,7 @@ void ManagerComponent::Initialize()
 	CreateCommand(new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
 	// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
 	CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
-	
-	if (PlaceholderMod) { PlaceholderMod->UpdateSettings(); }
-	else { Console.Error(GetNameFormatted() + "Error: Failed to initialize \"Paceholder\"!"); }
+	PlaceholderMod ? PlaceholderMod->UpdateSettings() : Console.Error(GetNameFormatted() + "Error: Failed to initialize \"Paceholder\"!");
 
 	Console.Write(GetNameFormatted() + std::to_string(CommandMap.size()) + " Command(s) Initialized!");
 	Console.Write(GetNameFormatted() + std::to_string(SettingMap.size()) + " Setting(s) Initialized!");

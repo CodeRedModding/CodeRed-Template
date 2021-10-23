@@ -1,8 +1,8 @@
 #pragma once
 #include "../Component.hpp"
 
-// This is also largely dependent on your game, automatically stores active class instances here to be retrieved at any time.
-
+// THIS COMPONENT IS LARGELY DEPENDENT ON YOUR GAME
+// Automatically stores active class instances that can be retrieved at any time.
 class InstancesComponent : public Component
 {
 public:

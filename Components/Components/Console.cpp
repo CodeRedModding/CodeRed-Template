@@ -8,16 +8,6 @@ ConsoleComponent::ConsoleComponent() : Component("Console", "Displays and manage
 	WriteTimestamp = false;
 }
 
-ConsoleComponent::ConsoleComponent(const std::string& directory, const std::string& fileName) : Component("Console", "Displays and manages the standard out stream.")
-{
-	Initialize(directory, fileName);
-}
-
-ConsoleComponent::ConsoleComponent(const std::filesystem::path directory, const std::string& fileName) : Component("Console", "Displays and manages the standard out stream.")
-{
-	Initialize(directory, fileName);
-}
-
 ConsoleComponent::~ConsoleComponent()
 {
 	LogFile.close();
@@ -28,12 +18,12 @@ ConsoleComponent::~ConsoleComponent()
 	}
 }
 
-void ConsoleComponent::Write(std::string text)
+void ConsoleComponent::Write(const std::string& text, TextColors textColor)
 {
-	Write(text, TextColors::BrightWhite);
+	WriteInternal(text, textColor);
 }
 
-void ConsoleComponent::Write(std::string text, const TextColors textColor)
+void ConsoleComponent::WriteInternal(std::string text, TextColors textColor)
 {
 	SetTextColor(textColor);
 
@@ -53,49 +43,27 @@ void ConsoleComponent::Write(std::string text, const TextColors textColor)
 	SetTextColor(TextColors::BrightWhite);
 }
 
-void ConsoleComponent::Warning(std::string text)
+void ConsoleComponent::Warning(const std::string& text)
 {
-	Write(text, TextColors::Yellow);
+	WriteInternal(text, TextColors::Yellow);
 }
 
-void ConsoleComponent::Error(std::string text)
+void ConsoleComponent::Error(const std::string& text)
 {
-	Write(text, TextColors::Red);
+	WriteInternal(text, TextColors::Red);
 }
 
-void ConsoleComponent::Success(std::string text)
+void ConsoleComponent::Success(const std::string& text)
 {
-	Write(text, TextColors::LightGreen);
+	WriteInternal(text, TextColors::LightGreen);
 }
 
-void ConsoleComponent::Notify(std::string text)
+void ConsoleComponent::Notify(const std::string& text)
 {
-	Write(text, TextColors::LightBlue);
+	WriteInternal(text, TextColors::LightBlue);
 }
 
-void ConsoleComponent::Initialize(const std::string& directory, const std::string& fileName)
-{
-	OutputHandle = nullptr;
-	OutputFile = nullptr;
-	WriteToLog = true;
-	WriteTimestamp = true;
-
-	// Open the standard out stream and show the window, then grab its handle so we can set the text color.
-
-	AllocConsole();
-	freopen_s(&OutputFile, "CONOUT$", "w", stdout);
-	ShowWindow(GetConsoleWindow(), SW_SHOW);
-	OutputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	if (WriteToLog)
-	{
-		LogFile.open(directory + "//" + fileName);
-	}
-
-	Write(GetNameFormatted() + "Initialized!");
-}
-
-void ConsoleComponent::Initialize(const std::filesystem::path directory, const std::string& fileName)
+void ConsoleComponent::Initialize(const std::filesystem::path& directory, const std::string& fileName)
 {
 	OutputHandle = nullptr;
 	OutputFile = nullptr;
@@ -117,17 +85,17 @@ void ConsoleComponent::Initialize(const std::filesystem::path directory, const s
 	Write(GetNameFormatted() + "Initialized!");
 }
 
-void ConsoleComponent::ToggleLogging(const bool& bWriteToLog)
+void ConsoleComponent::ToggleLogging(bool bWriteToLog)
 {
 	WriteToLog = bWriteToLog;
 }
 
-void ConsoleComponent::ToggleTimestamp(const bool& bWriteTimestamp)
+void ConsoleComponent::ToggleTimestamp(bool bWriteTimestamp)
 {
 	WriteTimestamp = bWriteTimestamp;
 }
 
-void ConsoleComponent::SetTextColor(const TextColors textColor)
+void ConsoleComponent::SetTextColor(TextColors textColor)
 {
 	if (OutputHandle)
 	{
@@ -141,30 +109,16 @@ std::string ConsoleComponent::GetTimestamp(const bool& bWithSpace)
 	std::time_t time = std::time(nullptr);
 	localtime_s(&local, &time);
 
-	std::string timestamp;
-	timestamp = "[";
+	std::ostringstream timeStream;
+	timeStream << "[";
+	timeStream << std::setfill('0') << std::setw(2) << std::right << std::to_string(local.tm_hour);
+	timeStream << ":";
+	timeStream << std::setfill('0') << std::setw(2) << std::right << std::to_string(local.tm_min);
+	timeStream << ":";
+	timeStream << std::setfill('0') << std::setw(2) << std::right << std::to_string(local.tm_sec);
+	timeStream << "]" << (bWithSpace ? " " : "");
 
-	if (local.tm_hour < 10) { timestamp += "0" + std::to_string(local.tm_hour); }
-	else { timestamp += std::to_string(local.tm_hour); }
-
-	timestamp += ":";
-
-	if (local.tm_min < 10) { timestamp += "0" + std::to_string(local.tm_min); }
-	else { timestamp += std::to_string(local.tm_min); }
-
-	timestamp += ":";
-
-	if (local.tm_sec < 10) { timestamp += "0" + std::to_string(local.tm_sec); }
-	else { timestamp += std::to_string(local.tm_sec); }
-
-	timestamp += "]";
-
-	if (bWithSpace)
-	{
-		timestamp += " ";
-	}
-
-	return timestamp;
+	return timeStream.str();
 }
 
 class ConsoleComponent Console;

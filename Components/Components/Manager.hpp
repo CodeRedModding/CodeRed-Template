@@ -5,21 +5,21 @@
 
 enum class SettingTypes : uint8_t
 {
-	TYPE_NONE = 0,
-	TYPE_INT = 1,
-	TYPE_BOOL = 2,
-	TYPE_FLOAT = 3,
-	TYPE_STRING = 4,
-	TYPE_COLOR = 5,
-	TYPE_VECTOR_3D = 6,
-	TYPE_VECTOR_2D = 7
+	TYPE_NONE,
+	TYPE_INT,
+	TYPE_BOOL,
+	TYPE_FLOAT,
+	TYPE_STRING,
+	TYPE_COLOR,
+	TYPE_VECTOR_3D,
+	TYPE_VECTOR_2D
 };
 
 enum class CommandTypes : uint8_t
 {
-	TYPE_NONE = 0,
-	TYPE_CALLBACK = 1,
-	TYPE_ARGUMENT = 2
+	TYPE_NONE,
+	TYPE_CALLBACK,
+	TYPE_ARGUMENT
 };
 
 enum class VariableIds : int32_t
@@ -96,8 +96,7 @@ public:
 	void TriggerCallback(const std::string& arguments);
 };
 
-// Manager component, manages commands, settings, and mods.
-
+// Manages variables, commands, settings, and modules.
 class ManagerComponent : public Component
 {
 private:
@@ -111,7 +110,7 @@ private:
 	std::vector<std::pair<std::string, std::string>> CommandQueue;
 
 public:
-	std::shared_ptr<class PlaceholderModule> PlaceholderMod;
+	std::shared_ptr<PlaceholderModule> PlaceholderMod;
 
 public:
 	ManagerComponent();

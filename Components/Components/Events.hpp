@@ -57,6 +57,7 @@ namespace Hooks
 
 typedef void(*ProcessEventType)(class UObject*, class UFunction*, void*, void*);
 
+// Manages everything related to hooking functions form Process Event, as well as detouring.
 class EventsComponent : public Component
 {
 private:

@@ -157,9 +157,7 @@ namespace Hooks
 		GameState.MainMenuAdded();
 
 		// Purely an example only, if you were to "SetDetour(false)" your hooked function will NOT go through Process Event, so the game will never recognize that it was called.
-
-		bool badEgg = false;
-		event.SetDetour(badEgg);
+		event.SetDetour(false);
 	}
 }
 
