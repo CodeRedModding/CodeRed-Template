@@ -1,6 +1,5 @@
 #include "Events.hpp"
 #include "../Includes.hpp"
-#include "../Extensions/Includes.hpp"
 
 PreEvent::PreEvent() : PE_Caller(nullptr), PE_Function(nullptr), PE_Params(nullptr), PE_Detour(true) { }
 
@@ -113,7 +112,7 @@ namespace Hooks
 
 	void HUDPostRenderPost(const PostEvent& event)
 	{
-		FRainbowColor::Tick(); // Example of where you could put your rainbow color hook.
+		FRainbowColor::OnTick(); // Example of where you could put your rainbow color hook.
 		Manager.QueueTick(); // Example of where you could put your command queue tick.
 	}
 
@@ -305,4 +304,4 @@ void EventsComponent::Initialize()
 	Console.Write(GetNameFormatted() + std::to_string(BlacklistedEvents.size()) + " Backlisted Event(s) Initialized!");
 }
 
-class EventsComponent Events;
+class EventsComponent Events{};

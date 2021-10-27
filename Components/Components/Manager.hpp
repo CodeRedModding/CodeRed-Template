@@ -1,7 +1,6 @@
 #pragma once
 #include "../Component.hpp"
 #include "../Modules/Includes.hpp"
-#include "../Extensions/Includes.hpp"
 
 enum class SettingTypes : uint8_t
 {
@@ -90,8 +89,8 @@ public:
 	std::string GetDescription() const;
 	CommandTypes GetType() const;
 	void SetArguments(const std::string& arguments);
-	void BindCallback(std::function<void()> callback);
-	void BindArguments(std::function<void(std::string)> callback);
+	void BindCallback(const std::function<void()>& callback);
+	void BindArguments(const std::function<void(std::string)>& callback);
 	void TriggerCallback();
 	void TriggerCallback(const std::string& arguments);
 };
@@ -100,13 +99,13 @@ public:
 class ManagerComponent : public Component
 {
 private:
-	std::unordered_map<std::string, VariableIds> VariableMap_SID;
-	std::unordered_map<VariableIds, std::string> VariableMap_IDS;
+	std::map<std::string, VariableIds> VariableMap_SID;
+	std::map<VariableIds, std::string> VariableMap_IDS;
 
 private:
+	std::unordered_map<std::string, std::shared_ptr<Module>> ModuleMap;
 	std::unordered_map<std::string, std::shared_ptr<Command>> CommandMap;
 	std::unordered_map<std::string, std::shared_ptr<Setting>> SettingMap;
-	std::unordered_map<std::string, std::shared_ptr<Module>> ModuleMap;
 	std::vector<std::pair<std::string, std::string>> CommandQueue;
 
 public:

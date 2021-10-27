@@ -1,6 +1,5 @@
 #pragma once
 #include "../Component.hpp"
-#include <filesystem>
 
 enum class TextColors : uint16_t
 {

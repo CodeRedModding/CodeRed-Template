@@ -1,10 +1,8 @@
 #include "Instances.hpp"
-#include "Console.hpp"
+#include "../Includes.hpp"
 
 InstancesComponent::InstancesComponent() : Component("Instances", "Manages class instances and objects.")
 {
-	I_UEngine = nullptr;
-	I_UDateTime = nullptr;
 	I_UCanvas = nullptr;
 	I_AHUD = nullptr;
 	I_UGameViewportClient = nullptr;
@@ -36,46 +34,17 @@ void InstancesComponent::MarkForDestory(class UObject* object)
 
 class UEngine* InstancesComponent::IUEngine()
 {
-	return I_UEngine;
+	return UEngine::GetEngine();
 }
 
 class UAudioDevice* InstancesComponent::IUAudioDevice()
 {
-	UEngine* engine = IUEngine();
-
-	if (engine)
-	{
-		UAudioDevice* audioDevice = engine->GetAudioDevice();
-
-		if (audioDevice)
-		{
-			return audioDevice;
-		}
-	}
-
-	return nullptr;
+	return UEngine::GetAudioDevice();
 }
 
 class AWorldInfo* InstancesComponent::IAWorldInfo()
 {
-	UEngine* engine = IUEngine();
-
-	if (engine)
-	{
-		AWorldInfo* worldInfo = engine->GetCurrentWorldInfo();
-
-		if (worldInfo)
-		{
-			return worldInfo;
-		}
-	}
-
-	return nullptr;
-}
-
-class UDateTime* InstancesComponent::IUDateTime()
-{
-	return I_UDateTime;
+	return UEngine::GetCurrentWorldInfo();
 }
 
 class UCanvas* InstancesComponent::IUCanvas()
@@ -108,16 +77,6 @@ class ULocalPlayer* InstancesComponent::IULocalPlayer()
 class APlayerController* InstancesComponent::IAPlayerController()
 {
 	return I_APlayerController;
-}
-
-void InstancesComponent::SetEngine(class UEngine* engine)
-{
-	I_UEngine = engine;
-}
-
-void InstancesComponent::SetDatTime(class UDateTime* dateTime)
-{
-	I_UDateTime = dateTime;
 }
 
 void InstancesComponent::SetCanvas(class UCanvas* canvas)
@@ -167,10 +126,7 @@ void InstancesComponent::MapObjects()
 void InstancesComponent::Initialize()
 {
 	MapObjects();
-	SetEngine(GetInstanceOf<UEngine>());
-	SetDatTime(GetDefaultInstanceOf<UDateTime>());
-
 	Console.Write(GetNameFormatted() + "Instances Initialized!");
 }
 
-class InstancesComponent Instances;
+class InstancesComponent Instances{};

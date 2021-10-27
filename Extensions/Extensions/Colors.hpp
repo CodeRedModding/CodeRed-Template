@@ -8,8 +8,11 @@ public:
 
 public:
 	Color();
-	Color(uint8_t rgba);
-	Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+	explicit Color(uint8_t rgba);
+	explicit Color(int32_t rgba);
+	explicit Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+	explicit Color(int32_t r, int32_t g, int32_t b, int32_t a);
+	explicit Color(float r, float g, float b, float a); // Auto converts linear values to byte values.
 	Color(const Color& other);
 	Color(const struct FColor& other);
 	~Color();
@@ -33,15 +36,15 @@ public:
 
 public:
 	LinearColor();
-	LinearColor(float rgba);
-	LinearColor(float r, float g, float b, float a);
+	explicit LinearColor(float rgba);
+	explicit LinearColor(float r, float g, float b, float a);
+	explicit LinearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a); // Auto converts non-linear/bye values to linear.
 	LinearColor(const LinearColor& other);
 	LinearColor(const struct FLinearColor& other);
 	~LinearColor();
 
 public:
 	struct FLinearColor UnrealColor() const;
-	void Recalculate();
 
 public:
 	LinearColor operator=(const LinearColor& other);
@@ -58,13 +61,13 @@ public:
 class FRainbowColor
 {
 public:
-	static inline Color ByteRainbow =					{ 0, 0, 255, 255 };
-	static inline LinearColor LinearRainbow =			{ 0.f, 0.f, 1.f, 1.f };
+	static inline Color ByteRainbow = Color(0, 0, 255, 255);
+	static inline LinearColor LinearRainbow = LinearColor(0.0f, 0.0f, 1.0f, 1.0f);
 
 public:
 	static Color GetByte();
 	static LinearColor GetLinear();
-	static void Tick();
+	static void OnTick();
 };
 
 // Taken directly from Unreal Engine 4 source code and converted to BGRA format instead of RGBA.
@@ -128,7 +131,7 @@ public:
 	static const Color MediumAquamarine;
 	static const Color MediumBlue;
 	static const Color MediumForestGreen;
-	static const Color MediumGoldenrod ;
+	static const Color MediumGoldenrod;
 	static const Color MediumOrchid;
 	static const Color MediumSeaGreen;
 	static const Color MediumSlateBlue;
@@ -154,7 +157,7 @@ public:
 	static const Color Salmon;
 	static const Color Scarlet;
 	static const Color SeaGreen;
-	static const Color SemiSweetChocolate ;
+	static const Color SemiSweetChocolate;
 	static const Color Sienna;
 	static const Color Silver;
 	static const Color SkyBlue;
@@ -174,12 +177,28 @@ public:
 	static const Color YellowGreen;
 };
 
+// Helper functions for different color type conversions.
 namespace Colors
 {
+	// Color to Decimal/Base10
 	int32_t HexToDecimal(std::string hexString);
-	std::string DecimalToHex(const int32_t decimal, const bool bInlcudeHead);
-	Color DecimalToColor(const int32_t decimal);
-	LinearColor DecimalToLinearColor(const int32_t decimal);
-	Color LinearToColor(const LinearColor& linear);
+	int32_t ColorToDecimal(const Color& color);
+	int32_t LinearToDecimal(const LinearColor& linearColor);
+
+	// Decimal/Base10 to Color
+	Color DecimalToColor(int32_t decimal);
+	LinearColor DecimalToLinear(int32_t decimal);
+
+	// Color to Hexidecimal/Base16
+	std::string DecimalToHex(int32_t decimal, bool bInlcudeHead = true);
+	std::string ColorToHex(const Color& color, bool bInlcudeHead = true);
+	std::string LinearToHex(const LinearColor& linearColor, bool bInlcudeHead = true);
+
+	// Hexidecimal/Base16 to Color
+	Color HexToColor(std::string hexString);
+	LinearColor HexToLinear(std::string hexString);
+
+	// Direct Color Conversions
+	Color LinearToColor(const LinearColor& linearColor);
 	LinearColor ColorToLinear(const Color& color);
 }

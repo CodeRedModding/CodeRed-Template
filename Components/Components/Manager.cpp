@@ -1,6 +1,5 @@
 #include "Manager.hpp"
-#include "../Components/Includes.hpp"
-#include "../Extensions/Includes.hpp"
+#include "../Includes.hpp"
 
 Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable)
 {
@@ -118,7 +117,7 @@ LinearColor Setting::GetLinearValue() const
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		return Colors::DecimalToLinearColor(std::stoi(CurrentValue));
+		return Colors::DecimalToLinear(std::stoi(CurrentValue));
 	}
 
 	return LinearColor();
@@ -255,13 +254,13 @@ void Command::SetArguments(const std::string& arguments)
 	Arguments = arguments;
 }
 
-void Command::BindCallback(std::function<void()> callback)
+void Command::BindCallback(const std::function<void()>& callback)
 {
 	Callback = callback;
 	Type = CommandTypes::TYPE_CALLBACK;
 }
 
-void Command::BindArguments(std::function<void(std::string)> callback)
+void Command::BindArguments(const std::function<void(std::string)>& callback)
 {
 	ArgumentCallback = callback;
 	Type = CommandTypes::TYPE_ARGUMENT;
@@ -313,7 +312,6 @@ ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, c
 	VariableMap_SID.emplace(std::make_pair("reset_setting", VariableIds::MANAGER_RESET_SETTING));
 	VariableMap_SID.emplace(std::make_pair("print_module", VariableIds::MANAGER_PRINT_MODULE));
 	VariableMap_SID.emplace(std::make_pair("unreal_command", VariableIds::MANAGER_UNREAL_COMMAND));
-
 	VariableMap_SID.emplace(std::make_pair("placeholder_do_thing", VariableIds::PLACEHOLDER_DO_THING));
 	VariableMap_SID.emplace(std::make_pair("placeholder_can_do_thing", VariableIds::PLACEHOLDER_ENABLED));
 
@@ -486,19 +484,26 @@ std::string ManagerComponent::GetVariableName(VariableIds variable)
 
 template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind)
 {
-	std::string moduleName = mod->GetName();
-	moduleToBind = nullptr;
-
-	if (ModuleMap.find(moduleName) == ModuleMap.end())
+	if (mod)
 	{
-		ModuleMap.emplace(std::make_pair(moduleName, std::shared_ptr<Module>(mod)));
-		moduleToBind = std::static_pointer_cast<T>(ModuleMap[moduleName]);
+		std::string moduleName = mod->GetName();
+		moduleToBind = nullptr;
 
-		return moduleToBind;
+		if (ModuleMap.find(moduleName) == ModuleMap.end())
+		{
+			ModuleMap.emplace(std::make_pair(moduleName, std::shared_ptr<Module>(mod)));
+			moduleToBind = std::static_pointer_cast<T>(ModuleMap[moduleName]);
+
+			return moduleToBind;
+		}
+		else
+		{
+			Console.Warning(GetNameFormatted() + "Warning: Duplicate module name detected for \"" + moduleName + "\"!");
+		}
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Duplicate module name detected for \"" + moduleName + "\"!");
+		Console.Error(GetNameFormatted() + "Error: Failed to create module, invalid pointer detected!");
 	}
 
 	return nullptr;
@@ -516,16 +521,23 @@ template <typename T> std::shared_ptr<T> ManagerComponent::GetModule(const std::
 
 std::shared_ptr<Command> ManagerComponent::CreateCommand(Command* command)
 {
-	std::string commandName = command->GetName();
-
-	if (CommandMap.find(commandName) == CommandMap.end())
+	if (command)
 	{
-		CommandMap.emplace(std::make_pair(commandName, std::shared_ptr<Command>(command)));
-		return CommandMap[commandName];
+		std::string commandName = command->GetName();
+
+		if (CommandMap.find(commandName) == CommandMap.end())
+		{
+			CommandMap.emplace(std::make_pair(commandName, std::shared_ptr<Command>(command)));
+			return CommandMap[commandName];
+		}
+		else
+		{
+			Console.Warning(GetNameFormatted() + "Warning: Duplicate command name detected for \"" + commandName + "\"!");
+		}
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Duplicate command name detected for \"" + commandName + "\"!");
+		Console.Error(GetNameFormatted() + "Error: Failed to create command, invalid pointer detected!");
 	}
 
 	return nullptr;
@@ -548,16 +560,23 @@ std::shared_ptr<Command> ManagerComponent::GetCommand(VariableIds variable)
 
 std::shared_ptr<Setting> ManagerComponent::CreateSetting(Setting* setting)
 {
-	std::string settingName = setting->GetName();
-
-	if (SettingMap.find(settingName) == SettingMap.end())
+	if (setting)
 	{
-		SettingMap.emplace(std::make_pair(settingName, std::shared_ptr<Setting>(setting)));
-		return SettingMap[settingName];
+		std::string settingName = setting->GetName();
+
+		if (SettingMap.find(settingName) == SettingMap.end())
+		{
+			SettingMap.emplace(std::make_pair(settingName, std::shared_ptr<Setting>(setting)));
+			return SettingMap[settingName];
+		}
+		else
+		{
+			Console.Warning(GetNameFormatted() + "Warning: Duplicate setting name detected for \"" + settingName + "\"!");
+		}
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Duplicate setting name detected for \"" + settingName + "\"!");
+		Console.Error(GetNameFormatted() + "Error: Failed to create setting, invalid pointer detected!");
 	}
 
 	return nullptr;
@@ -597,4 +616,4 @@ void ManagerComponent::Initialize()
 	Console.Write(GetNameFormatted() + std::to_string(SettingMap.size()) + " Setting(s) Initialized!");
 }
 
-class ManagerComponent Manager;
+class ManagerComponent Manager{};

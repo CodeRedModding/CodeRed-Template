@@ -13,7 +13,7 @@ public:
 	std::map<std::string, class UClass*> StaticClasses;
 	std::map<std::string, class UFunction*> StaticFunctions;
 
-public:
+public: // Helper functions for class instance grabbing/manipulation.
 	// All GetInstanceOf related functions loop through the entire GObject TArray, which can be resource heavy if you're using them everywhere.
 	// So rely on hooking functions and storing classes here instead, only use GetInstanceOf functions them when needed.
 
@@ -28,7 +28,7 @@ public:
 
 			if (uObject && uObject->IsA(staticClass))
 			{
-				if (uObject->GetFullName().find("Default") != std::string::npos)
+				if (uObject->GetFullName().find("Default__") != std::string::npos)
 				{
 					return static_cast<T*>(uObject);
 				}
@@ -49,7 +49,7 @@ public:
 
 			if (uObject && uObject->IsA(staticClass))
 			{
-				if (uObject->GetFullName().find("Default") == std::string::npos)
+				if (uObject->GetFullName().find("Default__") == std::string::npos)
 				{
 					return static_cast<T*>(uObject);
 				}
@@ -59,8 +59,8 @@ public:
 		return nullptr;
 	}
 
-	template<typename T> // Get all active instances of a class type. Example: std::vector<APawn*> pawns = GetAllInstancesOf<APawn>();
-	std::vector<T*> GetAllInstancesOf()
+	// Get all active instances of a class type. Example: std::vector<APawn*> pawns = GetAllInstancesOf<APawn>();
+	template<typename T> std::vector<T*> GetAllInstancesOf()
 	{
 		std::vector<T*> objectInstances;
 		UClass* staticClass = T::StaticClass();
@@ -69,7 +69,7 @@ public:
 		{
 			if (uObject && uObject->IsA(staticClass))
 			{
-				if (uObject->GetFullName().find("Default") == std::string::npos)
+				if (uObject->GetFullName().find("Default__") == std::string::npos)
 				{
 					objectInstances.push_back(static_cast<T*>(uObject));
 				}
@@ -89,7 +89,7 @@ public:
 		{
 			if (uObject && uObject->IsA(staticClass))
 			{
-				if (uObject->GetFullName().find("Default") != std::string::npos)
+				if (uObject->GetFullName().find("Default__") != std::string::npos)
 				{
 					objectInstances.push_back(static_cast<T*>(uObject));
 				}
@@ -169,23 +169,22 @@ public:
 		return returnObject;
 	}
 
+	// Set an object's flags to prevent it from being destoryed.
+	void MarkInvincible(class UObject* object);
+
+	// Set object as a temporary object and marks it for the garbage collector to destroy.
+	void MarkForDestory(class UObject* object);
+
 private: 
-	class UEngine* I_UEngine;
-	class UDateTime* I_UDateTime;
 	class UCanvas* I_UCanvas;
 	class AHUD* I_AHUD;
 	class UGameViewportClient* I_UGameViewportClient;
 	class APlayerController* I_APlayerController;
 
-public:
-	void MarkInvincible(class UObject* object); // Set an object's flags to prevent it from being destoryed.
-	void MarkForDestory(class UObject* object); // Set object as a temporary object and marks it for the garbage collector to destroy.
-
 public: // Use these functions to access these specific class instances, they will be set automatically; always remember to null check!
 	class UEngine* IUEngine();
 	class UAudioDevice* IUAudioDevice();
 	class AWorldInfo* IAWorldInfo();
-	class UDateTime* IUDateTime();
 	class UCanvas* IUCanvas();
 	class AHUD* IAHUD();
 	class UGameViewportClient* IUGameViewportClient();
@@ -193,8 +192,6 @@ public: // Use these functions to access these specific class instances, they wi
 	class APlayerController* IAPlayerController();
 
 public: // These should only be used by function hooks, do not manually call these.
-	void SetEngine(class UEngine* engine);
-	void SetDatTime(class UDateTime* dateTime);
 	void SetCanvas(class UCanvas* canvas);
 	void SetHUD(class AHUD* hud);
 	void SetGameViewportClient(class UGameViewportClient* viewportClient);

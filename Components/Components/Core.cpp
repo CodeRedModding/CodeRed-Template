@@ -1,7 +1,5 @@
 #include "Core.hpp"
 #include "../Includes.hpp"
-#include "../Extensions/Includes.hpp"
-#include <detours.h>
 
 CoreComponent::CoreComponent() : Component("Core", "Initializes globals, components, and modules.")
 {
@@ -11,15 +9,40 @@ CoreComponent::CoreComponent() : Component("Core", "Initializes globals, compone
 // Necessary for if your DLL gets intentionally (or unintentionally) unloaded before your game exits.
 CoreComponent::~CoreComponent()
 {
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	DetourDetach(&reinterpret_cast<PVOID&>(Events.ProcessEvent), reinterpret_cast<PVOID>(Events.ProcessEventDetour));
-	DetourTransactionCommit();
+	if (Events.ProcessEvent)
+	{
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourDetach(&reinterpret_cast<PVOID&>(Events.ProcessEvent), reinterpret_cast<PVOID>(Events.ProcessEventDetour));
+		DetourTransactionCommit();
+	}
 }
 
 void CoreComponent::InitializeThread()
 {
 	MainThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(InitializeGlobals), nullptr, 0, nullptr);
+}
+
+bool CoreComponent::AreGlobalsValid()
+{
+	static bool alreadyChecked = false;
+	static bool globalsValid = false;
+
+	if (!alreadyChecked)
+	{
+		if (AreGObjectsValid() && AreGNamesValid())
+		{
+			globalsValid = true;
+		}
+		else
+		{
+			globalsValid = false;
+		}
+
+		alreadyChecked = true;
+	}
+
+	return globalsValid;
 }
 
 void CoreComponent::InitializeGlobals(HMODULE hModule)
@@ -72,12 +95,10 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 
 bool CoreComponent::AreGObjectsValid()
 {
-	if (UObject::GObjObjects()->Num() > 0 && UObject::GObjObjects()->Max() > UObject::GObjObjects()->Num())
+	if (UObject::GObjObjects()->Num() > 0
+		&& UObject::GObjObjects()->Max() > UObject::GObjObjects()->Num())
 	{
-		if (UObject::GObjObjects()->At(0)->GetFullName() == "Class Core.Config_ORS")
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -85,37 +106,13 @@ bool CoreComponent::AreGObjectsValid()
 
 bool CoreComponent::AreGNamesValid()
 {
-	if (FName::Names()->Num() > 0 && FName::Names()->Max() > FName::Names()->Num())
+	if (FName::Names()->Num() > 0
+		&& FName::Names()->Max() > FName::Names()->Num())
 	{
-		if (FName(0).ToString() == "None")
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
 }
 
-bool CoreComponent::AreGlobalsValid()
-{
-	static bool alreadyChecked = false;
-	static bool globalsValid = false;
-
-	if (!alreadyChecked)
-	{
-		if (AreGObjectsValid() && AreGNamesValid())
-		{
-			globalsValid = true;
-		}
-		else
-		{
-			globalsValid = false;
-		}
-
-		alreadyChecked = true;
-	}
-
-	return globalsValid;
-}
-
-class CoreComponent Core;
+class CoreComponent Core{};

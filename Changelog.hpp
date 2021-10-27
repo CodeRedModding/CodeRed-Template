@@ -1,4 +1,14 @@
+#pragma once
 /* 
+    Changes in v1.2.0:
+    - Added an extra null check for creating commands, settings, and modules in "Manager.cpp".
+    - Changed/added constuctors for the "Color" and "LinearColor" classes in "Math.hpp/cpp" to be explicit, explicit because there are now auto conversions for different color types.
+    - Remade the "Colors" namespace and added a ton of extra functions in "Math.hpp/cpp".
+    - Reformatting/added extra comments in "Instances.hpp/cpp", and updated the PlaceholderSDK to accommodate this.
+    - Changed all macros in "Math.hpp" to use static constant expressions.
+    - Added includes for "Extensions/Includes.hpp" for both the "Component.hpp" and "Module.hpp" files.
+    - Added nullcheck for detaching detours in "Core.cpp".
+
     Changes in v1.1.9:
     - Removed the pointless additional constructors for the console component in "Console.hpp".
     - Improved functions for the console component such as writing and timestamp formatting in "Console.hpp".

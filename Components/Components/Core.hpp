@@ -13,8 +13,8 @@ public:
 
 public:
 	void InitializeThread();
-	static void InitializeGlobals(HMODULE hModule);
 	static bool AreGlobalsValid();
+	static void InitializeGlobals(HMODULE hModule);
 
 private:
 	static bool AreGObjectsValid();

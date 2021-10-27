@@ -1,5 +1,5 @@
 #include "GameState.hpp"
-#include "Console.hpp"
+#include "../Includes.hpp"
 
 GameStateComponent::GameStateComponent() : Component("GameState", "Tracks which game state the player is currently in.")
 {
@@ -57,4 +57,4 @@ void GameStateComponent::Initialize()
 	Console.Write(GetNameFormatted() + "Initialized!");
 }
 
-class GameStateComponent GameState;
+class GameStateComponent GameState{};

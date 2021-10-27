@@ -1,5 +1,6 @@
 #pragma once
 #include "../pch.hpp"
+#include "../Extensions/Includes.hpp"
 
 // Base class for all components, stores its name, formatted name, and description.
 class Component

@@ -20,5 +20,7 @@
 #include <string_view>
 #include <cmath>
 #include <inttypes.h>
+#include <filesystem>
+#include <detours.h>
 
 #include "PlaceHolderSDK/SdkHeaders.hpp"

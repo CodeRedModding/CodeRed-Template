@@ -56,9 +56,9 @@ namespace Math
 
 	struct FVector RotateUnreal(struct FVector point, const struct FRotator& rotation, const struct FVector& location)
 	{
-		double pitch = (double)rotation.Pitch / Rotation180 * PI;
-		double yaw = (double)rotation.Yaw / Rotation180 * PI;
-		double roll = (double)rotation.Roll / Rotation180 * PI;
+		double pitch = (double)rotation.Pitch / RadiansToRotation;
+		double yaw = (double)rotation.Yaw / RadiansToRotation;
+		double roll = (double)rotation.Roll / RadiansToRotation;
 
 		float sz = sin(pitch);
 		float cz = cos(pitch);
@@ -392,9 +392,9 @@ VectorF Rotator::GetVector() const
 
 VectorF Rotator::Rotate(VectorF other) const
 {
-	double pitch = (double)Pitch / Rotation180 * PI;
-	double yaw = (double)Yaw / Rotation180 * PI;
-	double roll = (double)Roll / Rotation180 * PI;
+	double pitch = (double)Pitch / RadiansToRotation;
+	double yaw = (double)Yaw / RadiansToRotation;
+	double roll = (double)Roll / RadiansToRotation;
 
 	float sz = sin(pitch);
 	float cz = cos(pitch);

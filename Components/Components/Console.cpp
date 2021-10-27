@@ -121,4 +121,4 @@ std::string ConsoleComponent::GetTimestamp(const bool& bWithSpace)
 	return timeStream.str();
 }
 
-class ConsoleComponent Console;
+class ConsoleComponent Console{};
