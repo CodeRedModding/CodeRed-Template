@@ -2,13 +2,23 @@
 
 ConsoleComponent::ConsoleComponent() : Component("Console", "Displays and manages the standard out stream.")
 {
-	OutputHandle = nullptr;
-	OutputFile = nullptr;
-	WriteToLog = false;
-	WriteTimestamp = false;
+	OnCreate();
 }
 
 ConsoleComponent::~ConsoleComponent()
+{
+	OnDestroy();
+}
+
+void ConsoleComponent::OnCreate()
+{
+	OutputHandle = nullptr;
+	OutputFile = nullptr;
+	WriteToLog = true;
+	WriteTimestamp = false;
+}
+
+void ConsoleComponent::OnDestroy()
 {
 	LogFile.close();
 

@@ -1,5 +1,16 @@
 #pragma once
 /* 
+    Changes in v1.2.1:
+    - Improved memory functions in "UnrealMemory.hpp", just look at them for yourself or something idk.
+    - Improved the constructors for the "Setting" and "Command" classes in "Manager.cpp".
+    - Added the virutal functions "OnCreate" and "OnDestroy" in "Component.hpp", these can be manually called outside of the classes constructor and deconstructor.
+    - Added a "CreatedInstances" vector in "Instances.hpp", when a custom object instance is created it is added to this vector. On the components "OnDestory" function all custom instances are marked to be destroyed as well.
+    - Added the "CreateVariable" function in "Manager.hpp" and moved creating variables from :ManagerComponent"'s constuctor to the "Initialize" function in "Manager.cpp".
+    - Added the "AttachDetour" and "DetachDetour" functions in "Events.hpp", this is now called from "InitializeGlobals" in "Core.cpp".
+    - Moved the detaching Process Event from "CoreComponent"'s deconstructor to "EventsComponent"'s deconstuctor in "Events.cpp".
+    - Made "WriteToLog" default to "true" in "Console.cpp".
+    - Renamed "FColorList" to "GColorList" in "Colors.hpp".
+
     Changes in v1.2.0:
     - Added an extra null check for creating commands, settings, and modules in "Manager.cpp".
     - Changed/added constuctors for the "Color" and "LinearColor" classes in "Math.hpp/cpp" to be explicit, explicit because there are now auto conversions for different color types.

@@ -1,17 +1,16 @@
 #include "Manager.hpp"
 #include "../Includes.hpp"
 
-Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable)
+Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable) :
+	Variable(variable),
+	Description(description),
+	Type(valueType),
+	DefaultValue(defaultValue),
+	CurrentValue(defaultValue),
+	Modifiable(bModifiable),
+	ShouldCallback(false),
+	Callback(nullptr)
 {
-	Variable = variable;
-	Description = description;
-	Type = valueType;
-	DefaultValue = defaultValue;
-	CurrentValue = defaultValue;
-	Modifiable = bModifiable;
-	ShouldCallback = false;
-	Callback = nullptr;
-
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
 		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
@@ -22,17 +21,16 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	}
 }
 
-Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void()> callback)
+Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void()> callback) :
+	Variable(variable),
+	Description(description),
+	Type(valueType),
+	DefaultValue(defaultValue),
+	CurrentValue(defaultValue),
+	Modifiable(bModifiable),
+	ShouldCallback(true),
+	Callback(callback)
 {
-	Variable = variable;
-	Description = description;
-	Type = valueType;
-	DefaultValue = defaultValue;
-	CurrentValue = defaultValue;
-	Modifiable = bModifiable;
-	ShouldCallback = true;
-	Callback = callback;
-
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
 		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
@@ -223,13 +221,14 @@ void Setting::UnbindCallback()
 	Callback = nullptr;
 }
 
-Command::Command(VariableIds variable, const std::string& description)
+Command::Command(VariableIds variable, const std::string& description) :
+	Variable(variable),
+	Description(description),
+	Type(CommandTypes::TYPE_NONE),
+	Callback(nullptr),
+	ArgumentCallback(nullptr)
 {
-	Variable = variable;
-	Description = description;
-	Type = CommandTypes::TYPE_NONE;
-	Callback = nullptr;
-	ArgumentCallback = nullptr;
+
 }
 
 Command::~Command() { }
@@ -306,22 +305,25 @@ void Command::TriggerCallback(const std::string& arguments)
 
 ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, commands, and mods.")
 {
-	PlaceholderMod = nullptr;
-
-	// Here is where we are mapping commands to their internal "VariableId", this is done on runtime.
-	VariableMap_SID.emplace(std::make_pair("reset_setting", VariableIds::MANAGER_RESET_SETTING));
-	VariableMap_SID.emplace(std::make_pair("print_module", VariableIds::MANAGER_PRINT_MODULE));
-	VariableMap_SID.emplace(std::make_pair("unreal_command", VariableIds::MANAGER_UNREAL_COMMAND));
-	VariableMap_SID.emplace(std::make_pair("placeholder_do_thing", VariableIds::PLACEHOLDER_DO_THING));
-	VariableMap_SID.emplace(std::make_pair("placeholder_can_do_thing", VariableIds::PLACEHOLDER_ENABLED));
-
-	for (const std::pair<std::string, VariableIds>& variable : VariableMap_SID)
-	{
-		VariableMap_IDS.emplace(std::make_pair(variable.second, variable.first));
-	}
+	OnCreate();
 }
 
-ManagerComponent::~ManagerComponent() { }
+ManagerComponent::~ManagerComponent()
+{
+	OnDestroy();
+}
+
+void ManagerComponent::OnCreate()
+{
+	PlaceholderMod = nullptr;
+}
+
+void ManagerComponent::OnDestroy()
+{
+	ModuleMap.clear();
+	CommandMap.clear();
+	SettingMap.clear();
+}
 
 void ManagerComponent::KeyPressed(const std::string& key)
 {
@@ -482,6 +484,19 @@ std::string ManagerComponent::GetVariableName(VariableIds variable)
 	return "UnknownVariable";
 }
 
+void ManagerComponent::CreateVariable(const std::string& name, VariableIds variable)
+{
+	if (VariableMap_SID.find(name) == VariableMap_SID.end())
+	{
+		VariableMap_SID.emplace(std::make_pair(name, variable));
+		VariableMap_IDS.emplace(std::make_pair(variable, name));
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Duplicate variable name detected for id: " + std::to_string(static_cast<int32_t>(variable)) + "!");
+	}
+}
+
 template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind)
 {
 	if (mod)
@@ -599,6 +614,13 @@ std::shared_ptr<Setting> ManagerComponent::GetSetting(VariableIds variable)
 
 void ManagerComponent::Initialize()
 {
+	// Here where we are mapping commands/settings to their internal "VariableId", this is done on runtime.
+	CreateVariable("reset_setting", VariableIds::MANAGER_RESET_SETTING);
+	CreateVariable("print_module", VariableIds::MANAGER_PRINT_MODULE);
+	CreateVariable("unreal_command", VariableIds::MANAGER_UNREAL_COMMAND);
+	CreateVariable("placeholder_do_thing", VariableIds::PLACEHOLDER_DO_THING);
+	CreateVariable("placeholder_can_do_thing", VariableIds::PLACEHOLDER_ENABLED);
+
 	// Assigning the CasualMatch and RankedMatch flags, so this module will only be able to be used in casual or ranked games.
 	CreateModule<PlaceholderModule>(new PlaceholderModule("Paceholder", "An example module.", States::STATES_CasualMatch | States::STATES_RankedMatch), PlaceholderMod);
 	

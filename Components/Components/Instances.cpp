@@ -3,13 +3,32 @@
 
 InstancesComponent::InstancesComponent() : Component("Instances", "Manages class instances and objects.")
 {
+	OnCreate();
+}
+
+InstancesComponent::~InstancesComponent()
+{
+	OnDestroy();
+}
+
+void InstancesComponent::OnCreate()
+{
 	I_UCanvas = nullptr;
 	I_AHUD = nullptr;
 	I_UGameViewportClient = nullptr;
 	I_APlayerController = nullptr;
 }
 
-InstancesComponent::~InstancesComponent() { }
+void InstancesComponent::OnDestroy()
+{
+	for (UObject* instance : CreatedInstances)
+	{
+		if (instance)
+		{
+			MarkForDestory(instance);
+		}
+	}
+}
 
 void InstancesComponent::MarkInvincible(class UObject* object)
 {

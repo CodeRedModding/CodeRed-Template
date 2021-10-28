@@ -162,10 +162,53 @@ namespace Hooks
 
 EventsComponent::EventsComponent() : Component("Events", "Manages function hooks and process event.")
 {
+	OnCreate();
+}
+
+EventsComponent::~EventsComponent()
+{
+	OnDestroy();
+}
+
+void EventsComponent::OnCreate()
+{
 	ProcessEvent = nullptr;
 }
 
-EventsComponent::~EventsComponent() { }
+void EventsComponent::OnDestroy()
+{
+	DetachDetour();
+}
+
+bool EventsComponent::IsDetoured()
+{
+	return (Detoured && !ProcessEvent);
+}
+
+void EventsComponent::AttachDetour(const ProcessEventType& detourFunction)
+{
+	if (!IsDetoured())
+	{
+		ProcessEvent = detourFunction;
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourAttach(&reinterpret_cast<PVOID&>(ProcessEvent), reinterpret_cast<PVOID>(ProcessEventDetour));
+		DetourTransactionCommit();
+	}
+}
+
+void EventsComponent::DetachDetour()
+{
+	if (IsDetoured())
+	{
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourDetach(&reinterpret_cast<PVOID&>(ProcessEvent), reinterpret_cast<PVOID>(ProcessEventDetour));
+		DetourTransactionCommit();
+		Detoured = false;
+		ProcessEvent = nullptr;
+	}
+}
 
 void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result)
 {

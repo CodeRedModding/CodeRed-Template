@@ -1,28 +1,77 @@
 #pragma once
 #include "../pch.hpp"
 
-namespace FMemory
+// https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Source/Runtime/Core/Public/HAL/UnrealMemory.h
+// https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Source/Runtime/Core/Public/GenericPlatform/GenericPlatformMemory.h
+
+class FMemory
 {
-	void* Memmove(void* Dest, const void* Src, size_t Count);
-	int32_t Memcmp(const void* Buf1, const void* Buf2, size_t Count);
-	void* Memset(void* Dest, uint8_t Char, size_t Count);
-	template<typename T>  void Memset(T& Src, uint8_t ValueToSet)
+public:
+	static FORCEINLINE void* Memmove(void* Dest, const void* Src, SIZE_T Count)
 	{
-		Memset(&Src, ValueToSet, sizeof(T));
+		return memmove(Dest,Src, Count);
 	}
-	void* Memzero(void* Dest, size_t Count);
-	template<typename T> void Memzero(T& Src)
+
+	static FORCEINLINE int32_t Memcmp(const void* Buf1, const void* Buf2, SIZE_T Count)
 	{
-		Memzero(&Src, sizeof(T));
+		return memcmp(Buf1, Buf2, Count);
 	}
-	void* Memcpy(void* Dest, const void* Src, size_t Count);
-	template<typename T> void Memcpy(T& Dest, const T& Src)
+
+	static FORCEINLINE void* Memset(void* Dest, uint8_t Char, SIZE_T Count)
 	{
-		Memcpy(&Dest, &Src, sizeof(T));
+		return memset(Dest, Char, Count);
 	}
-	void* BigBlockMemcpy(void* Dest, const void* Src, size_t Count);
-	void* StreamingMemcpy(void* Dest, const void* Src, size_t Count);
-	void* SystemMalloc(size_t Size);
-	void SystemFree(void* Ptr);
-	void* MallocZeroed(size_t Count, uint32_t Alignment = 0);
-}
+
+	template<typename T> static FORCEINLINE void Memset(T& Src, uint8_t ValueToSet)
+	{
+		memset(&Src, ValueToSet, sizeof(T));
+	}
+
+	static FORCEINLINE void* Memzero(void* Dest, SIZE_T Count)
+	{
+		return memset(Dest, 0, Count);
+	}
+
+	template<typename T> static FORCEINLINE void Memzero(T& Src)
+	{
+		memset(&Src, 0, sizeof(T));
+	}
+
+	static FORCEINLINE void* Memcpy(void* Dest, const void* Src, SIZE_T Count)
+	{
+		return memcpy(Dest, Src, Count);
+	}
+
+	template<typename T>  static FORCEINLINE void Memcpy(T& Dest, const T& Src)
+	{
+		memcpy(&Dest, &Src, sizeof(T));
+	}
+
+	static FORCEINLINE void* BigBlockMemcpy(void* Dest, const void* Src, SIZE_T Count)
+	{
+		return memcpy(Dest, Src, Count);
+	}
+
+	static FORCEINLINE void* StreamingMemcpy(void* Dest, const void* Src, SIZE_T Count)
+	{
+		return memcpy(Dest, Src, Count);
+	}
+
+	static FORCEINLINE void* SystemMalloc(SIZE_T Size)
+	{
+		return ::malloc(Size);
+	}
+
+	static FORCEINLINE void SystemFree(void* Ptr)
+	{
+		::free(Ptr);
+	}
+
+private:
+	template <typename T> static FORCEINLINE void Valswap(T& A, T& B)
+	{
+		T Tmp = A;
+		A = B;
+		B = Tmp;
+	}
+};

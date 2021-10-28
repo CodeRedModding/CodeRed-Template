@@ -73,7 +73,7 @@ public:
 // Taken directly from Unreal Engine 4 source code and converted to BGRA format instead of RGBA.
 // https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Source/Runtime/Core/Private/Math/ColorList.cpp
 
-class FColorList
+class GColorList
 {
 public:
 	static const Color White;

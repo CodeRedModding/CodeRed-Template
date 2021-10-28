@@ -1,6 +1,7 @@
 #pragma once
 #include "../pch.hpp"
 
+// Helper functions for formatting streams and strings.
 namespace Format
 {
 	void Empty(std::ostringstream& stream);

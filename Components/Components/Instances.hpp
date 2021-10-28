@@ -10,8 +10,13 @@ public:
 	~InstancesComponent() override;
 
 public:
+	void OnCreate() override;
+	void OnDestroy() override;
+
+public:
 	std::map<std::string, class UClass*> StaticClasses;
 	std::map<std::string, class UFunction*> StaticFunctions;
+	std::vector<class UObject*> CreatedInstances;
 
 public: // Helper functions for class instance grabbing/manipulation.
 	// All GetInstanceOf related functions loop through the entire GObject TArray, which can be resource heavy if you're using them everywhere.
@@ -164,6 +169,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 		if (returnObject)
 		{
 			MarkInvincible(returnObject);
+			CreatedInstances.push_back(returnObject);
 		}
 
 		return returnObject;

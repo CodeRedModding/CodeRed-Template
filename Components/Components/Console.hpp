@@ -36,6 +36,10 @@ public:
 	~ConsoleComponent() override;
 
 public:
+	void OnCreate() override;
+	void OnDestroy() override;
+
+public:
 	void Write(const std::string& text, TextColors textColor = TextColors::BrightWhite);
 	void WriteInternal(std::string text, TextColors textColor);
 	void Warning(const std::string& text);

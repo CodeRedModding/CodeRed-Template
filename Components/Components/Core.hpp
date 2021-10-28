@@ -12,6 +12,10 @@ public:
 	~CoreComponent() override;
 
 public:
+	void OnCreate() override;
+	void OnDestroy() override;
+
+public:
 	void InitializeThread();
 	static bool AreGlobalsValid();
 	static void InitializeGlobals(HMODULE hModule);

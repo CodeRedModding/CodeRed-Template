@@ -3,20 +3,20 @@
 
 CoreComponent::CoreComponent() : Component("Core", "Initializes globals, components, and modules.")
 {
+	OnCreate();
+}
+
+CoreComponent::~CoreComponent()
+{
+	OnDestroy();
+}
+
+void CoreComponent::OnCreate()
+{
 	MainThread = nullptr;
 }
 
-// Necessary for if your DLL gets intentionally (or unintentionally) unloaded before your game exits.
-CoreComponent::~CoreComponent()
-{
-	if (Events.ProcessEvent)
-	{
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-		DetourDetach(&reinterpret_cast<PVOID&>(Events.ProcessEvent), reinterpret_cast<PVOID>(Events.ProcessEventDetour));
-		DetourTransactionCommit();
-	}
-}
+void CoreComponent::OnDestroy() { }
 
 void CoreComponent::InitializeThread()
 {
@@ -65,21 +65,14 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 
 	if (AreGlobalsValid())
 	{
-		// You can use either a pattern for Process Event or it's place in the VfTable index.
+		// You can use either a pattern for Process Event or its place in the VfTable index (not both).
 		void** unrealVTable = reinterpret_cast<void**>(UObject::StaticClass()->VfTableObject.Dummy);
-		Events.ProcessEvent = reinterpret_cast<ProcessEventType>(unrealVTable[0]); // Zero being the index.
-		Events.ProcessEvent = reinterpret_cast<ProcessEventType>(Memory::FindPattern(GetModuleHandle(NULL), ProcessEvent_Pattern, ProcessEvent_Mask)); // Find pattern method.
+		Events.AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Zero being the index.
+		Events.AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(GetModuleHandle(NULL), ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
 
 		Console.Notify("[Core Module] Entry Point " + Format::Hex(entryPoint, sizeof(entryPoint)));
 		Console.Notify("[Core Module] Global Objects: " + Format::Hex(reinterpret_cast<uintptr_t>(GObjects), sizeof(GObjects)));
 		Console.Notify("[Core Module] Global Names: " + Format::Hex(reinterpret_cast<uintptr_t>(GNames), sizeof(GNames)));
-
-		// Redirects the process event virtual function to our own void, for us to manually process later to the typedef.
-
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-		DetourAttach(&reinterpret_cast<PVOID&>(Events.ProcessEvent), reinterpret_cast<PVOID>(Events.ProcessEventDetour));
-		DetourTransactionCommit();
 
 		Console.Write("[Core Module] Initialized!");
 

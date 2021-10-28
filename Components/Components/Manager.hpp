@@ -116,6 +116,10 @@ public:
 	~ManagerComponent() override;
 
 public:
+	void OnCreate() override;
+	void OnDestroy() override;
+
+public:
 	void KeyPressed(const std::string& key);
 	void UnrealCommand(const std::string& unrealCommand);
 	void ConsoleCommand(const std::string& command, const std::string& arguments);
@@ -125,6 +129,7 @@ public:
 public:
 	void ResetSetting(const std::string& settingName, bool bLogToConsole = true);
 	void PrintModule(const std::string& moduleName);
+	void CreateVariable(const std::string& name, VariableIds variable);
 	std::string GetVariableName(VariableIds variable);
 	template <typename T> std::shared_ptr<T> CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind);
 	template <typename T> std::shared_ptr<T> GetModule(const std::string& moduleName);
