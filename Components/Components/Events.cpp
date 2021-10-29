@@ -172,6 +172,7 @@ EventsComponent::~EventsComponent()
 
 void EventsComponent::OnCreate()
 {
+	Detoured = false;
 	ProcessEvent = nullptr;
 }
 
