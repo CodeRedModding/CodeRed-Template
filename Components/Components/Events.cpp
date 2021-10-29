@@ -182,13 +182,14 @@ void EventsComponent::OnDestroy()
 
 bool EventsComponent::IsDetoured()
 {
-	return (Detoured && !ProcessEvent);
+	return (Detoured && ProcessEvent);
 }
 
 void EventsComponent::AttachDetour(const ProcessEventType& detourFunction)
 {
 	if (!IsDetoured())
 	{
+		Detoured = true;
 		ProcessEvent = detourFunction;
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
