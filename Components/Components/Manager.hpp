@@ -27,7 +27,7 @@ enum class VariableIds : int32_t
 	MANAGER_RESET_SETTING,
 	MANAGER_PRINT_MODULE,
 	MANAGER_UNREAL_COMMAND,
-	// User created commands.
+	// User created variables.
 	PLACEHOLDER_DO_THING,
 	PLACEHOLDER_ENABLED
 };
@@ -66,7 +66,7 @@ public:
 	bool IsModifiable() const;
 	bool HasCallback() const;
 	void TriggerCallback();
-	void BindCallback(const std::function<void()>& callback);
+	void BindCallback(std::function<void()> callback);
 	void UnbindCallback();
 };
 
@@ -89,8 +89,8 @@ public:
 	std::string GetDescription() const;
 	CommandTypes GetType() const;
 	void SetArguments(const std::string& arguments);
-	void BindCallback(const std::function<void()>& callback);
-	void BindArguments(const std::function<void(std::string)>& callback);
+	void BindCallback(std::function<void()> callback);
+	void BindArguments(std::function<void(std::string)> callback);
 	void TriggerCallback();
 	void TriggerCallback(const std::string& arguments);
 };

@@ -1,5 +1,9 @@
 #pragma once
 /* 
+    Changes in v1.2.2:
+    - Changed function hooks in "Events.hpp" to use std::function, which also adds proper lambda support.
+    - Fixed the "Detoured" bool prematurely getting set to true in "Events.cpp".
+
     Changes in v1.2.1:
     - Improved memory functions in "UnrealMemory.hpp", just look at them for yourself or something idk.
     - Improved the constructors for the "Setting" and "Command" classes in "Manager.cpp".
@@ -84,12 +88,12 @@
     - Renamed all "CR" color classes to just normal structs in "Colors.hpp", also added some extra operators for them.
     - Updated the placeholder sdk with the new math structs so the project can compile.
 
-     Changes in v1.1.0:
-     - Added a "WhitelistEvent" function in "Events.hpp".
-     - Added the maps "StaticClasses" and "StaticFunctions" in "Instances.hpp", here all of these objects are mapped by their full name to their pointer.
-     - Added extra saftey checks and warnings for hooking functions.
-     - Changed how hooking functions, and binding them work. Now you can hook multiple voids to a singluar function, before it would be limited to only one.
-     - Removed the toggle for logging functions in the EventsComponent, that was messy anyway.
+    Changes in v1.1.0:
+    - Added a "WhitelistEvent" function in "Events.hpp".
+    - Added the maps "StaticClasses" and "StaticFunctions" in "Instances.hpp", here all of these objects are mapped by their full name to their pointer.
+    - Added extra saftey checks and warnings for hooking functions.
+    - Changed how hooking functions, and binding them work. Now you can hook multiple voids to a singluar function, before it would be limited to only one.
+    - Removed the toggle for logging functions in the EventsComponent, that was messy anyway.
 
     Changes in v1.0.9:
     - Added the Formatting extension files, includes helpful stream utils.

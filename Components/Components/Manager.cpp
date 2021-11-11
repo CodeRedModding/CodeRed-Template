@@ -209,7 +209,7 @@ void Setting::TriggerCallback()
 	}
 }
 
-void Setting::BindCallback(const std::function<void()>& callback)
+void Setting::BindCallback(std::function<void()> callback)
 {
 	ShouldCallback = true;
 	Callback = callback;
@@ -253,13 +253,13 @@ void Command::SetArguments(const std::string& arguments)
 	Arguments = arguments;
 }
 
-void Command::BindCallback(const std::function<void()>& callback)
+void Command::BindCallback(std::function<void()> callback)
 {
 	Callback = callback;
 	Type = CommandTypes::TYPE_CALLBACK;
 }
 
-void Command::BindArguments(const std::function<void(std::string)>& callback)
+void Command::BindArguments(std::function<void(std::string)> callback)
 {
 	ArgumentCallback = callback;
 	Type = CommandTypes::TYPE_ARGUMENT;

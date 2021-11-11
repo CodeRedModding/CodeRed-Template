@@ -190,12 +190,12 @@ void EventsComponent::AttachDetour(const ProcessEventType& detourFunction)
 {
 	if (!IsDetoured())
 	{
-		Detoured = true;
 		ProcessEvent = detourFunction;
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 		DetourAttach(&reinterpret_cast<PVOID&>(ProcessEvent), reinterpret_cast<PVOID>(ProcessEventDetour));
 		DetourTransactionCommit();
+		Detoured = true;
 	}
 }
 
@@ -216,13 +216,13 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 {
 	if (ProcessEvent)
 	{
-		std::map<int32_t, std::vector<PreEventType>>::iterator preIt = PreHookedEvents.find(function->ObjectInternalInteger);
+		const auto& preIt = PreHookedEvents.find(function->ObjectInternalInteger);
 
 		PreEvent event; // In the default constructor we set "PE_Detour" to true, so even if a function hook is found it will correctly go through Process Event.
 
 		if (preIt != PreHookedEvents.end())
 		{
-			for (const PreEventType& preEvent : preIt->second)
+			for (const auto& preEvent : preIt->second)
 			{
 				event = PreEvent(caller, function, params);
 				preEvent(event);
@@ -237,61 +237,15 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 			}
 		}
 
-		std::map<int32_t, std::vector<PostEventType>>::iterator postIt = PostHookedEvents.find(function->ObjectInternalInteger);
+		const auto& postIt = PostHookedEvents.find(function->ObjectInternalInteger);
 
 		if (postIt != PostHookedEvents.end())
 		{
-			for (const PostEventType& postEvent : postIt->second)
+			for (const auto& postEvent : postIt->second)
 			{
 				postEvent(PostEvent(caller, function, params, result));
 			}
 		}
-	}
-}
-
-void EventsComponent::HookEventPre(const std::string& functionFullName, const PreEventType& eventType)
-{
-	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(functionFullName);
-
-	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
-	{
-		int32_t functionIndex = functionIt->second->ObjectInternalInteger;
-
-		if (PreHookedEvents.find(functionIndex) != PreHookedEvents.end())
-		{
-			PreHookedEvents[functionIndex].push_back(eventType);
-		}
-		else
-		{
-			PreHookedEvents[functionIndex] = std::vector<PreEventType>{ eventType };
-		}
-	}
-	else
-	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + functionFullName + "\"!");
-	}
-}
-
-void EventsComponent::HookEventPost(const std::string& functionFullName, const PostEventType& eventType)
-{
-	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(functionFullName);
-
-	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
-	{
-		int32_t functionIndex = functionIt->second->ObjectInternalInteger;
-
-		if (PostHookedEvents.find(functionIndex) != PostHookedEvents.end())
-		{
-			PostHookedEvents[functionIndex].push_back(eventType);
-		}
-		else
-		{
-			PostHookedEvents[functionIndex] = std::vector<PostEventType>{ eventType };
-		}
-	}
-	else
-	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + functionFullName + "\"!");
 	}
 }
 
@@ -331,15 +285,70 @@ void EventsComponent::WhitelistEvent(const std::string& functionFullName)
 	}
 }
 
+void EventsComponent::HookEventPre(const std::string& function, std::function<void(PreEvent&)> hook)
+{
+	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(function);
+
+	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	{
+		int32_t functionIndex = functionIt->second->ObjectInternalInteger;
+
+		if (PreHookedEvents.find(functionIndex) != PreHookedEvents.end())
+		{
+			PreHookedEvents[functionIndex].push_back(hook);
+		}
+		else
+		{
+			PreHookedEvents[functionIndex] = std::vector<std::function<void(PreEvent&)>>{ hook };
+		}
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + function + "\"!");
+	}
+}
+
+void EventsComponent::HookEventPost(const std::string& function, std::function<void(const PostEvent&)> hook)
+{
+	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(function);
+
+	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	{
+		int32_t functionIndex = functionIt->second->ObjectInternalInteger;
+
+		if (PostHookedEvents.find(functionIndex) != PostHookedEvents.end())
+		{
+			PostHookedEvents[functionIndex].push_back(hook);
+		}
+		else
+		{
+			PostHookedEvents[functionIndex] = std::vector<std::function<void(const PostEvent&)>>{ hook };
+		}
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + function + "\"!");
+	}
+}
+
 void EventsComponent::Initialize()
 {
 	// Example functions only, you will need to function scan in your game for your own to hook!
 
 	BlacklistEvent("Function Engine.Tracker.ReportMetrics");
 
+	// You can hook functions like this.
 	HookEventPre("Function Engine.HUD.PostRender", &Hooks::HUDPostRender);
-	HookEventPost("Function Engine.HUD.PostRender", &Hooks::HUDPostRenderPost);
-	HookEventPre("Function Engine.GameViewportClient.PostRender", &Hooks::GameViewPortPostRender);
+
+	// Or like this, with std::bind.
+	HookEventPost("Function Engine.HUD.PostRender", std::bind(&Hooks::HUDPostRenderPost, std::placeholders::_1));
+
+	// Or even like this, with lambda expressions.
+	HookEventPre("Function Engine.GameViewportClient.PostRender", [&](PreEvent& event) {
+		Hooks::GameViewPortPostRender(event);
+		Console.Write("I'm a lambda function hook!");
+	});
+
 	HookEventPre("Function Engine.PlayerController.PlayerTick", &Hooks::PlayerControllerTick);
 	HookEventPre("Function Engine.GameViewportClient.HandleKeyPress", &Hooks::GameViewPortKeyPress);
 	HookEventPre("Function Engine.GFxData_MainMenu.MainMenuAdded", &Hooks::GFxDataMainMenuAdded);

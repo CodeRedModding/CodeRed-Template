@@ -55,7 +55,7 @@ namespace Hooks
 	void GameViewPortKeyPress(PreEvent& event);
 }
 
-typedef void(*ProcessEventType)(class UObject*, class UFunction*, void*, void*);
+typedef void(*ProcessEventType)(class UObject*, class UFunction*, void*, void*); // Calling object, function, structure pointer with parameters, unused result
 
 // Manages everything related to hooking functions form Process Event, as well as detouring.
 class EventsComponent : public Component
@@ -63,12 +63,8 @@ class EventsComponent : public Component
 private:
 	static inline bool Detoured;
 	static inline ProcessEventType ProcessEvent;
-
-private:
-	typedef void(*PreEventType)(PreEvent&);
-	typedef void(*PostEventType)(const PostEvent&);
-	static inline std::map<int32_t, std::vector<PreEventType>> PreHookedEvents; // Hooked function's internal integer and arguments.
-	static inline std::map<int32_t, std::vector<PostEventType>> PostHookedEvents; // Hooked function's internal integer and arguments.
+	static inline std::map<int32_t, std::vector<std::function<void(PreEvent&)>>> PreHookedEvents; // Hooked function's internal integer and bound function.
+	static inline std::map<int32_t, std::vector<std::function<void(const PostEvent&)>>> PostHookedEvents; // Hooked function's internal integer and bound function.
 	static inline std::vector<int32_t> BlacklistedEvents; // Blacklisted function's internal integer.
 
 public:
@@ -84,13 +80,11 @@ public:
 	static void AttachDetour(const ProcessEventType& detourFunction); // Redirects the process event virtual function to our own void, for us to manually process later to the typedef.
 	static void DetachDetour(); // Called by the deconstuctor, necessary for if your DLL gets intentionally (or unintentionally) unloaded before your game exits.
 	static void ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result); // Process event gets detoured to this function, then we manually proxy it through to "ProcessEvent".
-	
-public:
-	void BlacklistEvent(const std::string& functionFullName);
-	void WhitelistEvent(const std::string& functionFullName);
-	void HookEventPre(const std::string& functionFullName, const PreEventType& eventType);
-	void HookEventPost(const std::string& functionFullName, const PostEventType& eventType);
-	void Initialize(); // Initializes binding events to voids.
+	void BlacklistEvent(const std::string& function);
+	void WhitelistEvent(const std::string& function);
+	void HookEventPre(const std::string& function, std::function<void(PreEvent&)> hook);
+	void HookEventPost(const std::string& function, std::function<void(const PostEvent&)> hook);
+	void Initialize(); // Initializes hooking events to functions.
 };
 
 extern class EventsComponent Events;
