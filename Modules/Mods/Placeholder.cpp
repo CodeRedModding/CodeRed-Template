@@ -6,7 +6,7 @@ PlaceholderModule::PlaceholderModule(const std::string& name, const std::string&
 	PlaceholderEnabled = false;
 }
 
-PlaceholderModule::~PlaceholderModule() { }
+PlaceholderModule::~PlaceholderModule() {}
 
 void PlaceholderModule::UpdateSettings()
 {

@@ -1,5 +1,14 @@
 #pragma once
 /* 
+    Changes in v1.2.3:
+    - Added an argument callback option for the "Setting" class in "Manager.hpp", works similar to the "Command" classes arugment callback but the argument is the string value of the setting.
+    - Added an optional argument for the "UnrealCommand" function in "Manager.hpp" called "bLogToConsole".
+    - Fixed the "Lerp" function for the "VectorI" class taking a float instead of an integer in "Math.hpp".
+    - Fixed the operators for the "Rotator" class in "Manager.cpp" saying struct instead of class.
+    - Removed the "ShouldCallback" bool for the "Setting" class in "Manager.hpp", changed the check to see if the functions are null or not before calling instead of the bool value.
+    - Reformatted the constructors in the "Colors.cpp", "Math.cpp", "Module.cpp", "Component.cpp", files.
+    - Removed the "KeyPressed" function from "Manager.hpp", this should be handled by yourself in your own component or module.
+
     Changes in v1.2.2:
     - Changed function hooks in "Events.hpp" to use std::function, which also adds proper lambda support.
     - Fixed the "Detoured" bool prematurely getting set to true in "Events.cpp".

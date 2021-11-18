@@ -14,7 +14,7 @@ namespace Math
 
 		float quotient = (INV_PI * 0.5f) * value;
 
-		if (value >= 0.f)
+		if (value >= 0.0f)
 		{
 			quotient = (float)((int32_t)(quotient + 0.5f));
 		}
@@ -23,7 +23,7 @@ namespace Math
 			quotient = (float)((int32_t)(quotient - 0.5f));
 		}
 
-		float y = value - (2.f * PI) * quotient;
+		float y = value - (2.0f * PI) * quotient;
 
 		// Map y to [-pi / 2, pi / 2] with sin(y) = sin(Value).
 
@@ -90,8 +90,8 @@ FVector2D Vector2DF::UnrealVector() const
 
 void Vector2DF::Erase()
 {
-	X = 0.f;
-	Y = 0.f;
+	X = 0.0f;
+	Y = 0.0f;
 }
 
 Vector2DF Vector2DF::Copy() const
@@ -150,9 +150,9 @@ struct FVector VectorF::UnrealVector() const
 
 void VectorF::Erase()
 {
-	X = 0.f;
-	Y = 0.f;
-	Z = 0.f;
+	X = 0.0f;
+	Y = 0.0f;
+	Z = 0.0f;
 }
 
 VectorF VectorF::Copy() const
@@ -186,8 +186,8 @@ VectorF VectorF::GetNormalize() const
 class Rotator VectorF::GetRotator() const
 {
 	Rotator result;
-	result.Yaw = atan2(Y, X) * (180.f / PI);
-	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.f / PI);
+	result.Yaw = atan2(Y, X) * (180.0f / PI);
+	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.0f / PI);
 	result.Roll = 0.f;
 	return result;
 }
@@ -270,9 +270,9 @@ VectorI VectorI::GetNormalize() const
 class Rotator VectorI::GetRotator() const
 {
 	Rotator result;
-	result.Yaw = atan2(Y, X) * (180.f / PI);
-	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.f / PI);
-	result.Roll = 0.f;
+	result.Yaw = atan2(Y, X) * (180.0f / PI);
+	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.0f / PI);
+	result.Roll = 0;
 	return result;
 }
 
@@ -289,7 +289,7 @@ VectorI VectorI::Cross(const VectorI& other) const
 	return VectorI(x, y, z);
 }
 
-VectorI VectorI::Lerp(const VectorI& other, float percentage) const
+VectorI VectorI::Lerp(const VectorI& other, int32_t percentage) const
 {
 	VectorI mutableThis = *this;
 	return VectorI(mutableThis * percentage + (other * (1 - percentage)));
@@ -311,17 +311,17 @@ VectorI VectorI::operator=(const struct FVector& other)
 	return *this;
 }
 
-Rotator::Rotator() : Pitch(0), Yaw(0), Roll(0) { }
+Rotator::Rotator() : Pitch(0), Yaw(0), Roll(0) {}
 
-Rotator::Rotator(int32_t pyr) : Pitch(pyr), Yaw(pyr), Roll(pyr) { }
+Rotator::Rotator(int32_t pyr) : Pitch(pyr), Yaw(pyr), Roll(pyr) {}
 
-Rotator::Rotator(int32_t pitch, int32_t yaw, int32_t roll) : Pitch(pitch), Yaw(yaw), Roll(roll) { }
+Rotator::Rotator(int32_t pitch, int32_t yaw, int32_t roll) : Pitch(pitch), Yaw(yaw), Roll(roll) {}
 
-Rotator::Rotator(const Rotator& other) : Pitch(other.Pitch), Yaw(other.Yaw), Roll(other.Roll) { }
+Rotator::Rotator(const Rotator& other) : Pitch(other.Pitch), Yaw(other.Yaw), Roll(other.Roll) {}
 
-Rotator::Rotator(const struct FRotator& other) : Pitch(other.Pitch), Yaw(other.Yaw), Roll(other.Roll) { }
+Rotator::Rotator(const struct FRotator& other) : Pitch(other.Pitch), Yaw(other.Yaw), Roll(other.Roll) {}
 
-Rotator::~Rotator() { }
+Rotator::~Rotator() {}
 
 struct FRotator Rotator::UnrealRotator() const
 {
@@ -342,11 +342,11 @@ Rotator Rotator::Copy() const
 
 float Rotator::ClampAxis(float a)
 {
-	a = fmod(a, 360.f);
+	a = fmod(a, 360.0f);
 
-	if (a < 0.f)
+	if (a < 0.0f)
 	{
-		a += 360.f;
+		a += 360.0f;
 	}
 
 	return a;
@@ -363,9 +363,9 @@ float Rotator::NormalizeAxis(float a)
 {
 	a = ClampAxis(a);
 
-	if (a > 180.f)
+	if (a > 180.0f)
 	{
-		a -= 360.f;
+		a -= 360.0f;
 	}
 
 	return a;
@@ -384,8 +384,8 @@ VectorF Rotator::GetVector() const
 	const float YawNoWinding = fmod(Yaw, 360.0f);
 
 	float CP, SP, CY, SY;
-	Math::SinCos(&SP, &CP, PitchNoWinding * (PI / 180.f));
-	Math::SinCos(&SY, &CY, YawNoWinding * (PI / 180.f));
+	Math::SinCos(&SP, &CP, PitchNoWinding * (PI / 180.0f));
+	Math::SinCos(&SY, &CY, YawNoWinding * (PI / 180.0f));
 
 	return VectorF(CP * CY, CP * SY, SP);
 }
@@ -414,7 +414,7 @@ VectorF Rotator::Rotate(VectorF other) const
 	return other;
 }
 
-struct Rotator Rotator::operator+=(const Rotator& other)
+Rotator Rotator::operator+=(const Rotator& other)
 {
 	Pitch += other.Pitch;
 	Yaw += other.Yaw;
@@ -422,7 +422,7 @@ struct Rotator Rotator::operator+=(const Rotator& other)
 	return *this;
 }
 
-struct Rotator Rotator::operator-=(const Rotator& other)
+Rotator Rotator::operator-=(const Rotator& other)
 {
 	Pitch -= other.Pitch;
 	Yaw -= other.Yaw;
@@ -430,7 +430,7 @@ struct Rotator Rotator::operator-=(const Rotator& other)
 	return *this;
 }
 
-struct Rotator Rotator::operator*=(const Rotator& other)
+Rotator Rotator::operator*=(const Rotator& other)
 {
 	Pitch *= other.Pitch;
 	Yaw *= other.Yaw;
@@ -438,7 +438,7 @@ struct Rotator Rotator::operator*=(const Rotator& other)
 	return *this;
 }
 
-struct Rotator Rotator::operator/=(const Rotator& other)
+Rotator Rotator::operator/=(const Rotator& other)
 {
 	Pitch /= other.Pitch;
 	Yaw /= other.Yaw;
@@ -446,7 +446,7 @@ struct Rotator Rotator::operator/=(const Rotator& other)
 	return *this;
 }
 
-struct Rotator Rotator::operator+=(int32_t other)
+Rotator Rotator::operator+=(int32_t other)
 {
 	Pitch += other;
 	Yaw += other;
@@ -454,7 +454,7 @@ struct Rotator Rotator::operator+=(int32_t other)
 	return *this;
 }
 
-struct Rotator Rotator::operator-=(int32_t other)
+Rotator Rotator::operator-=(int32_t other)
 {
 	Pitch -= other;
 	Yaw -= other;
@@ -462,7 +462,7 @@ struct Rotator Rotator::operator-=(int32_t other)
 	return *this;
 }
 
-struct Rotator Rotator::operator*=(int32_t other)
+Rotator Rotator::operator*=(int32_t other)
 {
 	Pitch *= other;
 	Yaw *= other;
@@ -470,7 +470,7 @@ struct Rotator Rotator::operator*=(int32_t other)
 	return *this;
 }
 
-struct Rotator Rotator::operator/=(int32_t other)
+Rotator Rotator::operator/=(int32_t other)
 {
 	Pitch /= other;
 	Yaw /= other;
@@ -478,7 +478,7 @@ struct Rotator Rotator::operator/=(int32_t other)
 	return *this;
 }
 
-struct Rotator Rotator::operator=(const Rotator& other)
+Rotator Rotator::operator=(const Rotator& other)
 {
 	Pitch = other.Pitch;
 	Yaw = other.Yaw;
@@ -486,7 +486,7 @@ struct Rotator Rotator::operator=(const Rotator& other)
 	return *this;
 }
 
-struct Rotator Rotator::operator=(const struct FRotator& other)
+Rotator Rotator::operator=(const struct FRotator& other)
 {
 	Pitch = other.Pitch;
 	Yaw = other.Yaw;
@@ -494,7 +494,7 @@ struct Rotator Rotator::operator=(const struct FRotator& other)
 	return *this;
 }
 
-struct Rotator Rotator::operator=(int32_t other)
+Rotator Rotator::operator=(int32_t other)
 {
 	Pitch = other;
 	Yaw = other;
@@ -550,17 +550,17 @@ VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
 	return point;
 }
 
-Quat::Quat() : X(0.f), Y(0.f), Z(0.f), W(0.f) { }
+Quat::Quat() : X(0.0f), Y(0.0f), Z(0.0f), W(0.0f) {}
 
-Quat::Quat(float xyzw) : X(xyzw), Y(xyzw), Z(xyzw), W(xyzw) { }
+Quat::Quat(float xyzw) : X(xyzw), Y(xyzw), Z(xyzw), W(xyzw) {}
 
-Quat::Quat(float x, float y, float z, float w) : X(x), Y(y), Z(z), W(w) { }
+Quat::Quat(float x, float y, float z, float w) : X(x), Y(y), Z(z), W(w) {}
 
-Quat::Quat(const Quat& other) : X(other.X), Y(other.Y), Z(other.Z), W(other.W) { }
+Quat::Quat(const Quat& other) : X(other.X), Y(other.Y), Z(other.Z), W(other.W) {}
 
-Quat::Quat(const struct FQuat& other) : X(other.X), Y(other.Y), Z(other.Z), W(other.W) { }
+Quat::Quat(const struct FQuat& other) : X(other.X), Y(other.Y), Z(other.Z), W(other.W) {}
 
-Quat::~Quat() { }
+Quat::~Quat() {}
 
 struct FQuat Quat::UnrealQuat() const
 {
@@ -569,10 +569,10 @@ struct FQuat Quat::UnrealQuat() const
 
 void Quat::Erase()
 {
-	X = 0.f;
-	Y = 0.f;
-	Z = 0.f;
-	W = 0.f;
+	X = 0.0f;
+	Y = 0.0f;
+	Z = 0.0f;
+	W = 0.0f;
 }
 
 Quat Quat::Copy() const
@@ -588,12 +588,12 @@ bool Quat::Equals(const Quat& q, float tolerance) const
 
 bool Quat::IsIdentity(float tolerance) const
 {
-	return Equals(Quat(0.f, 0.f, 0.f, 1.f), tolerance);
+	return Equals(Quat(0.0f, 0.0f, 0.0f, 1.0f), tolerance);
 }
 
 bool Quat::IsNormalized() const
 {
-	return (abs(1.f - SizeSquared()) < THRESH_QUAT_NORMALIZED);
+	return (abs(1.0f - SizeSquared()) < THRESH_QUAT_NORMALIZED);
 }
 
 float Quat::Size() const
@@ -608,22 +608,22 @@ float Quat::SizeSquared() const
 
 float Quat::GetAngle() const
 {
-	return (2.f * acos(W));
+	return (2.0f * acos(W));
 }
 
 VectorF Quat::GetAxisX() const
 {
-	return Rotate(VectorF(1.f, 0.f, 0.f));
+	return Rotate(VectorF(1.0f, 0.0f, 0.0f));
 }
 
 VectorF Quat::GetAxisY() const
 {
-	return Rotate(VectorF(0.f, 1.f, 0.f));
+	return Rotate(VectorF(0.0f, 1.0f, 0.0f));
 }
 
 VectorF Quat::GetAxisZ() const
 {
-	return Rotate(VectorF(0.f, 0.f, 1.f));
+	return Rotate(VectorF(0.0f, 0.0f, 1.0f));
 }
 
 VectorF Quat::GetRotationAxis() const
@@ -632,10 +632,10 @@ VectorF Quat::GetRotationAxis() const
 
 	if (sqrSum < SMALL_NUMBER)
 	{
-		return VectorF(1.f, 0.f, 0.f);
+		return VectorF(1.0f, 0.0f, 0.0f);
 	}
 
-	const float scale = 1.f / sqrtf(sqrSum);
+	const float scale = 1.0f / sqrtf(sqrSum);
 	return VectorF(X * scale, Y * scale, Z * scale);
 }
 
@@ -650,7 +650,7 @@ void Quat::Normalize(float tolerance)
 
 	if (SquareSum >= tolerance)
 	{
-		float Scale = 1.f / sqrtf(SquareSum);
+		float Scale = 1.0f / sqrtf(SquareSum);
 
 		X *= Scale; 
 		Y *= Scale; 
@@ -659,7 +659,7 @@ void Quat::Normalize(float tolerance)
 	}
 	else
 	{
-		*this = Quat(0.f, 0.f, 0.f, 1.f);
+		*this = Quat(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 }
 
@@ -676,30 +676,30 @@ Rotator Quat::GetRotator() const
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 
 	const float SingularityTest = Z * X - W * Y;
-	const float YawY = 2.f * (W * Z + X * Y);
-	const float YawX = (1.f - 2.f * (sqrt(Y) + sqrt(Z)));
+	const float YawY = 2.0f * (W * Z + X * Y);
+	const float YawX = (1.0f - 2.0f * (sqrt(Y) + sqrt(Z)));
 
 	const float SINGULARITY_THRESHOLD = 0.4999995f;
-	const float RAD_TO_DEG = (180.f) / PI;
+	const float RAD_TO_DEG = (180.0f) / PI;
 	Rotator RotatorFromQuat;
 
 	if (SingularityTest < -SINGULARITY_THRESHOLD)
 	{
-		RotatorFromQuat.Pitch = -90.f;
+		RotatorFromQuat.Pitch = -90.0f;
 		RotatorFromQuat.Yaw = atan2(YawY, YawX) * RAD_TO_DEG;
-		RotatorFromQuat.Roll = RotatorFromQuat.NormalizeAxis(-RotatorFromQuat.Yaw - (2.f * atan2(X, W) * RAD_TO_DEG));
+		RotatorFromQuat.Roll = RotatorFromQuat.NormalizeAxis(-RotatorFromQuat.Yaw - (2.0f * atan2(X, W) * RAD_TO_DEG));
 	}
 	else if (SingularityTest > SINGULARITY_THRESHOLD)
 	{
-		RotatorFromQuat.Pitch = 90.f;
+		RotatorFromQuat.Pitch = 90.0f;
 		RotatorFromQuat.Yaw = atan2(YawY, YawX) * RAD_TO_DEG;
-		RotatorFromQuat.Roll = RotatorFromQuat.NormalizeAxis(RotatorFromQuat.Yaw - (2.f * atan2(X, W) * RAD_TO_DEG));
+		RotatorFromQuat.Roll = RotatorFromQuat.NormalizeAxis(RotatorFromQuat.Yaw - (2.0f * atan2(X, W) * RAD_TO_DEG));
 	}
 	else
 	{
-		RotatorFromQuat.Pitch = asin(2.f * (SingularityTest)) * RAD_TO_DEG;
+		RotatorFromQuat.Pitch = asin(2.0f * (SingularityTest)) * RAD_TO_DEG;
 		RotatorFromQuat.Yaw = atan2(YawY, YawX) * RAD_TO_DEG;
-		RotatorFromQuat.Roll = atan2(-2.f* (W * X + Y * Z), (1.f - 2.f * (sqrt(X) + sqrt(Y)))) * RAD_TO_DEG;
+		RotatorFromQuat.Roll = atan2(-2.0f* (W * X + Y * Z), (1.f - 2.f * (sqrt(X) + sqrt(Y)))) * RAD_TO_DEG;
 	}
 
 	return RotatorFromQuat;
@@ -708,7 +708,7 @@ Rotator Quat::GetRotator() const
 VectorF Quat::Rotate(const VectorF& other) const
 {
 	VectorF q(X, Y, Z);
-	VectorF t = 2.f * q.Cross(other);
+	VectorF t = 2.0f * q.Cross(other);
 	return VectorF(other + (W * t) + q.Cross(t));
 }
 

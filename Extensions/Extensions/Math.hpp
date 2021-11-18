@@ -66,10 +66,10 @@ public:
 	TType X, Y;
 
 public:
-	TVector2D() : X(0), Y(0) { }
-	TVector2D(TType xy) : X(xy), Y(xy) { }
-	TVector2D(TType x, TType y) : X(x), Y(y) { }
-	TVector2D(const TVector2D& other) : X(other.X), Y(other.Y) { }
+	TVector2D() : X(0), Y(0) {}
+	TVector2D(TType xy) : X(xy), Y(xy) {}
+	TVector2D(TType x, TType y) : X(x), Y(y) {}
+	TVector2D(const TVector2D& other) : X(other.X), Y(other.Y) {}
 	~TVector2D() { }
 
 public:
@@ -96,10 +96,10 @@ public:
 	TType X, Y, Z;
 
 public:
-	TVector3D() : X(0), Y(0), Z(0) { }
-	TVector3D(TType xyz) : X(xyz), Y(xyz), Z(xyz) { }
-	TVector3D(TType x, TType y, TType z) : X(x), Y(y), Z(z) { }
-	TVector3D(const TVector3D& other) : X(other.X), Y(other.Y), Z(other.Z) { }
+	TVector3D() : X(0), Y(0), Z(0) {}
+	TVector3D(TType xyz) : X(xyz), Y(xyz), Z(xyz) {}
+	TVector3D(TType x, TType y, TType z) : X(x), Y(y), Z(z) {}
+	TVector3D(const TVector3D& other) : X(other.X), Y(other.Y), Z(other.Z) {}
 	~TVector3D() { }
 
 public:
@@ -124,11 +124,11 @@ public:
 class Vector2DF : public TVector2D<float>
 {
 public:
-	Vector2DF() : TVector2D(0.f) { }
-	Vector2DF(float xy) : TVector2D(xy) { }
-	Vector2DF(float x, float y) : TVector2D(x, y) { }
-	Vector2DF(const Vector2DF& other) : TVector2D(other) { }
-	Vector2DF(const struct FVector2D& other) : TVector2D(other.X, other.Y) { }
+	Vector2DF() : TVector2D(0.0f) {}
+	Vector2DF(float xy) : TVector2D(xy) {}
+	Vector2DF(float x, float y) : TVector2D(x, y) {}
+	Vector2DF(const Vector2DF& other) : TVector2D(other) {}
+	Vector2DF(const struct FVector2D& other) : TVector2D(other.X, other.Y) {}
 	~Vector2DF() { }
 
 public:
@@ -155,11 +155,11 @@ inline Vector2DF operator/(const Vector2DF& a, float b) { return Vector2DF(a.X /
 class Vector2DI : public TVector2D<int32_t>
 {
 public:
-	Vector2DI() : TVector2D(0) { }
-	Vector2DI(int32_t xy) : TVector2D(xy) { }
-	Vector2DI(int32_t x, int32_t y) : TVector2D(x, y) { }
-	Vector2DI(const Vector2DI& other) : TVector2D(other) { }
-	Vector2DI(const struct FVector2D& other) : TVector2D(other.X, other.Y) { }
+	Vector2DI() : TVector2D(0) {}
+	Vector2DI(int32_t xy) : TVector2D(xy) {}
+	Vector2DI(int32_t x, int32_t y) : TVector2D(x, y) {}
+	Vector2DI(const Vector2DI& other) : TVector2D(other) {}
+	Vector2DI(const struct FVector2D& other) : TVector2D(static_cast<int32_t>(other.X), static_cast<int32_t>(other.Y)) {}
 	~Vector2DI() { }
 
 public:
@@ -186,11 +186,11 @@ inline Vector2DI operator/(const Vector2DI& a, int32_t b) { return Vector2DI(a.X
 class VectorF : public TVector3D<float>
 {
 public:
-	VectorF() : TVector3D(0.f) { }
-	VectorF(TType xyz) : TVector3D(xyz) { }
-	VectorF(TType x, TType y, TType z) : TVector3D(x, y, z) { }
-	VectorF(const TVector3D& other) : TVector3D(other) { }
-	VectorF(const struct FVector& other) : TVector3D(other.X, other.Y, other.Z) { }
+	VectorF() : TVector3D(0.0f) {}
+	VectorF(TType xyz) : TVector3D(xyz) {}
+	VectorF(TType x, TType y, TType z) : TVector3D(x, y, z) {}
+	VectorF(const TVector3D& other) : TVector3D(other) {}
+	VectorF(const struct FVector& other) : TVector3D(other.X, other.Y, other.Z) {}
 	~VectorF() { }
 
 public:
@@ -224,11 +224,11 @@ inline VectorF operator/(const VectorF& a, float b) { return VectorF(a.X / b, a.
 class VectorI : public TVector3D<int32_t>
 {
 public:
-	VectorI() : TVector3D(0) { }
-	VectorI(TType xyz) : TVector3D(xyz) { }
-	VectorI(TType x, TType y, TType z) : TVector3D(x, y, z) { }
-	VectorI(const TVector3D& other) : TVector3D(other) { }
-	VectorI(const struct FVector& other) : TVector3D(other.X, other.Y, other.Z) { }
+	VectorI() : TVector3D(0) {}
+	VectorI(TType xyz) : TVector3D(xyz) {}
+	VectorI(TType x, TType y, TType z) : TVector3D(x, y, z) {}
+	VectorI(const TVector3D& other) : TVector3D(other) {}
+	VectorI(const struct FVector& other) : TVector3D(static_cast<int32_t>(other.X), static_cast<int32_t>(other.Y), static_cast<int32_t>(other.Z)) {}
 	~VectorI() { }
 
 public:
@@ -243,7 +243,7 @@ public:
 	VectorI GetNormalize() const;
 	VectorI Dot(const VectorI& other) const;
 	VectorI Cross(const VectorI& other) const;
-	VectorI Lerp(const VectorI& other, float percentage) const;
+	VectorI Lerp(const VectorI& other, int32_t percentage) const;
 
 public:
 	VectorI operator=(const VectorI& other);

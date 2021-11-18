@@ -41,12 +41,13 @@ private:
 	std::string CurrentValue;								// Settings current value.
 	SettingTypes Type;										// Settings underlying type.
 	bool Modifiable;										// If the setting is modifiable/visible by the user.
-	bool ShouldCallback;									// If the setting has a callback function.
 	std::function<void()> Callback;							// Callback function if the user has one bound.
+	std::function<void(std::string)> ArgumentCallback;		// Argument callback function if the user has one bound.
 
 public:
 	Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable);
 	Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void()> callback);
+	Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void(std::string)> callback);
 	~Setting();
 
 public:
@@ -64,10 +65,10 @@ public:
 	void SetValue(const std::string& value);
 	void ResetToDefault();
 	bool IsModifiable() const;
-	bool HasCallback() const;
 	void TriggerCallback();
 	void BindCallback(std::function<void()> callback);
-	void UnbindCallback();
+	void BindCallback(std::function<void(std::string)> callback);
+	void UnbindCallbacks();
 };
 
 class Command
@@ -120,8 +121,7 @@ public:
 	void OnDestroy() override;
 
 public:
-	void KeyPressed(const std::string& key);
-	void UnrealCommand(const std::string& unrealCommand);
+	void UnrealCommand(const std::string& unrealCommand, bool bLogToConsole = true);
 	void ConsoleCommand(const std::string& command, const std::string& arguments);
 	void AddToQueue(const std::string& command, const std::string& arguments); // Use this if you have ImGui interaction for console commands, as you CANNOT call Process Event on the ImGui render thread.
 	void QueueTick(); // Checks the "Queue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.

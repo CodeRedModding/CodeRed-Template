@@ -1,16 +1,9 @@
 #include "Module.hpp"
 #include "../Components/Includes.hpp"
 
-Module::Module(const std::string& name, const std::string& description, uint32_t states)
-{
-	Name = name;
-	FormattedName = "[" + Name + "] ";
-	Description = description;
-	AllowedStates = states;
-	Initialized = false;
-}
+Module::Module(const std::string& name, const std::string& description, uint32_t states) : Name(name), FormattedName("[" + Name + "] "), Description(description), AllowedStates(states), Initialized(false) {}
 
-Module::~Module() { }
+Module::~Module() {}
 
 std::string Module::GetName() const
 {
@@ -34,8 +27,7 @@ uint32_t Module::GetAllowedStates() const
 
 bool Module::IsAllowed() const
 {
-	if (AllowedStates & States::STATES_All
-		|| AllowedStates & GameState.GetStateId())
+	if ((AllowedStates & States::STATES_All) || (AllowedStates & GameState.GetStateId()))
 	{
 		return true;
 	}

@@ -1,11 +1,11 @@
 #include "Events.hpp"
 #include "../Includes.hpp"
 
-PreEvent::PreEvent() : PE_Caller(nullptr), PE_Function(nullptr), PE_Params(nullptr), PE_Detour(true) { }
+PreEvent::PreEvent() : PE_Caller(nullptr), PE_Function(nullptr), PE_Params(nullptr), PE_Detour(true) {}
 
-PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params) : PE_Caller(caller), PE_Function(function), PE_Params(params), PE_Detour(true) { }
+PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params) : PE_Caller(caller), PE_Function(function), PE_Params(params), PE_Detour(true) {}
 
-PreEvent::~PreEvent() { }
+PreEvent::~PreEvent() {}
 
 class UObject* PreEvent::Caller() const
 {
@@ -61,11 +61,11 @@ PreEvent PreEvent::operator=(const PreEvent& other)
 	return *this;
 }
 
-PostEvent::PostEvent() : PE_Result(nullptr) { }
+PostEvent::PostEvent() : PE_Result(nullptr) {}
 
-PostEvent::PostEvent(class UObject* caller, class UFunction* function, void* params, void* result) : PreEvent(caller, function, params), PE_Result(result) { }
+PostEvent::PostEvent(class UObject* caller, class UFunction* function, void* params, void* result) : PreEvent(caller, function, params), PE_Result(result) {}
 
-PostEvent::~PostEvent() { }
+PostEvent::~PostEvent() {}
 
 void* PostEvent::Result() const
 {
@@ -146,7 +146,7 @@ namespace Hooks
 
 			if (handleKeyPress->EventType == static_cast<uint8_t>(EInputEvent::IE_Released))
 			{
-				Manager.KeyPressed(handleKeyPress->Key.ToString());
+				// Blah blah do key pressed stuff here blah blah
 			}
 		}
 	}

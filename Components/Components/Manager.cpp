@@ -8,8 +8,8 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	DefaultValue(defaultValue),
 	CurrentValue(defaultValue),
 	Modifiable(bModifiable),
-	ShouldCallback(false),
-	Callback(nullptr)
+	Callback(nullptr),
+	ArgumentCallback(nullptr)
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
@@ -28,8 +28,8 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	DefaultValue(defaultValue),
 	CurrentValue(defaultValue),
 	Modifiable(bModifiable),
-	ShouldCallback(true),
-	Callback(callback)
+	Callback(callback),
+	ArgumentCallback(nullptr)
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
@@ -41,7 +41,27 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	}
 }
 
-Setting::~Setting() { };
+Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void(std::string)> callback) :
+	Variable(variable),
+	Description(description),
+	Type(valueType),
+	DefaultValue(defaultValue),
+	CurrentValue(defaultValue),
+	Modifiable(bModifiable),
+	Callback(nullptr),
+	ArgumentCallback(callback)
+{
+	if (GetType() == SettingTypes::TYPE_COLOR)
+	{
+		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
+		{
+			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
+			CurrentValue = DefaultValue;
+		}
+	}
+}
+
+Setting::~Setting() {}
 
 std::string Setting::GetName() const
 {
@@ -88,7 +108,7 @@ float Setting::GetFloatValue() const
 		return std::stof(CurrentValue);
 	}
 
-	return 0.f;
+	return 0.0f;
 }
 
 std::string Setting::GetStringValue() const
@@ -196,29 +216,33 @@ bool Setting::IsModifiable() const
 	return Modifiable;
 }
 
-bool Setting::HasCallback() const
-{
-	return ShouldCallback;
-}
-
 void Setting::TriggerCallback()
 {
-	if (HasCallback() && Callback)
+	if (Callback)
 	{
 		Callback();
+	}
+
+	if (ArgumentCallback)
+	{
+		ArgumentCallback(GetStringValue());
 	}
 }
 
 void Setting::BindCallback(std::function<void()> callback)
 {
-	ShouldCallback = true;
 	Callback = callback;
 }
 
-void Setting::UnbindCallback()
+void Setting::BindCallback(std::function<void(std::string)> callback)
 {
-	ShouldCallback = false;
+	ArgumentCallback = callback;
+}
+
+void Setting::UnbindCallbacks()
+{
 	Callback = nullptr;
+	ArgumentCallback = nullptr;
 }
 
 Command::Command(VariableIds variable, const std::string& description) :
@@ -231,7 +255,7 @@ Command::Command(VariableIds variable, const std::string& description) :
 
 }
 
-Command::~Command() { }
+Command::~Command() {}
 
 std::string Command::GetName() const
 {
@@ -325,22 +349,17 @@ void ManagerComponent::OnDestroy()
 	SettingMap.clear();
 }
 
-void ManagerComponent::KeyPressed(const std::string& key)
-{
-	if (key == "NumPadNine")
-	{
-		// Example of modifying a custom setting in a mod, we assign this command in the "Initialize" function below.
-		ConsoleCommand("placeholder_enabled", "true");
-	}
-}
-
-void ManagerComponent::UnrealCommand(const std::string& unrealCommand)
+void ManagerComponent::UnrealCommand(const std::string& unrealCommand, bool bLogToConsole)
 {
 	AActor* randomActor = Instances.GetInstanceOf<AActor>();
 
 	if (randomActor)
 	{
-		Console.Write(GetNameFormatted() +  "Executing unreal command: \"" + unrealCommand + "\"");
+		if (bLogToConsole)
+		{
+			Console.Write(GetNameFormatted() +  "Executing unreal command: \"" + unrealCommand + "\"");
+		}
+
 		//randomActor->ConsoleCommand(StringWrapper(unrealCommand).ToUnrealString(), false); // I have my own custom wrappers, they are too game-specific to implement directly here.
 	}
 }
