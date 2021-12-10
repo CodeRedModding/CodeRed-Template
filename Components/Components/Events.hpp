@@ -4,7 +4,7 @@
 class PreEvent
 {
 protected:
-	class UObject* PE_Caller;		// The Calling class/unreal object.
+	class UObject* PE_Caller;		// The calling class/unreal object.
 	class UFunction* PE_Function;	// Unreal function, used as a reference in Process Event to call the native function.
 	void* PE_Params;				// If params are provided in the function, this would be a pointer to a struct with said params in them.
 	bool PE_Detour;					// If we should detour this event or not through Process Event, this is entirely up to us and not the game.

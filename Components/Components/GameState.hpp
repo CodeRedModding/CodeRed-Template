@@ -27,13 +27,18 @@ public:
 	~GameStateComponent() override;
 
 public:
+	void OnCreate() override;
+	void OnDestroy() override;
+
+public:
 	States GetState() const;
-	uint32_t GetStateId() const;
-	std::string GetStateLabel();
+	uint32_t GetRawState() const;
+	std::string GetStateLabel() const;
+
+public:
+	void SetState(States state);
 	bool IsInGame() const;
 	void MainMenuAdded();
-	void WaitingForState();
-	void Initialize();
 };
 
 extern class GameStateComponent GameState;

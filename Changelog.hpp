@@ -1,5 +1,13 @@
 #pragma once
 /* 
+    Changes in v1.2.4:
+    - Made the static function/class maps in "Instances.hpp" private, to access their contents you should use the new "FindStaticClass" and "FindStaticFunction" functions in the same file.
+    - Added/renamed functions in the "GameState.hpp/cpp" files and made them more organized.
+    - Fixed "GameStateComponent" not having the new virtual "OnCreate" and "OnDestory" functions.
+    - Changed the hook functions in "Events.cpp" to use the new "FindStaticFunction" functions from "Instances.hpp".
+    - Changed grabbing the actor in the "UnrealCommand" to grab its default instance, instead of a random one in "Manager.cpp".
+    - Changed the pointer check for setting instances to the "Instances.cpp" file, and modified "Events.cpp" to show this.
+
     Changes in v1.2.3:
     - Added an argument callback option for the "Setting" class in "Manager.hpp", works similar to the "Command" classes arugment callback but the argument is the string value of the setting.
     - Added an optional argument for the "UnrealCommand" function in "Manager.hpp" called "bLogToConsole".

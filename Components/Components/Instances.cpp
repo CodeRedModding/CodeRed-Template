@@ -30,6 +30,36 @@ void InstancesComponent::OnDestroy()
 	}
 }
 
+class UClass* InstancesComponent::FindStaticClass(const std::string& className)
+{
+	if (StaticClasses.empty())
+	{
+		MapObjects();
+	}
+
+	if (StaticClasses.find(className) != StaticClasses.end())
+	{
+		return StaticClasses[className];
+	}
+
+	return nullptr;
+}
+
+class UFunction* InstancesComponent::FindStaticFunction(const std::string& className)
+{
+	if (StaticFunctions.empty())
+	{
+		MapObjects();
+	}
+
+	if (StaticFunctions.find(className) != StaticFunctions.end())
+	{
+		return StaticFunctions[className];
+	}
+
+	return nullptr;
+}
+
 void InstancesComponent::MarkInvincible(class UObject* object)
 {
 	if (object)
@@ -46,7 +76,7 @@ void InstancesComponent::MarkForDestory(class UObject* object)
 	if (object)
 	{
 		object->ObjectFlags = 0;
-		object->ObjectFlags |= EObjectFlags::RF_Transient;
+		object->ObjectFlags = EObjectFlags::RF_Transient;
 		object->MarkPendingKill();
 	}
 }
@@ -100,22 +130,34 @@ class APlayerController* InstancesComponent::IAPlayerController()
 
 void InstancesComponent::SetCanvas(class UCanvas* canvas)
 {
-	I_UCanvas = canvas;
+	if (I_UCanvas != canvas)
+	{
+		I_UCanvas = canvas;
+	}
 }
 
 void InstancesComponent::SetHUD(class AHUD* hud)
 {
-	I_AHUD = hud;
+	if (I_AHUD != hud)
+	{
+		I_AHUD = hud;
+	}
 }
 
 void InstancesComponent::SetGameViewportClient(class UGameViewportClient* viewportClient)
 {
-	I_UGameViewportClient = viewportClient;
+	if (I_UGameViewportClient != viewportClient)
+	{
+		I_UGameViewportClient = viewportClient;
+	}
 }
 
 void InstancesComponent::SetPlayerController(class APlayerController* playerController)
 {
-	I_APlayerController = playerController;
+	if (I_APlayerController != playerController)
+	{
+		I_APlayerController = playerController;
+	}
 }
 
 void InstancesComponent::MapObjects()

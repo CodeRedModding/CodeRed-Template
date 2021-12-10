@@ -3,30 +3,54 @@
 
 GameStateComponent::GameStateComponent() : Component("GameState", "Tracks which game state the player is currently in.")
 {
-	WaitingForState();
+	OnCreate();
 }
 
-GameStateComponent::~GameStateComponent() { }
+GameStateComponent::~GameStateComponent()
+{
+	OnDestroy();
+}
+
+void GameStateComponent::OnCreate()
+{
+	StateLabelMap.emplace(States::STATES_Unknown, "Unknown");
+	StateLabelMap.emplace(States::STATES_MainMenu, "MainMenu");
+	StateLabelMap.emplace(States::STATES_Trading, "Trading");
+	StateLabelMap.emplace(States::STATES_CasualMatch, "CasualMatch");
+	StateLabelMap.emplace(States::STATES_RankedMatch, "RankedMatch");
+	StateLabelMap.emplace(States::STATES_All, "All");
+}
+
+void GameStateComponent::OnDestroy() {}
 
 States GameStateComponent::GetState() const
 {
 	return CurrentState;
 }
 
-uint32_t GameStateComponent::GetStateId() const
+uint32_t GameStateComponent::GetRawState() const
 {
-	return static_cast<uint32_t>(GetState());
+	return static_cast<uint32_t>(CurrentState);
 }
 
-std::string GameStateComponent::GetStateLabel()
+std::string GameStateComponent::GetStateLabel() const
 {
-	return StateLabelMap[CurrentState];
+	if (StateLabelMap.find(CurrentState) != StateLabelMap.end())
+	{
+		return StateLabelMap.at(CurrentState);
+	}
+
+	return "Unknown";
+}
+
+void GameStateComponent::SetState(States state)
+{
+	CurrentState = state;
 }
 
 bool GameStateComponent::IsInGame() const
 {
-	if (GetStateId() & States::STATES_CasualMatch
-		|| GetStateId() & States::STATES_RankedMatch)
+	if ((GetRawState() & States::STATES_CasualMatch) || (GetRawState() & States::STATES_RankedMatch))
 	{
 		return true;
 	}
@@ -37,24 +61,6 @@ bool GameStateComponent::IsInGame() const
 void GameStateComponent::MainMenuAdded()
 {
 	CurrentState = States::STATES_MainMenu;
-}
-
-void GameStateComponent::WaitingForState()
-{
-	CurrentState = States::STATES_Unknown;
-}
-
-void GameStateComponent::Initialize()
-{
-	StateLabelMap.emplace(States::STATES_Unknown, "Unknown");
-	StateLabelMap.emplace(States::STATES_MainMenu, "MainMenu");
-	StateLabelMap.emplace(States::STATES_Trading, "Trading");
-	StateLabelMap.emplace(States::STATES_CasualMatch, "CasualMatch");
-	StateLabelMap.emplace(States::STATES_RankedMatch, "RankedMatch");
-
-	WaitingForState();
-
-	Console.Write(GetNameFormatted() + "Initialized!");
 }
 
 class GameStateComponent GameState{};

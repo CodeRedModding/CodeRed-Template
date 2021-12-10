@@ -98,15 +98,9 @@ namespace Hooks
 	{
 		if (event.Caller())
 		{
-			if (Instances.IAHUD() != event.Caller())
-			{
-				Instances.SetHUD(event.GetCaller<AHUD>());
-			}
-				
-			if (Instances.IUCanvas() != Instances.IAHUD()->Canvas)
-			{
-				Instances.SetCanvas(Instances.IAHUD()->Canvas);
-			}
+			AHUD* hud = event.GetCaller<AHUD>();
+			Instances.SetHUD(hud);
+			Instances.SetCanvas(hud->Canvas);
 		}
 	}
 
@@ -120,10 +114,7 @@ namespace Hooks
 	{
 		if (event.Caller())
 		{
-			if (Instances.IUGameViewportClient() != event.Caller())
-			{
-				Instances.SetGameViewportClient(event.GetCaller<UGameViewportClient>());
-			}				
+			Instances.SetGameViewportClient(event.GetCaller<UGameViewportClient>());			
 		}
 	}
 
@@ -131,10 +122,7 @@ namespace Hooks
 	{
 		if (event.Caller())
 		{
-			if (Instances.IAPlayerController() != event.Caller())
-			{
-				Instances.SetPlayerController(event.GetCaller<APlayerController>());
-			}
+			Instances.SetPlayerController(event.GetCaller<APlayerController>());
 		}
 	}
 
@@ -249,30 +237,30 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 	}
 }
 
-void EventsComponent::BlacklistEvent(const std::string& functionFullName)
+void EventsComponent::BlacklistEvent(const std::string& function)
 {
-	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(functionFullName);
+	UFunction* foundFunction = Instances.FindStaticFunction(function);
 
-	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	if (foundFunction)
 	{
-		if (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), functionIt->second->ObjectInternalInteger) == BlacklistedEvents.end())
+		if (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), foundFunction->ObjectInternalInteger) == BlacklistedEvents.end())
 		{
-			BlacklistedEvents.emplace_back(functionIt->second->ObjectInternalInteger);
+			BlacklistedEvents.emplace_back(foundFunction->ObjectInternalInteger);
 		}
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to blacklist function \"" + functionFullName + "\"!");
+		Console.Warning(GetNameFormatted() + "Warning: Failed to blacklist function \"" + function + "\"!");
 	}
 }
 
-void EventsComponent::WhitelistEvent(const std::string& functionFullName)
+void EventsComponent::WhitelistEvent(const std::string& function)
 {
-	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(functionFullName);
+	UFunction* foundFunction = Instances.FindStaticFunction(function);
 
-	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	if (foundFunction)
 	{
-		std::vector<int32_t>::iterator blackIt = std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), functionIt->second->ObjectInternalInteger);
+		std::vector<int32_t>::iterator blackIt = std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), foundFunction->ObjectInternalInteger);
 
 		if (blackIt != BlacklistedEvents.end())
 		{
@@ -281,17 +269,17 @@ void EventsComponent::WhitelistEvent(const std::string& functionFullName)
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to whitelist function \"" + functionFullName + "\"!");
+		Console.Warning(GetNameFormatted() + "Warning: Failed to whitelist function \"" + function + "\"!");
 	}
 }
 
 void EventsComponent::HookEventPre(const std::string& function, std::function<void(PreEvent&)> hook)
 {
-	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(function);
+	UFunction* foundFunction = Instances.FindStaticFunction(function);
 
-	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	if (foundFunction)
 	{
-		int32_t functionIndex = functionIt->second->ObjectInternalInteger;
+		int32_t functionIndex = foundFunction->ObjectInternalInteger;
 
 		if (PreHookedEvents.find(functionIndex) != PreHookedEvents.end())
 		{
@@ -310,11 +298,11 @@ void EventsComponent::HookEventPre(const std::string& function, std::function<vo
 
 void EventsComponent::HookEventPost(const std::string& function, std::function<void(const PostEvent&)> hook)
 {
-	const std::map<std::string, UFunction*>::iterator& functionIt = Instances.StaticFunctions.find(function);
+	UFunction* foundFunction = Instances.FindStaticFunction(function);
 
-	if (functionIt != Instances.StaticFunctions.end() && functionIt->second)
+	if (foundFunction)
 	{
-		int32_t functionIndex = functionIt->second->ObjectInternalInteger;
+		int32_t functionIndex = foundFunction->ObjectInternalInteger;
 
 		if (PostHookedEvents.find(functionIndex) != PostHookedEvents.end())
 		{

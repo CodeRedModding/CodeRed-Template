@@ -13,7 +13,7 @@ public:
 	void OnCreate() override;
 	void OnDestroy() override;
 
-public:
+private:
 	std::map<std::string, class UClass*> StaticClasses;
 	std::map<std::string, class UFunction*> StaticFunctions;
 	std::vector<class UObject*> CreatedInstances;
@@ -150,6 +150,10 @@ public: // Helper functions for class instance grabbing/manipulation.
 
 		return objectInstances;
 	}
+
+	class UClass* FindStaticClass(const std::string& className);
+
+	class UFunction* FindStaticFunction(const std::string& functionName);
 
 	// Creates a new transient instance of a class which then adds it to globals.
 	// YOU are required to make sure these objects eventually get eaten up by the garbage collector in some shape or form.

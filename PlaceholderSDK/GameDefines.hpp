@@ -424,7 +424,7 @@ public:
 			}
 		}
 
-		for (int i = 0; i < Names()->Num(); i++)
+		for (int32_t i = 0; i < Names()->Num(); i++)
 		{
 			if (Names()->At(i))
 			{

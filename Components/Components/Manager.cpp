@@ -351,7 +351,7 @@ void ManagerComponent::OnDestroy()
 
 void ManagerComponent::UnrealCommand(const std::string& unrealCommand, bool bLogToConsole)
 {
-	AActor* randomActor = Instances.GetInstanceOf<AActor>();
+	AActor* randomActor = Instances.GetDefaultInstanceOf<AActor>();
 
 	if (randomActor)
 	{
