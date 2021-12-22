@@ -14,13 +14,6 @@ enum class SettingTypes : uint8_t
 	TYPE_VECTOR_2D
 };
 
-enum class CommandTypes : uint8_t
-{
-	TYPE_NONE,
-	TYPE_CALLBACK,
-	TYPE_ARGUMENT
-};
-
 enum class VariableIds : int32_t
 {
 	// Default manager commands.
@@ -29,17 +22,19 @@ enum class VariableIds : int32_t
 	MANAGER_UNREAL_COMMAND,
 	// User created variables.
 	PLACEHOLDER_DO_THING,
-	PLACEHOLDER_ENABLED
+	PLACEHOLDER_ENABLED,
+	PLACEHOLDER_SOME_VALUE
 };
 
 class Setting
 {
 private:
 	VariableIds Variable;									// Settings identification.
+	SettingTypes Type;										// Settings underlying type.
 	std::string Description;								// Settings description.
 	std::string DefaultValue;								// Settings default value.
 	std::string CurrentValue;								// Settings current value.
-	SettingTypes Type;										// Settings underlying type.
+	std::pair<std::string, std::string> Range;				// Settings minimum and maximum value range.
 	bool Modifiable;										// If the setting is modifiable/visible by the user.
 	std::function<void()> Callback;							// Callback function if the user has one bound.
 	std::function<void(std::string)> ArgumentCallback;		// Argument callback function if the user has one bound.
@@ -51,24 +46,33 @@ public:
 	~Setting();
 
 public:
+	VariableIds GetId() const;
+	SettingTypes GetType() const;
 	std::string GetName() const;
 	std::string GetDescription() const;
-	SettingTypes GetType() const;
 	int32_t GetIntValue() const;
 	bool GetBoolValue() const;
 	float GetFloatValue() const;
+	std::string GetDefaultValue() const;
 	std::string GetStringValue() const;
 	Color GetColorValue() const;
 	LinearColor GetLinearValue() const;
 	VectorF GetVector3DValue() const;
 	Vector2DF GetVector2DValue() const;
-	void SetValue(const std::string& value);
-	void ResetToDefault();
+
+public:
 	bool IsModifiable() const;
-	void TriggerCallback();
-	void BindCallback(std::function<void()> callback);
-	void BindCallback(std::function<void(std::string)> callback);
-	void UnbindCallbacks();
+	bool HasRange() const;
+	bool InRange(const std::string& value) const;
+	Setting* SetValue(const std::string& value);
+	Setting* SetRange(const std::string& minimumvalue, const std::string& maximumValue);
+	bool HasCallback() const;
+	bool HasArgumentCallback() const;
+	Setting* BindCallback(std::function<void()> callback);
+	Setting* BindCallback(std::function<void(std::string)> callback);
+	Setting* UnbindCallbacks();
+	void TriggerCallback() const;
+	void ResetToDefault();
 };
 
 class Command
@@ -76,24 +80,26 @@ class Command
 private:
 	VariableIds Variable;									// Commands identification.
 	std::string Description;								// Commands description.
-	std::string Arguments;									// Commands possible arguments.
-	CommandTypes Type;										// Commands underlying type.
+	bool Searchable;										// If the command can be searched in the console.
 	std::function<void()> Callback;							// Commands callback.
 	std::function<void(std::string)> ArgumentCallback;		// Commands callback with arguments
 
 public:
-	Command(VariableIds variable, const std::string& description);
+	Command(VariableIds variable, const std::string& description, bool bSearchable = true);
 	~Command();
 
 public:
+	VariableIds GetId() const;
 	std::string GetName() const;
 	std::string GetDescription() const;
-	CommandTypes GetType() const;
-	void SetArguments(const std::string& arguments);
-	void BindCallback(std::function<void()> callback);
-	void BindArguments(std::function<void(std::string)> callback);
-	void TriggerCallback();
-	void TriggerCallback(const std::string& arguments);
+	bool IsSearchable() const;
+	bool HasCallback() const;
+	bool HasArgumentCallback() const;
+	Command* BindCallback(std::function<void()> callback);
+	Command* BindCallback(std::function<void(std::string)> callback);
+	Command* UnbindCallbacks();
+	void TriggerCallback() const;
+	void TriggerCallback(const std::string& arguments) const;
 };
 
 // Manages variables, commands, settings, and modules.
@@ -122,9 +128,9 @@ public:
 
 public:
 	void UnrealCommand(const std::string& unrealCommand, bool bLogToConsole = true);
-	void ConsoleCommand(const std::string& command, const std::string& arguments);
+	void ConsoleCommand(const std::string& command, const std::string& arguments, bool bLogToConsole = true);
 	void AddToQueue(const std::string& command, const std::string& arguments); // Use this if you have ImGui interaction for console commands, as you CANNOT call Process Event on the ImGui render thread.
-	void QueueTick(); // Checks the "Queue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
+	void QueueTick(); // Checks the "CommandQueue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
 
 public:
 	void ResetSetting(const std::string& settingName, bool bLogToConsole = true);

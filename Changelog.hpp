@@ -1,5 +1,16 @@
 #pragma once
 /* 
+    Changes in v1.2.5:
+    - Added an option "bLogToConsole" argument for the "ConsoleCommand" function in "Manager.hpp".
+    - Added logging the old vs new value when changing a settings value for the "ConsoleCommand" function in "Manager.cpp".
+    - Added a range feature for the "Setting" class, you can now specific a minimum and maximum range when setting values now. The new functions are "HasRange", "InRange", and "SetRange".
+    - Added an example of how to use the new "SetRange" funtion in the "Initialize" function in "Manager.cpp".
+    - Added a "Searchable" option for the "Command" class in "Manager.hpp", it has a default value of "true" in the classes constructor.
+    - Added new functions, "GetId" and "GetDefaultValue", for the "Setting" class in "Manager.hpp".
+    - Remade how binding and triggering setting/command callbacks work completely, and removed storing argument data in the "Command" class itself.
+    - Changed/optimized some functions for the "Setting" class in "Manager.cpp".
+    - Removed "CommandTypes" for the "Command" class in "Manager.hpp" as its no longer used.
+
     Changes in v1.2.4:
     - Made the static function/class maps in "Instances.hpp" private, to access their contents you should use the new "FindStaticClass" and "FindStaticFunction" functions in the same file.
     - Added/renamed functions in the "GameState.hpp/cpp" files and made them more organized.

@@ -11,7 +11,11 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	Callback(nullptr),
 	ArgumentCallback(nullptr)
 {
-	if (GetType() == SettingTypes::TYPE_COLOR)
+	if (GetType() == SettingTypes::TYPE_BOOL)
+	{
+		SetRange("false", "true");
+	}
+	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
 		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
 		{
@@ -23,15 +27,19 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 
 Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void()> callback) :
 	Variable(variable),
-	Description(description),
 	Type(valueType),
+	Description(description),
 	DefaultValue(defaultValue),
 	CurrentValue(defaultValue),
 	Modifiable(bModifiable),
 	Callback(callback),
 	ArgumentCallback(nullptr)
 {
-	if (GetType() == SettingTypes::TYPE_COLOR)
+	if (GetType() == SettingTypes::TYPE_BOOL)
+	{
+		SetRange("false", "true");
+	}
+	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
 		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
 		{
@@ -43,15 +51,19 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 
 Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void(std::string)> callback) :
 	Variable(variable),
-	Description(description),
 	Type(valueType),
+	Description(description),
 	DefaultValue(defaultValue),
 	CurrentValue(defaultValue),
 	Modifiable(bModifiable),
 	Callback(nullptr),
 	ArgumentCallback(callback)
 {
-	if (GetType() == SettingTypes::TYPE_COLOR)
+	if (GetType() == SettingTypes::TYPE_BOOL)
+	{
+		SetRange("false", "true");
+	}
+	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
 		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
 		{
@@ -63,6 +75,16 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 
 Setting::~Setting() {}
 
+VariableIds Setting::GetId() const
+{
+	return Variable;
+}
+
+SettingTypes Setting::GetType() const
+{
+	return Type;
+}
+
 std::string Setting::GetName() const
 {
 	return Manager.GetVariableName(Variable);
@@ -71,11 +93,6 @@ std::string Setting::GetName() const
 std::string Setting::GetDescription() const
 {
 	return Description;
-}
-
-SettingTypes Setting::GetType() const
-{
-	return Type;
 }
 
 int32_t Setting::GetIntValue() const
@@ -109,6 +126,11 @@ float Setting::GetFloatValue() const
 	}
 
 	return 0.0f;
+}
+
+std::string Setting::GetDefaultValue() const
+{
+	return DefaultValue;
 }
 
 std::string Setting::GetStringValue() const
@@ -146,7 +168,6 @@ VectorF Setting::GetVector3DValue() const
 	if (GetType() == SettingTypes::TYPE_VECTOR_3D)
 	{
 		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
-
 		VectorF returnVector;
 
 		if (values.size() == 3)
@@ -164,14 +185,12 @@ VectorF Setting::GetVector3DValue() const
 
 Vector2DF Setting::GetVector2DValue() const
 {
-	if (GetType() == SettingTypes::TYPE_VECTOR_3D
-		|| GetType() == SettingTypes::TYPE_VECTOR_2D)
+	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
 	{
 		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
-
 		Vector2DF returnVector;
 
-		if (values.size() == 2)
+		if (values.size() >= 2)
 		{
 			returnVector.X = std::stof(values[0]);
 			returnVector.Y = std::stof(values[1]);
@@ -183,7 +202,44 @@ Vector2DF Setting::GetVector2DValue() const
 	return Vector2DF();
 }
 
-void Setting::SetValue(const std::string& value)
+bool Setting::IsModifiable() const
+{
+	return Modifiable;
+}
+
+bool Setting::HasRange() const
+{
+	return (!Range.first.empty() && !Range.second.empty());
+}
+
+bool Setting::InRange(const std::string& value) const
+{
+	if (HasRange())
+	{
+		if (GetType() == SettingTypes::TYPE_INT)
+		{
+			int32_t formattedMin = std::stoi(Range.first);
+			int32_t formattedMax = std::stoi(Range.second);
+			int32_t formattedValue = std::stoi(value);
+			return (formattedValue >= formattedMin && formattedValue <= formattedMax);
+		}
+		else if (GetType() == SettingTypes::TYPE_BOOL)
+		{
+			return (value == "0" || value == "false" || value == "1" || value == "true");
+		}
+		else if (GetType() == SettingTypes::TYPE_FLOAT)
+		{
+			float formattedMin = std::stof(Range.first);
+			float formattedMax = std::stof(Range.second);
+			float formattedValue = std::stof(value);
+			return (formattedValue >= formattedMin && formattedValue <= formattedMax);
+		}
+	}
+
+	return true;
+}
+
+Setting* Setting::SetValue(const std::string& value)
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
@@ -200,55 +256,76 @@ void Setting::SetValue(const std::string& value)
 	}
 	else
 	{
-		CurrentValue = value;
-		TriggerCallback();
+		if (InRange(value))
+		{
+			CurrentValue = value;
+			TriggerCallback();
+		}
+		else
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is out of range, this setting has a minimum value of \"" + Range.first + "\" and a maximum value of \"" + Range.second + "\".");
+		}
 	}
+
+	return this;
+}
+
+Setting* Setting::SetRange(const std::string& minimumvalue, const std::string& maximumValue)
+{
+	Range = std::make_pair(minimumvalue, maximumValue);
+	return this;
+}
+
+bool Setting::HasCallback() const
+{
+	return (!!Callback);
+}
+
+bool Setting::HasArgumentCallback() const
+{
+	return (!!ArgumentCallback);
+}
+
+Setting* Setting::BindCallback(std::function<void()> callback)
+{
+	Callback = callback;
+	return this;
+}
+
+Setting* Setting::BindCallback(std::function<void(std::string)> callback)
+{
+	ArgumentCallback = callback;
+	return this;
+}
+
+Setting* Setting::UnbindCallbacks()
+{
+	Callback = nullptr;
+	ArgumentCallback = nullptr;
+	return this;
 }
 
 void Setting::ResetToDefault()
 {
-	CurrentValue = DefaultValue;
-	TriggerCallback();
+	SetValue(GetDefaultValue());
 }
 
-bool Setting::IsModifiable() const
+void Setting::TriggerCallback() const
 {
-	return Modifiable;
-}
-
-void Setting::TriggerCallback()
-{
-	if (Callback)
+	if (HasCallback())
 	{
 		Callback();
 	}
-
-	if (ArgumentCallback)
+	else if (HasArgumentCallback())
 	{
 		ArgumentCallback(GetStringValue());
 	}
 }
 
-void Setting::BindCallback(std::function<void()> callback)
-{
-	Callback = callback;
-}
-
-void Setting::BindCallback(std::function<void(std::string)> callback)
-{
-	ArgumentCallback = callback;
-}
-
-void Setting::UnbindCallbacks()
-{
-	Callback = nullptr;
-	ArgumentCallback = nullptr;
-}
-
-Command::Command(VariableIds variable, const std::string& description) :
+Command::Command(VariableIds variable, const std::string& description, bool bSearchable) :
 	Variable(variable),
 	Description(description),
-	Type(CommandTypes::TYPE_NONE),
+	Searchable(bSearchable),
 	Callback(nullptr),
 	ArgumentCallback(nullptr)
 {
@@ -257,9 +334,14 @@ Command::Command(VariableIds variable, const std::string& description) :
 
 Command::~Command() {}
 
+VariableIds Command::GetId() const
+{
+	return Variable;
+}
+
 std::string Command::GetName() const
 {
-	return Manager.GetVariableName(Variable);
+	return Manager.GetVariableName(GetId());
 }
 
 std::string Command::GetDescription() const
@@ -267,63 +349,61 @@ std::string Command::GetDescription() const
 	return Description;
 }
 
-CommandTypes Command::GetType() const
+bool Command::IsSearchable() const
 {
-	return Type;
+	return Searchable;
 }
 
-void Command::SetArguments(const std::string& arguments)
+bool Command::HasCallback() const
 {
-	Arguments = arguments;
+	return (!!Callback);
 }
 
-void Command::BindCallback(std::function<void()> callback)
+bool Command::HasArgumentCallback() const
+{
+	return (!!ArgumentCallback);
+}
+
+Command* Command::BindCallback(std::function<void()> callback)
 {
 	Callback = callback;
-	Type = CommandTypes::TYPE_CALLBACK;
+	return this;
 }
 
-void Command::BindArguments(std::function<void(std::string)> callback)
+Command* Command::BindCallback(std::function<void(std::string)> callback)
 {
 	ArgumentCallback = callback;
-	Type = CommandTypes::TYPE_ARGUMENT;
+	return this;
 }
 
-void Command::TriggerCallback()
+Command* Command::UnbindCallbacks()
 {
-	if (GetType() == CommandTypes::TYPE_NONE)
+	Callback = nullptr;
+	ArgumentCallback = nullptr;
+	return this;
+}
+
+void Command::TriggerCallback() const
+{
+	if (HasCallback())
 	{
-		Console.Warning("Warning: Unbound callback triggered for command \"" + GetName() + "\".");
+		Callback();
 	}
-	else if (GetType() == CommandTypes::TYPE_CALLBACK)
+	else
 	{
-		if (Callback)
-		{
-			Callback();
-		}
-	}
-	else if (GetType() == CommandTypes::TYPE_ARGUMENT)
-	{
-		if (ArgumentCallback)
-		{
-			ArgumentCallback(Arguments);
-		}
+		Console.Warning("[Command] (" + GetName() + ") Warning: Unbound callback triggered!");
 	}
 }
 
-void Command::TriggerCallback(const std::string& arguments)
+void Command::TriggerCallback(const std::string& arguments) const
 {
-	if (GetType() == CommandTypes::TYPE_NONE)
+	if (HasArgumentCallback())
 	{
-		Console.Warning("Warning: Unbound callback triggered for command \"" + GetName() + "\".");
+		ArgumentCallback(arguments);
 	}
-	else if (Type == CommandTypes::TYPE_ARGUMENT)
+	else
 	{
-		if (ArgumentCallback)
-		{
-			Arguments = arguments;
-			ArgumentCallback(arguments);
-		}
+		Console.Warning("[Command] (" + GetName() + ") Warning: Unbound argument callback triggered!");
 	}
 }
 
@@ -364,55 +444,77 @@ void ManagerComponent::UnrealCommand(const std::string& unrealCommand, bool bLog
 	}
 }
 
-void ManagerComponent::ConsoleCommand(const std::string& command, const std::string& arguments)
+void ManagerComponent::ConsoleCommand(const std::string& command, const std::string& arguments, bool bLogToConsole)
 {
 	std::shared_ptr<Command> consoleCommand = GetCommand(command);
 
 	if (consoleCommand)
 	{
-		CommandTypes commandType = consoleCommand->GetType();
-
-		if (commandType == CommandTypes::TYPE_CALLBACK)
+		if (consoleCommand->HasCallback() && arguments.empty())
 		{
 			consoleCommand->TriggerCallback();
 		}
-		else if (commandType == CommandTypes::TYPE_ARGUMENT)
+		else if (consoleCommand->HasArgumentCallback())
 		{
-			if (arguments.size() > 0)
+			if (!arguments.empty())
 			{
 				consoleCommand->TriggerCallback(arguments);
 			}
-			else
+			else if (bLogToConsole)
 			{
-				Console.Error(GetNameFormatted() + "Invalid arguments for command: \"" + command + "\"");
+				Console.Error(GetNameFormatted() + "Invalid arguments for command \"" + command + "\"!");
 			}
+		}
+		else if (bLogToConsole)
+		{
+			Console.Error(GetNameFormatted() + "Custom arguments are not supported for the command \"" + command + "\"!");
 		}
 	}
 	else
 	{
-		std::shared_ptr<Setting> Setting = GetSetting(command);
+		std::shared_ptr<Setting> consoleSetting = GetSetting(command);
 
-		if (Setting)
+		if (consoleSetting)
 		{
-			if (Setting->IsModifiable())
+			if (consoleSetting->IsModifiable())
 			{
-				if (arguments.size() > 0)
+				if (arguments.length() > 0)
 				{
-					Setting->SetValue(arguments);
+					std::string oldValue = consoleSetting->GetStringValue();
+					consoleSetting->SetValue(arguments);
+
+					if (bLogToConsole)
+					{
+						if (oldValue != consoleSetting->GetStringValue())
+						{
+							Console.Notify(GetNameFormatted() + "" + consoleSetting->GetName() + ": " + oldValue + " -> " + consoleSetting->GetStringValue());
+						}
+					}
 				}
 				else
 				{
-					Console.Notify(GetNameFormatted() + "\"" + Setting->GetName() + "\"'s current value: " + Setting->GetStringValue());
+					if (bLogToConsole)
+					{
+						Console.Notify(GetNameFormatted() + "Name: " + consoleSetting->GetName());
+						Console.Notify(GetNameFormatted() + "Description: " + consoleSetting->GetDescription());
+						Console.Notify(GetNameFormatted() + "Current Value: " + consoleSetting->GetStringValue());
+					}
 				}
 			}
 			else
 			{
-				Console.Error(GetNameFormatted() + "Unrecognized setting: \"" + command + "\"");
+				if (bLogToConsole)
+				{
+					Console.Error(GetNameFormatted() + "Unrecognized setting: \"" + command + "\"");
+				}
 			}
 		}
 		else
 		{
-			Console.Error(GetNameFormatted() + "Unrecognized command: \"" + command + "\"");
+			if (bLogToConsole)
+			{
+				Console.Error(GetNameFormatted() + "Unrecognized command: \"" + command + "\"");
+			}
 		}
 	}
 }
@@ -637,20 +739,24 @@ void ManagerComponent::Initialize()
 	CreateVariable("reset_setting", VariableIds::MANAGER_RESET_SETTING);
 	CreateVariable("print_module", VariableIds::MANAGER_PRINT_MODULE);
 	CreateVariable("unreal_command", VariableIds::MANAGER_UNREAL_COMMAND);
+
 	CreateVariable("placeholder_do_thing", VariableIds::PLACEHOLDER_DO_THING);
 	CreateVariable("placeholder_can_do_thing", VariableIds::PLACEHOLDER_ENABLED);
+	CreateVariable("placeholder_some_value", VariableIds::PLACEHOLDER_SOME_VALUE);
 
 	// Assigning the CasualMatch and RankedMatch flags, so this module will only be able to be used in casual or ranked games.
 	CreateModule<PlaceholderModule>(new PlaceholderModule("Paceholder", "An example module.", States::STATES_CasualMatch | States::STATES_RankedMatch), PlaceholderMod);
 	
-	CreateCommand(new Command(VariableIds::MANAGER_RESET_SETTING, "Reset a setting to its default/original value."))->BindArguments([&](const std::string& arguments) { ResetSetting(arguments); });
-	CreateCommand(new Command(VariableIds::MANAGER_PRINT_MODULE, "Print information about a given module."))->BindArguments([&](const std::string& arguments) { PrintModule(arguments); });
-	CreateCommand(new Command(VariableIds::MANAGER_UNREAL_COMMAND, "Execute a Unreal Engine 3 command with the given arguments."))->BindArguments([&](const std::string& arguments) { UnrealCommand(arguments); });
+	CreateCommand(new Command(VariableIds::MANAGER_RESET_SETTING, "Reset a setting to its default/original value."))->BindCallback([&](const std::string& arguments) { ResetSetting(arguments); });
+	CreateCommand(new Command(VariableIds::MANAGER_PRINT_MODULE, "Print information about a given module."))->BindCallback([&](const std::string& arguments) { PrintModule(arguments); });
+	CreateCommand(new Command(VariableIds::MANAGER_UNREAL_COMMAND, "Execute a Unreal Engine 3 command with the given arguments."))->BindCallback([&](const std::string& arguments) { UnrealCommand(arguments); });
 
 	// When someone uses the command "placeholder_do_thing", this will trigger the function "DoAThing" in "PlaceholderModule".
 	CreateCommand(new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
 	// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
 	CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+	// Integer setting that has a minimum value of "0" and a maximum  value of "100".
+	CreateSetting(new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, "Some random integer value with a custom range.", "0", SettingTypes::TYPE_INT, true))->SetRange("0", "100")->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
 	PlaceholderMod ? PlaceholderMod->UpdateSettings() : Console.Error(GetNameFormatted() + "Error: Failed to initialize \"Paceholder\"!");
 
 	Console.Write(GetNameFormatted() + std::to_string(CommandMap.size()) + " Command(s) Initialized!");
