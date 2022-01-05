@@ -4,7 +4,7 @@
     - Fixed functions still going through Process Event if their detour was set to false if there were multiple voids bound to the same function.
     - Added the "IsEventBlacklisted" function in "Events.hpp" as part of the "ManagerComponent", and also made the "PostEvent" class call this in its "Detour" function in "Manager.cpp".
     - Added a special case for setting a boolean value in the "Setting" class function "SetValue".
-    - Chaned the "DecimalToHex" function in "Colors.cpp" to use streams instead of strings.
+    - Changed the "DecimalToHex" function in "Colors.cpp" to use streams instead of strings.
 
     Changes in v1.2.5:
     - Added an option "bLogToConsole" argument for the "ConsoleCommand" function in "Manager.hpp".
