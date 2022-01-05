@@ -58,8 +58,8 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 	// Populate the GObject and GName addresses, remember to replace "PlaceholderGame" with your game.
 
 	uintptr_t entryPoint = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL));
-	GObjects = reinterpret_cast<TArray<UObject*>*>(Memory::FindPattern(GetModuleHandle(NULL), GObjects_Pattern, GObjects_Mask));
-	GNames = reinterpret_cast<TArray<FNameEntry*>*>(Memory::FindPattern(GetModuleHandle(NULL), GNames_Pattern, GNames_Mask));
+	GObjects = reinterpret_cast<TArray<UObject*>*>(Memory::FindPattern(GetModuleHandleW(NULL), GObjects_Pattern, GObjects_Mask));
+	GNames = reinterpret_cast<TArray<FNameEntry*>*>(Memory::FindPattern(GetModuleHandleW(NULL), GNames_Pattern, GNames_Mask));
 
 	// Verifies the global addresses are correct before continuing.
 
@@ -67,8 +67,8 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 	{
 		// You can use either a pattern for Process Event or its place in the VfTable index (not both).
 		void** unrealVTable = reinterpret_cast<void**>(UObject::StaticClass()->VfTableObject.Dummy);
-		Events.AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Zero being the index.
-		Events.AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(GetModuleHandle(NULL), ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
+		//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Index method.
+		//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(GetModuleHandleW(NULL), ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
 
 		Console.Notify("[Core Module] Entry Point " + Format::Hex(entryPoint, sizeof(entryPoint)));
 		Console.Notify("[Core Module] Global Objects: " + Format::Hex(reinterpret_cast<uintptr_t>(GObjects), sizeof(GObjects)));

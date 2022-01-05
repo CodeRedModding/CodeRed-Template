@@ -44,6 +44,11 @@ template <typename T> T* PreEvent::GetParams() const
 
 bool PreEvent::Detour() const
 {
+	if (PE_Function && EventsComponent::IsEventBlacklisted(PE_Function->ObjectInternalInteger))
+	{
+		return false;
+	}
+
 	return PE_Detour;
 }
 
@@ -205,24 +210,23 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 	if (ProcessEvent)
 	{
 		const auto& preIt = PreHookedEvents.find(function->ObjectInternalInteger);
-
-		PreEvent event; // In the default constructor we set "PE_Detour" to true, so even if a function hook is found it will correctly go through Process Event.
+		PreEvent event(caller, function, params); // In the default constructor we set "PE_Detour" to true, so even if a function hook is found it will correctly go through Process Event.
 
 		if (preIt != PreHookedEvents.end())
 		{
 			for (const auto& preEvent : preIt->second)
 			{
-				event = PreEvent(caller, function, params);
 				preEvent(event);
+
+				if (event.Detour())
+				{
+					ProcessEvent(caller, function, params, result);
+				}
 			}
 		}
-
-		if (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), function->ObjectInternalInteger) == BlacklistedEvents.end())
+		else if (event.Detour())
 		{
-			if (event.Detour())
-			{
-				ProcessEvent(caller, function, params, result);
-			}
+			ProcessEvent(caller, function, params, result);
 		}
 
 		const auto& postIt = PostHookedEvents.find(function->ObjectInternalInteger);
@@ -237,13 +241,18 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 	}
 }
 
+bool EventsComponent::IsEventBlacklisted(int32_t functionInteger)
+{
+	return (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), functionInteger) != BlacklistedEvents.end());
+}
+
 void EventsComponent::BlacklistEvent(const std::string& function)
 {
 	UFunction* foundFunction = Instances.FindStaticFunction(function);
 
 	if (foundFunction)
 	{
-		if (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), foundFunction->ObjectInternalInteger) == BlacklistedEvents.end())
+		if (!IsEventBlacklisted(foundFunction->ObjectInternalInteger))
 		{
 			BlacklistedEvents.emplace_back(foundFunction->ObjectInternalInteger);
 		}

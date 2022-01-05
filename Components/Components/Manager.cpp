@@ -258,7 +258,18 @@ Setting* Setting::SetValue(const std::string& value)
 	{
 		if (InRange(value))
 		{
-			CurrentValue = value;
+			if (GetType() == SettingTypes::TYPE_BOOL)
+			{
+				if (value == "1" || value == "true")
+				{
+					CurrentValue = "true";
+				}
+				else
+				{
+					CurrentValue = "false";
+				}
+			}
+
 			TriggerCallback();
 		}
 		else

@@ -80,6 +80,7 @@ public:
 	static void AttachDetour(const ProcessEventType& detourFunction); // Redirects the process event virtual function to our own void, for us to manually process later to the typedef.
 	static void DetachDetour(); // Called by the deconstuctor, necessary for if your DLL gets intentionally (or unintentionally) unloaded before your game exits.
 	static void ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result); // Process event gets detoured to this function, then we manually proxy it through to "ProcessEvent".
+	static bool IsEventBlacklisted(int32_t functionInteger);
 	void BlacklistEvent(const std::string& function);
 	void WhitelistEvent(const std::string& function);
 	void HookEventPre(const std::string& function, std::function<void(PreEvent&)> hook);
