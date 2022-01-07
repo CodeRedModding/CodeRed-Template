@@ -2,6 +2,43 @@
 
 namespace Format
 {
+    bool IsStringNumber(std::string_view str)
+    {
+        for (const char& c : str)
+        {
+            if (!std::isdigit(c))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool IsStringFloat(std::string_view str)
+    {
+        for (const char& c : str)
+        {
+            if (!std::isdigit(c) && c != '.')
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void EraseAllChars(std::string& str, char character)
+    {
+        str.erase(std::remove(str.begin(), str.end(), character), str.end());
+    }
+
+    std::string RemoveAllChars(std::string str, char character)
+    {
+        str.erase(std::remove(str.begin(), str.end(), character), str.end());
+        return str;
+    }
+
     void Empty(std::ostringstream& stream)
     {
         stream.str(std::string());

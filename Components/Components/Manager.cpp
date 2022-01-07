@@ -269,6 +269,10 @@ Setting* Setting::SetValue(const std::string& value)
 					CurrentValue = "false";
 				}
 			}
+			else
+			{
+				CurrentValue = value;
+			}
 
 			TriggerCallback();
 		}
@@ -418,6 +422,12 @@ void Command::TriggerCallback(const std::string& arguments) const
 	}
 }
 
+QueueData::QueueData() {}
+
+QueueData::QueueData(const std::string& command, const std::string& arguments, bool bLogToConsole) : Command(command), Arguments(arguments), LogToConsole(bLogToConsole) {}
+
+QueueData::~QueueData() {}
+
 ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, commands, and mods.")
 {
 	OnCreate();
@@ -530,18 +540,18 @@ void ManagerComponent::ConsoleCommand(const std::string& command, const std::str
 	}
 }
 
-void ManagerComponent::AddToQueue(const std::string& command, const std::string& arguments)
+void ManagerComponent::QueueCommand(const std::string& command, const std::string& arguments, bool bLogToConsole)
 {
-	CommandQueue.emplace_back(command, arguments);
+	CommandQueue.emplace_back(QueueData(command, arguments, bLogToConsole));
 }
 
 void ManagerComponent::QueueTick()
 {
 	if (CommandQueue.size() > 0)
 	{
-		for (const std::pair<std::string, std::string>& command : CommandQueue)
+		for (const QueueData& data : CommandQueue)
 		{
-			ConsoleCommand(command.first, command.second);
+			ConsoleCommand(data.Command, data.Arguments, data.LogToConsole);
 		}
 
 		CommandQueue.clear();

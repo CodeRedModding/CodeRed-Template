@@ -1,5 +1,11 @@
 #pragma once
 /* 
+    Changes in v1.2.7:
+    - Added four new functions in "Formatting.hpp", "IsStringNumber", "IsStringFloat", "EraseAllChars", and "RemoveAllChars".
+    - Fixed a bug in the "SetValue" function that prevented some setitng types from applying in "Manager.cpp".
+    - Renamed the function "AddToQueue" to "QueueCommand" and changed the "CommandQueue" to use a new custom class in "Manager.hpp/cpp".
+    - Made the "DecimalToHex" function have a fill of 6 now in "Colors.cpp".
+
     Changes in v1.2.6:
     - Fixed functions still going through Process Event if their detour was set to false if there were multiple voids bound to the same function.
     - Added the "IsEventBlacklisted" function in "Events.hpp" as part of the "ManagerComponent", and also made the "PostEvent" class call this in its "Detour" function in "Manager.cpp".

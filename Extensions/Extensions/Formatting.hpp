@@ -4,6 +4,10 @@
 // Helper functions for formatting streams and strings.
 namespace Format
 {
+	bool IsStringNumber(std::string_view str);
+	bool IsStringFloat(std::string_view str);
+	void EraseAllChars(std::string& str, char character);
+	std::string RemoveAllChars(std::string str, char character);
 	void Empty(std::ostringstream& stream);
 	void FillRight(std::ostringstream& stream, char fill, uint64_t width);
 	void FillLeft(std::ostringstream& stream, char fill, uint64_t width);

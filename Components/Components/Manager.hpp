@@ -102,6 +102,19 @@ public:
 	void TriggerCallback(const std::string& arguments) const;
 };
 
+class QueueData
+{
+public:
+	std::string Command;
+	std::string Arguments;
+	bool LogToConsole;
+
+public:
+	QueueData();
+	QueueData(const std::string& command, const std::string& arguments, bool bLogToConsole = true);
+	~QueueData();
+};
+
 // Manages variables, commands, settings, and modules.
 class ManagerComponent : public Component
 {
@@ -113,7 +126,7 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Module>> ModuleMap;
 	std::unordered_map<std::string, std::shared_ptr<Command>> CommandMap;
 	std::unordered_map<std::string, std::shared_ptr<Setting>> SettingMap;
-	std::vector<std::pair<std::string, std::string>> CommandQueue;
+	std::vector<QueueData> CommandQueue;
 
 public:
 	std::shared_ptr<PlaceholderModule> PlaceholderMod;
@@ -129,7 +142,7 @@ public:
 public:
 	void UnrealCommand(const std::string& unrealCommand, bool bLogToConsole = true);
 	void ConsoleCommand(const std::string& command, const std::string& arguments, bool bLogToConsole = true);
-	void AddToQueue(const std::string& command, const std::string& arguments); // Use this if you have ImGui interaction for console commands, as you CANNOT call Process Event on the ImGui render thread.
+	void QueueCommand(const std::string& command, const std::string& arguments, bool bLogToConsole = true); // Use this if you have ImGui interaction for console commands, as you CANNOT call Process Event on the ImGui render thread.
 	void QueueTick(); // Checks the "CommandQueue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
 
 public:

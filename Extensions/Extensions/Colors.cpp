@@ -301,7 +301,7 @@ namespace Colors
 			ss << "#";
 		}
 
-		ss << std::uppercase << std::hex << static_cast<uintptr_t>(decimal);
+		ss << std::setfill('0') << std::setw(6) << std::uppercase << std::hex << static_cast<uintptr_t>(decimal);
 
 		return ss.str();
 	}
