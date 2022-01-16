@@ -216,45 +216,96 @@ bool Setting::InRange(const std::string& value) const
 {
 	if (HasRange())
 	{
-		if (GetType() == SettingTypes::TYPE_INT)
+		if (IsValueValid(value))
 		{
-			int32_t formattedMin = std::stoi(Range.first);
-			int32_t formattedMax = std::stoi(Range.second);
-			int32_t formattedValue = std::stoi(value);
-			return (formattedValue >= formattedMin && formattedValue <= formattedMax);
-		}
-		else if (GetType() == SettingTypes::TYPE_BOOL)
-		{
-			return (value == "0" || value == "false" || value == "1" || value == "true");
-		}
-		else if (GetType() == SettingTypes::TYPE_FLOAT)
-		{
-			float formattedMin = std::stof(Range.first);
-			float formattedMax = std::stof(Range.second);
-			float formattedValue = std::stof(value);
-			return (formattedValue >= formattedMin && formattedValue <= formattedMax);
+			if (GetType() == SettingTypes::TYPE_INT)
+			{
+				int32_t formattedMin = std::stoi(Range.first);
+				int32_t formattedMax = std::stoi(Range.second);
+				int32_t formattedValue = std::stoi(value);
+				return (formattedValue >= formattedMin && formattedValue <= formattedMax);
+			}
+			else if (GetType() == SettingTypes::TYPE_BOOL)
+			{
+				return (value == "0" || value == "false" || value == "1" || value == "true");
+			}
+			else if (GetType() == SettingTypes::TYPE_FLOAT)
+			{
+				float formattedMin = std::stof(Range.first);
+				float formattedMax = std::stof(Range.second);
+				float formattedValue = std::stof(value);
+				return (formattedValue >= formattedMin && formattedValue <= formattedMax);
+			}
 		}
 	}
 
 	return true;
 }
 
-Setting* Setting::SetValue(const std::string& value)
+bool Setting::IsValueValid(const std::string& value) const
 {
-	if (GetType() == SettingTypes::TYPE_COLOR)
+	if (GetType() == SettingTypes::TYPE_INT)
 	{
-		if (value.find("#") == 0 || value.find("0x") == 0)
+		if (Format::IsStringNumber(value))
 		{
-			CurrentValue = std::to_string(Colors::HexToDecimal(value));
+			return true;
 		}
 		else
 		{
-			CurrentValue = value;
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports 32 bit integer values.");
+			return false;
 		}
-
-		TriggerCallback();
 	}
-	else
+	else if (GetType() == SettingTypes::TYPE_BOOL)
+	{
+		if (value == "1"
+			|| value == "true"
+			|| value == "0"
+			|| value == "false")
+		{
+			return true;
+		}
+		else
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports true or false values.");
+			return false;
+		}
+	}
+	else if (GetType() == SettingTypes::TYPE_FLOAT)
+	{
+		if (Format::IsStringFloat(value) || Format::IsStringNumber(value))
+		{
+			return true;
+		}
+		else
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or optionally 32 bit integer values.");
+			return false;
+		}
+	}
+	else if (GetType() == SettingTypes::TYPE_COLOR)
+	{
+		if (value.find("#") == 0 || Format::IsStringNumber(value))
+		{
+			return true;
+		}
+		else
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports RGB hexadecimal or RGB decimal values.");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+Setting* Setting::SetValue(const std::string& value, ThreadTypes thread)
+{
+	if (thread != ThreadTypes::THREAD_GAME)
+	{
+		ManagerComponent::QueueCommand(this->GetName(), value, (thread == ThreadTypes::THREAD_RENDER ? false : true));
+	}
+	else if (IsValueValid(value))
 	{
 		if (InRange(value))
 		{
@@ -268,6 +319,19 @@ Setting* Setting::SetValue(const std::string& value)
 				{
 					CurrentValue = "false";
 				}
+			}
+			else if (GetType() == SettingTypes::TYPE_COLOR)
+			{
+				if (value.find("#") == 0)
+				{
+					CurrentValue = std::to_string(Colors::HexToDecimal(value));
+				}
+				else
+				{
+					CurrentValue = value;
+				}
+
+				TriggerCallback();
 			}
 			else
 			{
@@ -320,11 +384,6 @@ Setting* Setting::UnbindCallbacks()
 	return this;
 }
 
-void Setting::ResetToDefault()
-{
-	SetValue(GetDefaultValue());
-}
-
 void Setting::TriggerCallback() const
 {
 	if (HasCallback())
@@ -335,6 +394,11 @@ void Setting::TriggerCallback() const
 	{
 		ArgumentCallback(GetStringValue());
 	}
+}
+
+void Setting::ResetToDefault(ThreadTypes thread)
+{
+	SetValue(GetDefaultValue());
 }
 
 Command::Command(VariableIds variable, const std::string& description, bool bSearchable) :
@@ -547,7 +611,7 @@ void ManagerComponent::QueueCommand(const std::string& command, const std::strin
 
 void ManagerComponent::QueueTick()
 {
-	if (CommandQueue.size() > 0)
+	if (!CommandQueue.empty())
 	{
 		for (const QueueData& data : CommandQueue)
 		{
@@ -568,17 +632,17 @@ void ManagerComponent::ResetSetting(const std::string& settingName, bool bLogToC
 
 		if (bLogToConsole)
 		{
-			Console.Success(GetNameFormatted() + "Reset setting to its default value!");
-			Console.Notify(GetNameFormatted() + "Name: " + setting->GetName());
-			Console.Notify(GetNameFormatted() + "Description: " + setting->GetDescription());
-			Console.Notify(GetNameFormatted() + "Current Value: " + setting->GetStringValue());
+			Console.Notify("[Manager Component] Reset setting to its default value!");
+			Console.Notify("[Manager Component] Name: " + setting->GetName());
+			Console.Notify("[Manager Component] Description: " + setting->GetDescription());
+			Console.Notify("[Manager Component] Current Value: " + setting->GetStringValue());
 		}
 	}
 	else
 	{
 		if (bLogToConsole)
 		{
-			Console.Error(GetNameFormatted() + "Unrecognized setting: \"" + settingName + "\"");
+			Console.Error("[Manager Component] Unrecognized setting: \"" + settingName + "\"");
 		}
 	}
 }
@@ -605,14 +669,14 @@ void ManagerComponent::PrintModule(const std::string& moduleName)
 			allowedStates += ")";
 		}
 
-		Console.Notify(GetNameFormatted() + "Module Name: " + mod->GetName());
-		Console.Notify(GetNameFormatted() + "Module Description: " + mod->GetDescription());
-		Console.Notify(GetNameFormatted() + "Allowed States/Permissions: " + allowedStates);
-		Console.Notify(GetNameFormatted() + "Allowed In Current State: " + (mod->IsAllowed() ? "true" : "false"));
+		Console.Notify("[Manager Component] Module Name: " + mod->GetName());
+		Console.Notify("[Manager Component] Module Description: " + mod->GetDescription());
+		Console.Notify("[Manager Component] Allowed States/Permissions: " + allowedStates);
+		Console.Notify("[Manager Component] Allowed In Current State: " + std::string((mod->IsAllowed() ? "true" : "false")));
 	}
 	else
 	{
-		Console.Error(GetNameFormatted() + "Failed to find module \"" + moduleName + "\"!");
+		Console.Error("[Manager Component] Failed to find module \"" + moduleName + "\"!");
 	}
 }
 
@@ -635,7 +699,7 @@ void ManagerComponent::CreateVariable(const std::string& name, VariableIds varia
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Duplicate variable name detected for id: " + std::to_string(static_cast<int32_t>(variable)) + "!");
+		Console.Warning("[Manager Component] Warning: Duplicate variable name detected for id: " + std::to_string(static_cast<int32_t>(variable)) + "!");
 	}
 }
 
@@ -650,17 +714,16 @@ template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* 
 		{
 			ModuleMap.emplace(std::make_pair(moduleName, std::shared_ptr<Module>(mod)));
 			moduleToBind = std::static_pointer_cast<T>(ModuleMap[moduleName]);
-
 			return moduleToBind;
 		}
 		else
 		{
-			Console.Warning(GetNameFormatted() + "Warning: Duplicate module name detected for \"" + moduleName + "\"!");
+			Console.Warning("[Manager Component] Warning: Duplicate module name detected for \"" + moduleName + "\"!");
 		}
 	}
 	else
 	{
-		Console.Error(GetNameFormatted() + "Error: Failed to create module, invalid pointer detected!");
+		Console.Error("[Manager Component] Error: Failed to create module, given pointer is invalid!");
 	}
 
 	return nullptr;
@@ -689,12 +752,12 @@ std::shared_ptr<Command> ManagerComponent::CreateCommand(Command* command)
 		}
 		else
 		{
-			Console.Warning(GetNameFormatted() + "Warning: Duplicate command name detected for \"" + commandName + "\"!");
+			Console.Warning("[Manager Component] Warning: Duplicate command name detected for \"" + commandName + "\"!");
 		}
 	}
 	else
 	{
-		Console.Error(GetNameFormatted() + "Error: Failed to create command, invalid pointer detected!");
+		Console.Error("[Manager Component] Error: Failed to create command, given pointer is invalid!");
 	}
 
 	return nullptr;
@@ -728,12 +791,12 @@ std::shared_ptr<Setting> ManagerComponent::CreateSetting(Setting* setting)
 		}
 		else
 		{
-			Console.Warning(GetNameFormatted() + "Warning: Duplicate setting name detected for \"" + settingName + "\"!");
+			Console.Warning("[Manager Component] Warning: Duplicate setting name detected for \"" + settingName + "\"!");
 		}
 	}
 	else
 	{
-		Console.Error(GetNameFormatted() + "Error: Failed to create setting, invalid pointer detected!");
+		Console.Error("[Manager Component] Error: Failed to create setting, given pointer is invalid!");
 	}
 
 	return nullptr;

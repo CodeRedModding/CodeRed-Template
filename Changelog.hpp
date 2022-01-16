@@ -1,5 +1,11 @@
 #pragma once
 /* 
+    Changes in v1.2.8:
+    - Added the function "IsValueValid" for the "Setting" class, this checks if the given string value is valid for the settings type and is safe to parse. Both "InRange" and "SetVale" now use this function in "Manager.cpp".
+    - Added a new enum called "ThreadTypes" in "Manager.hpp", used in settings for identifying when it is safe to call certain functions.
+    - Added a default "ThreadTypes" argument for the functions "SetValue" and "ResetToDefault" for the "Setting" class in "Manager.hpp/cpp", if updating the setting is done outside of the game's thread (like ImGui) it will automatically queue the command for you.
+    - Made certain members and functions in "Manager.hpp" static.
+
     Changes in v1.2.7:
     - Added four new functions in "Formatting.hpp", "IsStringNumber", "IsStringFloat", "EraseAllChars", and "RemoveAllChars".
     - Fixed a bug in the "SetValue" function that prevented some setitng types from applying in "Manager.cpp".

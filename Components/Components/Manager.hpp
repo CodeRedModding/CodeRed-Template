@@ -2,6 +2,14 @@
 #include "../Component.hpp"
 #include "../Modules/Includes.hpp"
 
+enum class ThreadTypes : uint8_t
+{
+	THREAD_GAME,
+	THREAD_CANVAS,
+	THREAD_RENDER,
+	THREAD_UNIQUE
+};
+
 enum class SettingTypes : uint8_t
 {
 	TYPE_NONE,
@@ -64,7 +72,8 @@ public:
 	bool IsModifiable() const;
 	bool HasRange() const;
 	bool InRange(const std::string& value) const;
-	Setting* SetValue(const std::string& value);
+	bool IsValueValid(const std::string& value) const;
+	Setting* SetValue(const std::string& value, ThreadTypes thread = ThreadTypes::THREAD_GAME);
 	Setting* SetRange(const std::string& minimumvalue, const std::string& maximumValue);
 	bool HasCallback() const;
 	bool HasArgumentCallback() const;
@@ -72,7 +81,7 @@ public:
 	Setting* BindCallback(std::function<void(std::string)> callback);
 	Setting* UnbindCallbacks();
 	void TriggerCallback() const;
-	void ResetToDefault();
+	void ResetToDefault(ThreadTypes thread = ThreadTypes::THREAD_GAME);
 };
 
 class Command
@@ -119,14 +128,14 @@ public:
 class ManagerComponent : public Component
 {
 private:
-	std::map<std::string, VariableIds> VariableMap_SID;
-	std::map<VariableIds, std::string> VariableMap_IDS;
+	static inline std::map<std::string, VariableIds> VariableMap_SID;
+	static inline std::map<VariableIds, std::string> VariableMap_IDS;
 
 private:
-	std::unordered_map<std::string, std::shared_ptr<Module>> ModuleMap;
-	std::unordered_map<std::string, std::shared_ptr<Command>> CommandMap;
-	std::unordered_map<std::string, std::shared_ptr<Setting>> SettingMap;
-	std::vector<QueueData> CommandQueue;
+	static inline std::unordered_map<std::string, std::shared_ptr<Module>> ModuleMap;
+	static inline std::unordered_map<std::string, std::shared_ptr<Command>> CommandMap;
+	static inline std::unordered_map<std::string, std::shared_ptr<Setting>> SettingMap;
+	static inline std::vector<QueueData> CommandQueue;
 
 public:
 	std::shared_ptr<PlaceholderModule> PlaceholderMod;
@@ -142,22 +151,22 @@ public:
 public:
 	void UnrealCommand(const std::string& unrealCommand, bool bLogToConsole = true);
 	void ConsoleCommand(const std::string& command, const std::string& arguments, bool bLogToConsole = true);
-	void QueueCommand(const std::string& command, const std::string& arguments, bool bLogToConsole = true); // Use this if you have ImGui interaction for console commands, as you CANNOT call Process Event on the ImGui render thread.
 	void QueueTick(); // Checks the "CommandQueue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
+	static void QueueCommand(const std::string& command, const std::string& arguments, bool bLogToConsole = true); // Use this if you have ImGui interaction for console commands, as you CANNOT call Process Event on the ImGui render thread.
 
 public:
-	void ResetSetting(const std::string& settingName, bool bLogToConsole = true);
-	void PrintModule(const std::string& moduleName);
-	void CreateVariable(const std::string& name, VariableIds variable);
-	std::string GetVariableName(VariableIds variable);
-	template <typename T> std::shared_ptr<T> CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind);
-	template <typename T> std::shared_ptr<T> GetModule(const std::string& moduleName);
-	std::shared_ptr<Command> CreateCommand(Command* command);
-	std::shared_ptr<Command> GetCommand(const std::string& commandName);
-	std::shared_ptr<Command> GetCommand(VariableIds variable);
-	std::shared_ptr<Setting> CreateSetting(Setting* setting);
-	std::shared_ptr<Setting> GetSetting(const std::string& settingName);
-	std::shared_ptr<Setting> GetSetting(VariableIds variable);
+	static void ResetSetting(const std::string& settingName, bool bLogToConsole = true);
+	static void PrintModule(const std::string& moduleName);
+	static void CreateVariable(const std::string& name, VariableIds variable);
+	static std::string GetVariableName(VariableIds variable);
+	template <typename T> static std::shared_ptr<T> CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind);
+	template <typename T> static std::shared_ptr<T> GetModule(const std::string& moduleName);
+	static std::shared_ptr<Command> CreateCommand(Command* command);
+	static std::shared_ptr<Command> GetCommand(const std::string& commandName);
+	static std::shared_ptr<Command> GetCommand(VariableIds variable);
+	static std::shared_ptr<Setting> CreateSetting(Setting* setting);
+	static std::shared_ptr<Setting> GetSetting(const std::string& settingName);
+	static std::shared_ptr<Setting> GetSetting(VariableIds variable);
 	void Initialize(); // Creates all settings, commands, modules, and maps them out.
 };
 
