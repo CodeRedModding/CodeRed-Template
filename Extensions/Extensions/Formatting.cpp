@@ -6,7 +6,7 @@ namespace Format
     {
         for (const char& c : str)
         {
-            if (!std::isdigit(c))
+            if (!std::isdigit(c) && c != '-')
             {
                 return false;
             }
@@ -19,7 +19,7 @@ namespace Format
     {
         for (const char& c : str)
         {
-            if (!std::isdigit(c) && c != '.' && c != 'f')
+            if (!std::isdigit(c) && c != '-' && c != '.' && c != 'f')
             {
                 return false;
             }

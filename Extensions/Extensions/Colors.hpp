@@ -18,7 +18,8 @@ public:
 	~Color();
 
 public:
-	struct FColor UnrealColor() const;
+	struct FColor UnrealColor() const; // Your game might be in a different format (RGBA), so be aware of that.
+	struct LinearColor ToLinear() const;
 
 public:
 	Color operator=(const Color& other);
@@ -44,7 +45,8 @@ public:
 	~LinearColor();
 
 public:
-	struct FLinearColor UnrealColor() const;
+	struct FLinearColor UnrealColor() const; // Your game might be in a different format (BGRA), so be aware of that.
+	struct Color ToColor() const;
 
 public:
 	LinearColor operator=(const LinearColor& other);

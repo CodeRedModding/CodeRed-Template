@@ -1,5 +1,13 @@
 #pragma once
 /* 
+    Changes in v1.2.9:
+    - Fixed the "IsStringNumber" and "IsStringFloat" functions from returning false if the given string was negitive in "Formatting.cpp".
+    - Added two new functions, "ToLinear" and "ToColor", to the color structs in "Colors.hpp" which auto converts color types from one to the other.
+    - Added a new setting type, "TYPE_ROTATOR", and added a "GetRotatorValue" to accommodate this for the "Setting" class in "Manager.hpp/cpp".
+    - Added a "GetQuat" function which returns a Quat version of a Rotator in "Math.hpp/cpp".
+    - Changed the constructor for the "Setting" class in "Manager.hpp", moved the "SettingTypes" type to the front.
+    - Changed the example for initializing module variables in the "Initialize" function in "Manager.cpp".
+
     Changes in v1.2.8:
     - Added the function "IsValueValid" for the "Setting" class, this checks if the given string value is valid for the settings type and is safe to parse. Both "InRange" and "SetVale" now use this function in "Manager.cpp".
     - Added a new enum called "ThreadTypes" in "Manager.hpp", used in settings for identifying when it is safe to call certain functions.

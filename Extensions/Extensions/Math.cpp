@@ -371,6 +371,27 @@ float Rotator::NormalizeAxis(float a)
 	return a;
 }
 
+class Quat Rotator::GetQuat() const
+{
+	float DEG_TO_RAD = PI / 180.0f;
+	float DIVIDE_BY_2 = DEG_TO_RAD / 2.0f;
+
+	float SP = sin(Pitch * DIVIDE_BY_2);
+	float CP = cos(Pitch * DIVIDE_BY_2);
+	float SY = sin(Yaw * DIVIDE_BY_2);
+	float CY = cos(Yaw * DIVIDE_BY_2);
+	float SR = sin(Roll * DIVIDE_BY_2);
+	float CR = cos(Roll * DIVIDE_BY_2);
+
+	Quat RotationQuat;
+	RotationQuat.X = (CR * SP * SY) - (SR * CP * CY);
+	RotationQuat.Y = (-CR * SP * CY) - (SR * CP * SY);
+	RotationQuat.Z = (CR * CP * SY) - (SR * SP * CY);
+	RotationQuat.W =  (CR * CP * CY) + (SR * SP * SY);
+
+	return RotationQuat;
+}
+
 Rotator Rotator::GetNormalize() const
 {
 	Rotator mutableThis = *this;

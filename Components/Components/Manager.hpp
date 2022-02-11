@@ -18,6 +18,7 @@ enum class SettingTypes : uint8_t
 	TYPE_FLOAT,
 	TYPE_STRING,
 	TYPE_COLOR,
+	TYPE_ROTATOR,
 	TYPE_VECTOR_3D,
 	TYPE_VECTOR_2D
 };
@@ -48,9 +49,9 @@ private:
 	std::function<void(std::string)> ArgumentCallback;		// Argument callback function if the user has one bound.
 
 public:
-	Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable);
-	Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void()> callback);
-	Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void(std::string)> callback);
+	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable);
+	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void()> callback);
+	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void(std::string)> callback);
 	~Setting();
 
 public:
@@ -65,6 +66,7 @@ public:
 	std::string GetStringValue() const;
 	Color GetColorValue() const;
 	LinearColor GetLinearValue() const;
+	Rotator GetRotatorValue() const;
 	VectorF GetVector3DValue() const;
 	Vector2DF GetVector2DValue() const;
 

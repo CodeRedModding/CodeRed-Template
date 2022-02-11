@@ -1,10 +1,10 @@
 #include "Manager.hpp"
 #include "../Includes.hpp"
 
-Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable) :
+Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable) :
 	Variable(variable),
+	Type(settingType),
 	Description(description),
-	Type(valueType),
 	DefaultValue(defaultValue),
 	CurrentValue(defaultValue),
 	Modifiable(bModifiable),
@@ -17,7 +17,7 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	}
 	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
+		if (CurrentValue.find("#") == 0)
 		{
 			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
 			CurrentValue = DefaultValue;
@@ -25,9 +25,9 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	}
 }
 
-Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void()> callback) :
+Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void()> callback) :
 	Variable(variable),
-	Type(valueType),
+	Type(settingType),
 	Description(description),
 	DefaultValue(defaultValue),
 	CurrentValue(defaultValue),
@@ -41,7 +41,7 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	}
 	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
+		if (CurrentValue.find("#") == 0)
 		{
 			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
 			CurrentValue = DefaultValue;
@@ -49,9 +49,9 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	}
 }
 
-Setting::Setting(VariableIds variable, const std::string& description, const std::string& defaultValue, SettingTypes valueType, bool bModifiable, std::function<void(std::string)> callback) :
+Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void(std::string)> callback) :
 	Variable(variable),
-	Type(valueType),
+	Type(settingType),
 	Description(description),
 	DefaultValue(defaultValue),
 	CurrentValue(defaultValue),
@@ -65,7 +65,7 @@ Setting::Setting(VariableIds variable, const std::string& description, const std
 	}
 	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (CurrentValue.find("#") != std::string::npos || CurrentValue.find("0x") != std::string::npos)
+		if (CurrentValue.find("#") == 0)
 		{
 			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
 			CurrentValue = DefaultValue;
@@ -161,6 +161,26 @@ LinearColor Setting::GetLinearValue() const
 	}
 
 	return LinearColor();
+}
+
+Rotator Setting::GetRotatorValue() const
+{
+	if (GetType() == SettingTypes::TYPE_ROTATOR)
+	{
+		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
+		Rotator returnRotator;
+
+		if (values.size() == 3)
+		{
+			returnRotator.Pitch = std::stoi(values[0]);
+			returnRotator.Yaw = std::stoi(values[1]);
+			returnRotator.Roll = std::stoi(values[2]);
+		}
+
+		return returnRotator;
+	}
+
+	return Rotator();
 }
 
 VectorF Setting::GetVector3DValue() const
@@ -828,20 +848,30 @@ void ManagerComponent::Initialize()
 	CreateVariable("placeholder_can_do_thing", VariableIds::PLACEHOLDER_ENABLED);
 	CreateVariable("placeholder_some_value", VariableIds::PLACEHOLDER_SOME_VALUE);
 
-	// Assigning the CasualMatch and RankedMatch flags, so this module will only be able to be used in casual or ranked games.
+	// Assigning the "STATES_CasualMatch" and "STATES_RankedMatch" flags, so this module will only be able to be used in casual or ranked games.
 	CreateModule<PlaceholderModule>(new PlaceholderModule("Paceholder", "An example module.", States::STATES_CasualMatch | States::STATES_RankedMatch), PlaceholderMod);
 	
 	CreateCommand(new Command(VariableIds::MANAGER_RESET_SETTING, "Reset a setting to its default/original value."))->BindCallback([&](const std::string& arguments) { ResetSetting(arguments); });
 	CreateCommand(new Command(VariableIds::MANAGER_PRINT_MODULE, "Print information about a given module."))->BindCallback([&](const std::string& arguments) { PrintModule(arguments); });
 	CreateCommand(new Command(VariableIds::MANAGER_UNREAL_COMMAND, "Execute a Unreal Engine 3 command with the given arguments."))->BindCallback([&](const std::string& arguments) { UnrealCommand(arguments); });
 
-	// When someone uses the command "placeholder_do_thing", this will trigger the function "DoAThing" in "PlaceholderModule".
-	CreateCommand(new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
-	// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
-	CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, "Enable/disable the placeholder module.", "false", SettingTypes::TYPE_BOOL, true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
-	// Integer setting that has a minimum value of "0" and a maximum  value of "100".
-	CreateSetting(new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, "Some random integer value with a custom range.", "0", SettingTypes::TYPE_INT, true))->SetRange("0", "100")->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
-	PlaceholderMod ? PlaceholderMod->UpdateSettings() : Console.Error(GetNameFormatted() + "Error: Failed to initialize \"Paceholder\"!");
+	if (PlaceholderMod)
+	{
+		// When someone uses the command "placeholder_do_thing", this will trigger the function "DoAThing" in "PlaceholderModule".
+		CreateCommand(new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
+		
+		// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
+		CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::TYPE_BOOL, "Enable/disable the placeholder module.", "false", true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+		
+		// Integer setting that has a minimum value of "0" and a maximum  value of "100".
+		CreateSetting(new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::TYPE_INT, "Some random integer value with a custom range.", "0", true))->SetRange("0", "100")->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+
+		PlaceholderMod->UpdateSettings();
+	}
+	else
+	{
+		Console.Error(GetNameFormatted() + "Error: Failed to initialize \"Paceholder\"!");
+	}
 
 	Console.Write(GetNameFormatted() + std::to_string(CommandMap.size()) + " Command(s) Initialized!");
 	Console.Write(GetNameFormatted() + std::to_string(SettingMap.size()) + " Setting(s) Initialized!");

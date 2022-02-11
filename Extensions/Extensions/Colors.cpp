@@ -23,6 +23,11 @@ struct FColor Color::UnrealColor() const
 	return FColor { B, G, R, A }; // Your game might be in a different format (RGBA), so be aware of that.
 }
 
+struct LinearColor Color::ToLinear() const
+{
+	return LinearColor(static_cast<float>(R) / 255.0f, static_cast<float>(G) / 255.0f, static_cast<float>(B) / 255.0f, static_cast<float>(A) / 255.0f);
+}
+
 Color Color::operator=(const Color& other)
 {
 	R = other.R;
@@ -78,6 +83,11 @@ LinearColor::~LinearColor() { }
 struct FLinearColor LinearColor::UnrealColor() const
 {
 	return FLinearColor { R, G, B, A };
+}
+
+struct Color LinearColor::ToColor() const
+{
+	return Color(R, G, B, A);
 }
 
 LinearColor LinearColor::operator=(const LinearColor& other)

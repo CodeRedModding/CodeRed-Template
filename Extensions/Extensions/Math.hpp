@@ -281,6 +281,7 @@ public:
 	float ClampAxis(float a);
 	void Normalize();
 	float NormalizeAxis(float a);
+	class Quat GetQuat() const;
 	Rotator GetNormalize() const;
 	VectorF GetVector() const;
 	VectorF Rotate(VectorF other) const;
