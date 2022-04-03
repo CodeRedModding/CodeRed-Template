@@ -2,10 +2,10 @@
 
 namespace Math
 {
-	float GetDistance(const struct FVector& from, const struct FVector& to, const float scaling)
+	float GetDistance(const struct FVector& from, const struct FVector& to, float scaling)
 	{
 		float distance = std::sqrt(std::pow(to.X - from.X, 2) + std::pow(to.Y - from.Y, 2) + std::pow(to.Z - from.Z, 2));
-		return distance / scaling;
+		return (distance / scaling);
 	}
 
 	void SinCos(float* scalarSin, float* scalarCos, float value)
@@ -51,7 +51,7 @@ namespace Math
 
 		// 10-degree minimax approximation
 		float p = ((((-2.6051615e-07f * y2 + 2.4760495e-05f) * y2 - 0.0013888378f) * y2 + 0.041666638f) * y2 - 0.5f) * y2 + 1.f;
-		*scalarCos = sign*p;
+		*scalarCos = sign * p;
 	}
 
 	struct FVector RotateUnreal(struct FVector point, const struct FRotator& rotation, const struct FVector& location)
@@ -85,7 +85,7 @@ namespace Math
 
 FVector2D Vector2DF::UnrealVector() const
 {
-	return FVector2D { X, Y };
+	return FVector2D{ X, Y };
 }
 
 void Vector2DF::Erase()
@@ -99,14 +99,14 @@ Vector2DF Vector2DF::Copy() const
 	return Vector2DF(X, Y);
 }
 
-Vector2DF Vector2DF::operator=(const Vector2DF& other)
+Vector2DF& Vector2DF::operator=(const Vector2DF& other)
 {
 	X = other.X;
 	Y = other.Y;
 	return *this;
 }
 
-Vector2DF Vector2DF::operator=(const struct FVector2D& other)
+Vector2DF& Vector2DF::operator=(const struct FVector2D& other)
 {
 	X = other.X;
 	Y = other.Y;
@@ -115,7 +115,7 @@ Vector2DF Vector2DF::operator=(const struct FVector2D& other)
 
 FVector2D Vector2DI::UnrealVector() const
 {
-	return FVector2D { static_cast<float>(X), static_cast<float>(Y) };
+	return FVector2D{ static_cast<float>(X), static_cast<float>(Y) };
 }
 
 void Vector2DI::Erase()
@@ -129,17 +129,17 @@ Vector2DI Vector2DI::Copy() const
 	return Vector2DI(X, Y);
 }
 
-Vector2DI Vector2DI::operator=(const Vector2DI& other)
+Vector2DI& Vector2DI::operator=(const Vector2DI& other)
 {
 	X = other.X;
 	Y = other.Y;
 	return *this;
 }
 
-Vector2DI Vector2DI::operator=(const struct FVector2D& other)
+Vector2DI& Vector2DI::operator=(const struct FVector2D& other)
 {
-	X = other.X;
-	Y = other.Y;
+	X = static_cast<int32_t>(other.X);
+	Y = static_cast<int32_t>(other.Y);
 	return *this;
 }
 
@@ -211,7 +211,7 @@ VectorF VectorF::Lerp(const VectorF& other, float percentage) const
 	return VectorF(mutableThis * percentage + (other * (1.f - percentage)));
 }
 
-VectorF VectorF::operator=(const VectorF& other)
+VectorF& VectorF::operator=(const VectorF& other)
 {
 	X = other.X;
 	Y = other.Y;
@@ -219,7 +219,7 @@ VectorF VectorF::operator=(const VectorF& other)
 	return *this;
 }
 
-VectorF VectorF::operator=(const struct FVector& other)
+VectorF& VectorF::operator=(const struct FVector& other)
 {
 	X = other.X;
 	Y = other.Y;
@@ -295,7 +295,7 @@ VectorI VectorI::Lerp(const VectorI& other, int32_t percentage) const
 	return VectorI(mutableThis * percentage + (other * (1 - percentage)));
 }
 
-VectorI VectorI::operator=(const VectorI& other)
+VectorI& VectorI::operator=(const VectorI& other)
 {
 	X = other.X;
 	Y = other.Y;
@@ -303,11 +303,11 @@ VectorI VectorI::operator=(const VectorI& other)
 	return *this;
 }
 
-VectorI VectorI::operator=(const struct FVector& other)
+VectorI& VectorI::operator=(const struct FVector& other)
 {
-	X = other.X;
-	Y = other.Y;
-	Z = other.Z;
+	X = static_cast<int32_t>(other.X);
+	Y = static_cast<int32_t>(other.Y);
+	Z = static_cast<int32_t>(other.Z);
 	return *this;
 }
 
@@ -373,7 +373,7 @@ float Rotator::NormalizeAxis(float a)
 
 class Quat Rotator::GetQuat() const
 {
-	float DEG_TO_RAD = PI / 180.0f;
+	float DEG_TO_RAD = (PI / 180.0f);
 	float DIVIDE_BY_2 = DEG_TO_RAD / 2.0f;
 
 	float SP = sin(Pitch * DIVIDE_BY_2);
@@ -383,13 +383,13 @@ class Quat Rotator::GetQuat() const
 	float SR = sin(Roll * DIVIDE_BY_2);
 	float CR = cos(Roll * DIVIDE_BY_2);
 
-	Quat RotationQuat;
-	RotationQuat.X = (CR * SP * SY) - (SR * CP * CY);
-	RotationQuat.Y = (-CR * SP * CY) - (SR * CP * SY);
-	RotationQuat.Z = (CR * CP * SY) - (SR * SP * CY);
-	RotationQuat.W =  (CR * CP * CY) + (SR * SP * SY);
+	Quat rotationQuat;
+	rotationQuat.X = ((CR * SP * SY) - (SR * CP * CY));
+	rotationQuat.Y = ((-CR * SP * CY) - (SR * CP * SY));
+	rotationQuat.Z = ((CR * CP * SY) - (SR * SP * CY));
+	rotationQuat.W = ((CR * CP * CY) + (SR * SP * SY));
 
-	return RotationQuat;
+	return rotationQuat;
 }
 
 Rotator Rotator::GetNormalize() const
@@ -405,8 +405,8 @@ VectorF Rotator::GetVector() const
 	const float YawNoWinding = fmod(Yaw, 360.0f);
 
 	float CP, SP, CY, SY;
-	Math::SinCos(&SP, &CP, PitchNoWinding * (PI / 180.0f));
-	Math::SinCos(&SY, &CY, YawNoWinding * (PI / 180.0f));
+	Math::SinCos(&SP, &CP, (PitchNoWinding * (PI / 180.0f)));
+	Math::SinCos(&SY, &CY, (YawNoWinding * (PI / 180.0f)));
 
 	return VectorF(CP * CY, CP * SY, SP);
 }
@@ -426,7 +426,7 @@ VectorF Rotator::Rotate(VectorF other) const
 
 	other = VectorF(other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx); // Roll
 	other = VectorF(other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z); // Pitch
-	other = VectorF(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy ); // Yaw
+	other = VectorF(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy); // Yaw
 
 	float tmp = other.Z;
 	other.Z = other.Y;
@@ -435,7 +435,7 @@ VectorF Rotator::Rotate(VectorF other) const
 	return other;
 }
 
-Rotator Rotator::operator+=(const Rotator& other)
+Rotator& Rotator::operator+=(const Rotator& other)
 {
 	Pitch += other.Pitch;
 	Yaw += other.Yaw;
@@ -443,7 +443,7 @@ Rotator Rotator::operator+=(const Rotator& other)
 	return *this;
 }
 
-Rotator Rotator::operator-=(const Rotator& other)
+Rotator& Rotator::operator-=(const Rotator& other)
 {
 	Pitch -= other.Pitch;
 	Yaw -= other.Yaw;
@@ -451,7 +451,7 @@ Rotator Rotator::operator-=(const Rotator& other)
 	return *this;
 }
 
-Rotator Rotator::operator*=(const Rotator& other)
+Rotator& Rotator::operator*=(const Rotator& other)
 {
 	Pitch *= other.Pitch;
 	Yaw *= other.Yaw;
@@ -459,7 +459,7 @@ Rotator Rotator::operator*=(const Rotator& other)
 	return *this;
 }
 
-Rotator Rotator::operator/=(const Rotator& other)
+Rotator& Rotator::operator/=(const Rotator& other)
 {
 	Pitch /= other.Pitch;
 	Yaw /= other.Yaw;
@@ -467,7 +467,7 @@ Rotator Rotator::operator/=(const Rotator& other)
 	return *this;
 }
 
-Rotator Rotator::operator+=(int32_t other)
+Rotator& Rotator::operator+=(int32_t other)
 {
 	Pitch += other;
 	Yaw += other;
@@ -475,7 +475,7 @@ Rotator Rotator::operator+=(int32_t other)
 	return *this;
 }
 
-Rotator Rotator::operator-=(int32_t other)
+Rotator& Rotator::operator-=(int32_t other)
 {
 	Pitch -= other;
 	Yaw -= other;
@@ -483,7 +483,7 @@ Rotator Rotator::operator-=(int32_t other)
 	return *this;
 }
 
-Rotator Rotator::operator*=(int32_t other)
+Rotator& Rotator::operator*=(int32_t other)
 {
 	Pitch *= other;
 	Yaw *= other;
@@ -491,7 +491,7 @@ Rotator Rotator::operator*=(int32_t other)
 	return *this;
 }
 
-Rotator Rotator::operator/=(int32_t other)
+Rotator& Rotator::operator/=(int32_t other)
 {
 	Pitch /= other;
 	Yaw /= other;
@@ -499,7 +499,7 @@ Rotator Rotator::operator/=(int32_t other)
 	return *this;
 }
 
-Rotator Rotator::operator=(const Rotator& other)
+Rotator& Rotator::operator=(const Rotator& other)
 {
 	Pitch = other.Pitch;
 	Yaw = other.Yaw;
@@ -507,7 +507,7 @@ Rotator Rotator::operator=(const Rotator& other)
 	return *this;
 }
 
-Rotator Rotator::operator=(const struct FRotator& other)
+Rotator& Rotator::operator=(const struct FRotator& other)
 {
 	Pitch = other.Pitch;
 	Yaw = other.Yaw;
@@ -515,7 +515,7 @@ Rotator Rotator::operator=(const struct FRotator& other)
 	return *this;
 }
 
-Rotator Rotator::operator=(int32_t other)
+Rotator& Rotator::operator=(int32_t other)
 {
 	Pitch = other;
 	Yaw = other;
@@ -558,7 +558,7 @@ VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
 
 	point = VectorF(point.X, point.Y * cx - point.Z * sx, point.Y * sx + point.Z * cx); // Roll
 	point = VectorF(point.X * cz - point.Y * sz, point.X * sz + point.Y * cz, point.Z); // Pitch
-	point = VectorF(point.X * cy + point.Z * sy, point.Y, -point.X * sy + point.Z * cy ); // Yaw
+	point = VectorF(point.X * cy + point.Z * sy, point.Y, -point.X * sy + point.Z * cy); // Yaw
 
 	float tmp = point.Z;
 	point.Z = point.Y;
@@ -667,16 +667,15 @@ Quat Quat::GetInverse() const
 
 void Quat::Normalize(float tolerance)
 {
-	float SquareSum = X * X + Y * Y + Z * Z + W * W;
+	float squareSum = (X * X + Y * Y + Z * Z + W * W);
 
-	if (SquareSum >= tolerance)
+	if (squareSum >= tolerance)
 	{
-		float Scale = 1.0f / sqrtf(SquareSum);
-
-		X *= Scale; 
-		Y *= Scale; 
-		Z *= Scale;
-		W *= Scale;
+		float scale = (1.0f / sqrtf(squareSum));
+		X *= scale;
+		Y *= scale;
+		Z *= scale;
+		W *= scale;
 	}
 	else
 	{
@@ -696,12 +695,12 @@ Rotator Quat::GetRotator() const
 	// http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
 
-	const float SingularityTest = Z * X - W * Y;
-	const float YawY = 2.0f * (W * Z + X * Y);
+	const float SingularityTest = (Z * X - W * Y);
+	const float YawY = (2.0f * (W * Z + X * Y));
 	const float YawX = (1.0f - 2.0f * (sqrt(Y) + sqrt(Z)));
 
 	const float SINGULARITY_THRESHOLD = 0.4999995f;
-	const float RAD_TO_DEG = (180.0f) / PI;
+	const float RAD_TO_DEG = (180.0f / PI);
 	Rotator RotatorFromQuat;
 
 	if (SingularityTest < -SINGULARITY_THRESHOLD)
@@ -720,7 +719,7 @@ Rotator Quat::GetRotator() const
 	{
 		RotatorFromQuat.Pitch = asin(2.0f * (SingularityTest)) * RAD_TO_DEG;
 		RotatorFromQuat.Yaw = atan2(YawY, YawX) * RAD_TO_DEG;
-		RotatorFromQuat.Roll = atan2(-2.0f* (W * X + Y * Z), (1.f - 2.f * (sqrt(X) + sqrt(Y)))) * RAD_TO_DEG;
+		RotatorFromQuat.Roll = atan2(-2.0f * (W * X + Y * Z), (1.f - 2.f * (sqrt(X) + sqrt(Y)))) * RAD_TO_DEG;
 	}
 
 	return RotatorFromQuat;
@@ -729,11 +728,11 @@ Rotator Quat::GetRotator() const
 VectorF Quat::Rotate(const VectorF& other) const
 {
 	VectorF q(X, Y, Z);
-	VectorF t = 2.0f * q.Cross(other);
+	VectorF t = (2.0f * q.Cross(other));
 	return VectorF(other + (W * t) + q.Cross(t));
 }
 
-Quat Quat::operator+=(const Quat& other)
+Quat& Quat::operator+=(const Quat& other)
 {
 	X += other.X;
 	Y += other.Y;
@@ -742,7 +741,7 @@ Quat Quat::operator+=(const Quat& other)
 	return *this;
 }
 
-Quat Quat::operator-=(const Quat& other)
+Quat& Quat::operator-=(const Quat& other)
 {
 	X -= other.X;
 	Y -= other.Y;
@@ -751,7 +750,7 @@ Quat Quat::operator-=(const Quat& other)
 	return *this;
 }
 
-Quat Quat::operator*=(const Quat& other)
+Quat& Quat::operator*=(const Quat& other)
 {
 	X *= other.X;
 	Y *= other.Y;
@@ -760,7 +759,7 @@ Quat Quat::operator*=(const Quat& other)
 	return *this;
 }
 
-Quat Quat::operator/=(const Quat& other)
+Quat& Quat::operator/=(const Quat& other)
 {
 	X /= other.X;
 	Y /= other.Y;
@@ -769,7 +768,7 @@ Quat Quat::operator/=(const Quat& other)
 	return *this;
 }
 
-Quat Quat::operator+=(float other)
+Quat& Quat::operator+=(float other)
 {
 	X += other;
 	Y += other;
@@ -778,7 +777,7 @@ Quat Quat::operator+=(float other)
 	return *this;
 }
 
-Quat Quat::operator-=(float other)
+Quat& Quat::operator-=(float other)
 {
 	X -= other;
 	Y -= other;
@@ -787,7 +786,7 @@ Quat Quat::operator-=(float other)
 	return *this;
 }
 
-Quat Quat::operator*=(float other)
+Quat& Quat::operator*=(float other)
 {
 	X *= other;
 	Y *= other;
@@ -796,7 +795,7 @@ Quat Quat::operator*=(float other)
 	return *this;
 }
 
-Quat Quat::operator/=(float other)
+Quat& Quat::operator/=(float other)
 {
 	X /= other;
 	Y /= other;
@@ -805,7 +804,7 @@ Quat Quat::operator/=(float other)
 	return *this;
 }
 
-Quat Quat::operator=(const Quat& other)
+Quat& Quat::operator=(const Quat& other)
 {
 	X = other.X;
 	Y = other.Y;
@@ -814,7 +813,7 @@ Quat Quat::operator=(const Quat& other)
 	return *this;
 }
 
-Quat Quat::operator=(const struct FQuat& other)
+Quat& Quat::operator=(const struct FQuat& other)
 {
 	X = other.X;
 	Y = other.Y;
@@ -823,7 +822,7 @@ Quat Quat::operator=(const struct FQuat& other)
 	return *this;
 }
 
-Quat Quat::operator=(float other)
+Quat& Quat::operator=(float other)
 {
 	X = other;
 	Y = other;

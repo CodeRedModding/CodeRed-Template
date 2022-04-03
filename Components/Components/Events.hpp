@@ -20,7 +20,7 @@ public:
 	class UFunction* Function() const;
 	void* Params() const;
 	template <typename T> T* GetParams() const;
-	bool Detour() const;
+	bool ShouldDetour() const;
 	void SetDetour(bool bDetour);
 
 public:
@@ -52,7 +52,7 @@ namespace Hooks
 	void GameViewPortPostRender(PreEvent& event);
 	void GFxDataMainMenuAdded(PreEvent& event);
 	void PlayerControllerTick(PreEvent& event);
-	void GameViewPortKeyPress(PreEvent& event);
+	void GameViewPortKeyPress(const PostEvent& event);
 }
 
 typedef void(*ProcessEventType)(class UObject*, class UFunction*, void*, void*); // Calling object, function, structure pointer with parameters, unused result
@@ -63,9 +63,9 @@ class EventsComponent : public Component
 private:
 	static inline bool Detoured;
 	static inline ProcessEventType ProcessEvent;
-	static inline std::map<int32_t, std::vector<std::function<void(PreEvent&)>>> PreHookedEvents; // Hooked function's internal integer and bound function.
-	static inline std::map<int32_t, std::vector<std::function<void(const PostEvent&)>>> PostHookedEvents; // Hooked function's internal integer and bound function.
-	static inline std::vector<int32_t> BlacklistedEvents; // Blacklisted function's internal integer.
+	static inline std::map<uint32_t, std::vector<std::function<void(PreEvent&)>>> PreHookedEvents; // Hooked functions internal integer and bound function.
+	static inline std::map<uint32_t, std::vector<std::function<void(const PostEvent&)>>> PostHookedEvents; // Hooked functions internal integer and bound function.
+	static inline std::vector<uint32_t> BlacklistedEvents; // Blacklisted functions internal integer.
 
 public:
 	EventsComponent();
@@ -80,11 +80,15 @@ public:
 	static void AttachDetour(const ProcessEventType& detourFunction); // Redirects the process event virtual function to our own void, for us to manually process later to the typedef.
 	static void DetachDetour(); // Called by the deconstuctor, necessary for if your DLL gets intentionally (or unintentionally) unloaded before your game exits.
 	static void ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result); // Process event gets detoured to this function, then we manually proxy it through to "ProcessEvent".
-	static bool IsEventBlacklisted(int32_t functionInteger);
-	void BlacklistEvent(const std::string& function);
-	void WhitelistEvent(const std::string& function);
-	void HookEventPre(const std::string& function, std::function<void(PreEvent&)> hook);
-	void HookEventPost(const std::string& function, std::function<void(const PostEvent&)> hook);
+	static bool IsEventBlacklisted(uint32_t functionIndex);
+	
+public:
+	void BlacklistEvent(const std::string& functionName);
+	void WhitelistEvent(const std::string& functionName);
+	void HookEventPre(const std::string& functionName, std::function<void(PreEvent&)> preHook);
+	void HookEventPre(uint32_t functionIndex, std::function<void(PreEvent&)> preHook);
+	void HookEventPost(const std::string& functionName, std::function<void(const PostEvent&)> postHook);
+	void HookEventPost(uint32_t functionIndex, std::function<void(const PostEvent&)> postHook);
 	void Initialize(); // Initializes hooking events to functions.
 };
 

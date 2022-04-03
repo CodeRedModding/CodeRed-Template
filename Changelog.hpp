@@ -1,5 +1,9 @@
 #pragma once
 /* 
+    Changes in v1.3.0: 
+    - Modified some of the arguments for function hooking in "Events.hpp", as well as added extra functions for using their index directly.
+    - Improved and fixed various operators and functions for the color and math classes in both "Colors.hpp/cpp" and "Math.hpp/cpp".
+
     Changes in v1.2.9:
     - Fixed the "IsStringNumber" and "IsStringFloat" functions from returning false if the given string was negitive in "Formatting.cpp".
     - Added two new functions, "ToLinear" and "ToColor", to the color structs in "Colors.hpp" which auto converts color types from one to the other.

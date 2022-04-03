@@ -42,7 +42,7 @@ template <typename T> T* PreEvent::GetParams() const
 	return nullptr;
 }
 
-bool PreEvent::Detour() const
+bool PreEvent::ShouldDetour() const
 {
 	if (PE_Function && EventsComponent::IsEventBlacklisted(PE_Function->ObjectInternalInteger))
 	{
@@ -131,7 +131,7 @@ namespace Hooks
 		}
 	}
 
-	void GameViewPortKeyPress(PreEvent& event)
+	void GameViewPortKeyPress(const PostEvent& event)
 	{
 		if (event.Params())
 		{
@@ -147,9 +147,7 @@ namespace Hooks
 	void GFxDataMainMenuAdded(PreEvent& event)
 	{
 		GameState.MainMenuAdded();
-
-		// Purely an example only, if you were to "SetDetour(false)" your hooked function will NOT go through Process Event, so the game will never recognize that it was called.
-		event.SetDetour(false);
+		event.SetDetour(false); // Purely an example only, if you were to "SetDetour(false)" your hooked function will NOT go through Process Event, so the game will never recognize that it was called.
 	}
 }
 
@@ -209,31 +207,31 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 {
 	if (ProcessEvent)
 	{
-		const auto& preIt = PreHookedEvents.find(function->ObjectInternalInteger);
-		PreEvent event(caller, function, params); // In the default constructor we set "PE_Detour" to true, so even if a function hook is found it will correctly go through Process Event.
+		auto preIt = PreHookedEvents.find(function->ObjectInternalInteger);
+		PreEvent event(caller, function, params);
 
 		if (preIt != PreHookedEvents.end())
 		{
-			for (const auto& preEvent : preIt->second)
+			for (const std::function<void(PreEvent&)>& preEvent : preIt->second)
 			{
 				preEvent(event);
 
-				if (event.Detour())
+				if (event.ShouldDetour())
 				{
 					ProcessEvent(caller, function, params, result);
 				}
 			}
 		}
-		else if (event.Detour())
+		else if (event.ShouldDetour())
 		{
 			ProcessEvent(caller, function, params, result);
 		}
 
-		const auto& postIt = PostHookedEvents.find(function->ObjectInternalInteger);
+		auto postIt = PostHookedEvents.find(function->ObjectInternalInteger);
 
 		if (postIt != PostHookedEvents.end())
 		{
-			for (const auto& postEvent : postIt->second)
+			for (const std::function<void(const PostEvent&)>& postEvent : postIt->second)
 			{
 				postEvent(PostEvent(caller, function, params, result));
 			}
@@ -241,7 +239,7 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 	}
 }
 
-bool EventsComponent::IsEventBlacklisted(int32_t functionInteger)
+bool EventsComponent::IsEventBlacklisted(uint32_t functionInteger)
 {
 	return (std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), functionInteger) != BlacklistedEvents.end());
 }
@@ -255,6 +253,7 @@ void EventsComponent::BlacklistEvent(const std::string& function)
 		if (!IsEventBlacklisted(foundFunction->ObjectInternalInteger))
 		{
 			BlacklistedEvents.emplace_back(foundFunction->ObjectInternalInteger);
+			std::sort(BlacklistedEvents.begin(), BlacklistedEvents.end());
 		}
 	}
 	else
@@ -263,68 +262,93 @@ void EventsComponent::BlacklistEvent(const std::string& function)
 	}
 }
 
-void EventsComponent::WhitelistEvent(const std::string& function)
+void EventsComponent::WhitelistEvent(const std::string& functionName)
 {
-	UFunction* foundFunction = Instances.FindStaticFunction(function);
+	UFunction* foundFunction = Instances.FindStaticFunction(functionName);
 
 	if (foundFunction)
 	{
-		std::vector<int32_t>::iterator blackIt = std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), foundFunction->ObjectInternalInteger);
+		std::vector<uint32_t>::iterator blackIt = std::find(BlacklistedEvents.begin(), BlacklistedEvents.end(), foundFunction->ObjectInternalInteger);
 
 		if (blackIt != BlacklistedEvents.end())
 		{
 			BlacklistedEvents.erase(blackIt);
+			std::sort(BlacklistedEvents.begin(), BlacklistedEvents.end());
 		}
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to whitelist function \"" + function + "\"!");
+		Console.Warning(GetNameFormatted() + "Warning: Failed to whitelist function \"" + functionName + "\"!");
 	}
 }
 
-void EventsComponent::HookEventPre(const std::string& function, std::function<void(PreEvent&)> hook)
+void EventsComponent::HookEventPre(const std::string& functionName, std::function<void(PreEvent&)> preHook)
 {
-	UFunction* foundFunction = Instances.FindStaticFunction(function);
+	UFunction* foundFunction = Instances.FindStaticFunction(functionName);
 
 	if (foundFunction)
 	{
-		int32_t functionIndex = foundFunction->ObjectInternalInteger;
+		HookEventPre(foundFunction->ObjectInternalInteger, preHook);
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + functionName + "\"!");
+	}
+}
 
+void EventsComponent::HookEventPre(uint32_t functionIndex, std::function<void(PreEvent&)> preHook)
+{
+	UObject* foundFunction = UObject::GObjObjects()->At(functionIndex);
+
+	if (foundFunction && foundFunction->IsA(UFunction::StaticClass()))
+	{
 		if (PreHookedEvents.find(functionIndex) != PreHookedEvents.end())
 		{
-			PreHookedEvents[functionIndex].push_back(hook);
+			PreHookedEvents[functionIndex].push_back(preHook);
 		}
 		else
 		{
-			PreHookedEvents[functionIndex] = std::vector<std::function<void(PreEvent&)>>{ hook };
+			PreHookedEvents[functionIndex] = std::vector<std::function<void(PreEvent&)>>{ preHook };
 		}
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + function + "\"!");
+		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 	}
 }
 
-void EventsComponent::HookEventPost(const std::string& function, std::function<void(const PostEvent&)> hook)
+void EventsComponent::HookEventPost(const std::string& functionName, std::function<void(const PostEvent&)> postHook)
 {
-	UFunction* foundFunction = Instances.FindStaticFunction(function);
+	UFunction* foundFunction = Instances.FindStaticFunction(functionName);
 
 	if (foundFunction)
 	{
-		int32_t functionIndex = foundFunction->ObjectInternalInteger;
+		HookEventPost(foundFunction->ObjectInternalInteger, postHook);
+	}
+	else
+	{
+		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + functionName + "\"!");
+	}
+}
 
+void EventsComponent::HookEventPost(uint32_t functionIndex, std::function<void(const PostEvent&)> postHook)
+{
+	UObject* foundFunction = UObject::GObjObjects()->At(functionIndex);
+
+	if (foundFunction && foundFunction->IsA(UFunction::StaticClass()))
+	{
 		if (PostHookedEvents.find(functionIndex) != PostHookedEvents.end())
 		{
-			PostHookedEvents[functionIndex].push_back(hook);
+			PostHookedEvents[functionIndex].push_back(postHook);
 		}
 		else
 		{
-			PostHookedEvents[functionIndex] = std::vector<std::function<void(const PostEvent&)>>{ hook };
+			PostHookedEvents[functionIndex] = std::vector<std::function<void(const PostEvent&)>>{ postHook };
 		}
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + function + "\"!");
+		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 	}
 }
 
@@ -347,7 +371,7 @@ void EventsComponent::Initialize()
 	});
 
 	HookEventPre("Function Engine.PlayerController.PlayerTick", &Hooks::PlayerControllerTick);
-	HookEventPre("Function Engine.GameViewportClient.HandleKeyPress", &Hooks::GameViewPortKeyPress);
+	HookEventPost("Function Engine.GameViewportClient.HandleKeyPress", &Hooks::GameViewPortKeyPress);
 	HookEventPre("Function Engine.GFxData_MainMenu.MainMenuAdded", &Hooks::GFxDataMainMenuAdded);
 
 	Console.Write(GetNameFormatted() + std::to_string(PreHookedEvents.size()) + " Pre-Hook(s) Initialized!");

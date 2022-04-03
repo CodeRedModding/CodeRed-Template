@@ -18,12 +18,12 @@ public:
 	~Color();
 
 public:
-	struct FColor UnrealColor() const; // Your game might be in a different format (RGBA), so be aware of that.
+	struct FColor UnrealColor() const;
 	struct LinearColor ToLinear() const;
 
 public:
-	Color operator=(const Color& other);
-	Color operator=(const struct FColor& other);
+	Color& operator=(const Color& other);
+	Color& operator=(const struct FColor& other);
 	bool operator==(const Color& other) const;
 	bool operator==(const struct FColor& other) const;
 	bool operator!=(const Color& other) const;
@@ -45,12 +45,12 @@ public:
 	~LinearColor();
 
 public:
-	struct FLinearColor UnrealColor() const; // Your game might be in a different format (BGRA), so be aware of that.
+	struct FLinearColor UnrealColor() const;
 	struct Color ToColor() const;
 
 public:
-	LinearColor operator=(const LinearColor& other);
-	LinearColor operator=(const struct FLinearColor& other);
+	LinearColor& operator=(const LinearColor& other);
+	LinearColor& operator=(const struct FLinearColor& other);
 	bool operator==(const LinearColor& other) const;
 	bool operator==(const struct FLinearColor& other) const;
 	bool operator!=(const LinearColor& other) const;
