@@ -151,15 +151,9 @@ namespace Hooks
 	}
 }
 
-EventsComponent::EventsComponent() : Component("Events", "Manages function hooks and process event.")
-{
-	OnCreate();
-}
+EventsComponent::EventsComponent() : Component("Events", "Manages function hooks and process event.") { OnCreate(); }
 
-EventsComponent::~EventsComponent()
-{
-	OnDestroy();
-}
+EventsComponent::~EventsComponent() { OnDestroy(); }
 
 void EventsComponent::OnCreate()
 {

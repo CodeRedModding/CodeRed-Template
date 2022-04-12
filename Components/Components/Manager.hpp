@@ -59,31 +59,62 @@ public:
 	SettingTypes GetType() const;
 	std::string GetName() const;
 	std::string GetDescription() const;
+	bool HasRange() const;
+	bool InRange(const std::string& sValue) const;
+	bool IsValueValid(const std::string& sValue) const;
+	bool IsModifiable() const;
+	bool HasCallback() const;
+	bool HasArgumentCallback() const;
+
+public:
+	std::string GetDefaultValue() const;
+	std::string GetStringValue() const;
 	int32_t GetIntValue() const;
 	bool GetBoolValue() const;
 	float GetFloatValue() const;
-	std::string GetDefaultValue() const;
-	std::string GetStringValue() const;
 	Color GetColorValue() const;
 	LinearColor GetLinearValue() const;
 	Rotator GetRotatorValue() const;
-	VectorF GetVector3DValue() const;
-	Vector2DF GetVector2DValue() const;
+	VectorF GetVector3DFValue() const;
+	VectorI GetVector3DIValue() const;
+	Vector2DF GetVector2DFValue() const;
+	Vector2DI GetVector2DIValue() const;
+	Setting* ResetToDefault(ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetStringValue(const std::string& sValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetIntValue(int32_t iValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetBoolValue(bool bValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetFloatValue(float fValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetColorValue(const Color& cValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetLinearValue(const LinearColor& lValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetRotatorValue(const Rotator& rValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetVectorFValue(const VectorF& vfValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetVectorIValue(const VectorI& viValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetVector2DFValue(const Vector2DF& vfValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetVector2DIValue(const Vector2DI& viValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
 
 public:
-	bool IsModifiable() const;
-	bool HasRange() const;
-	bool InRange(const std::string& value) const;
-	bool IsValueValid(const std::string& value) const;
-	Setting* SetValue(const std::string& value, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetRange(const std::string& minimumvalue, const std::string& maximumValue);
-	bool HasCallback() const;
-	bool HasArgumentCallback() const;
+	Setting* RemoveRange();
+	Setting* SetStringRange(const std::string& minValue, const std::string& maxValue);
+	Setting* SetIntRange(int32_t minValue, int32_t maxValue);
+	Setting* SetFloatRange(float minValue, float maxValue);
+	Setting* SetRotatorRange(const Rotator& minValue, const Rotator& maxValue);
+	Setting* SetVectorFRange(const VectorF& minValue, const VectorF& maxValue);
+	Setting* SetVectorIRange(const VectorI& minValue, const VectorI& maxValue);
+	Setting* SetVector2DFRange(const Vector2DF& minValue, const Vector2DF& maxValue);
+	Setting* SetVector2DIRange(const Vector2DI& minValue, const Vector2DI& maxValue);
+	std::pair<int32_t, int32_t> GetIntRange() const;
+	std::pair<float, float> GetFloatRange() const;
+	std::pair<Rotator, Rotator> GetRotatorRange() const;
+	std::pair<VectorF, VectorF> GetVectorFRange() const;
+	std::pair<VectorI, VectorI> GetVectorIRange() const;
+	std::pair<Vector2DF, Vector2DF> GetVector2DFRange() const;
+	std::pair<Vector2DI, Vector2DI> GetVector2DIRange() const;
+
+public:
+	Setting* UnbindCallbacks();
 	Setting* BindCallback(std::function<void()> callback);
 	Setting* BindCallback(std::function<void(std::string)> callback);
-	Setting* UnbindCallbacks();
-	void TriggerCallback() const;
-	void ResetToDefault(ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	void TriggerCallbacks() const;
 };
 
 class Command

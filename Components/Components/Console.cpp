@@ -1,14 +1,8 @@
 #include "Console.hpp"
 
-ConsoleComponent::ConsoleComponent() : Component("Console", "Displays and manages the standard out stream.")
-{
-	OnCreate();
-}
+ConsoleComponent::ConsoleComponent() : Component("Console", "Displays and manages the standard out stream.") { OnCreate(); }
 
-ConsoleComponent::~ConsoleComponent()
-{
-	OnDestroy();
-}
+ConsoleComponent::~ConsoleComponent() { OnDestroy(); }
 
 void ConsoleComponent::OnCreate()
 {

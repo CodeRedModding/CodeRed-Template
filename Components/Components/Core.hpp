@@ -17,10 +17,10 @@ public:
 
 public:
 	void InitializeThread();
-	static bool AreGlobalsValid();
 	static void InitializeGlobals(HMODULE hModule);
 
 private:
+	static bool AreGlobalsValid();
 	static bool AreGObjectsValid();
 	static bool AreGNamesValid();
 };

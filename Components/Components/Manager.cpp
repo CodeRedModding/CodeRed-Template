@@ -13,7 +13,7 @@ Setting::Setting(VariableIds variable, SettingTypes settingType, const std::stri
 {
 	if (GetType() == SettingTypes::TYPE_BOOL)
 	{
-		SetRange("false", "true");
+		SetStringRange("false", "true");
 	}
 	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
@@ -37,11 +37,11 @@ Setting::Setting(VariableIds variable, SettingTypes settingType, const std::stri
 {
 	if (GetType() == SettingTypes::TYPE_BOOL)
 	{
-		SetRange("false", "true");
+		SetStringRange("false", "true");
 	}
 	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (CurrentValue.find("#") == 0)
+		if (CurrentValue.find("#") == 0 || Format::IsStringHexadecimal(CurrentValue))
 		{
 			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
 			CurrentValue = DefaultValue;
@@ -61,11 +61,11 @@ Setting::Setting(VariableIds variable, SettingTypes settingType, const std::stri
 {
 	if (GetType() == SettingTypes::TYPE_BOOL)
 	{
-		SetRange("false", "true");
+		SetStringRange("false", "true");
 	}
 	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (CurrentValue.find("#") == 0)
+		if (CurrentValue.find("#") == 0 || Format::IsStringHexadecimal(CurrentValue))
 		{
 			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
 			CurrentValue = DefaultValue;
@@ -87,12 +87,166 @@ SettingTypes Setting::GetType() const
 
 std::string Setting::GetName() const
 {
-	return Manager.GetVariableName(Variable);
+	return ManagerComponent::GetVariableName(GetId());
 }
 
 std::string Setting::GetDescription() const
 {
 	return Description;
+}
+
+bool Setting::HasRange() const
+{
+	return (!Range.first.empty() && !Range.second.empty());
+}
+
+bool Setting::InRange(const std::string& sValue) const
+{
+	if (HasRange())
+	{
+		if (GetType() == SettingTypes::TYPE_INT)
+		{
+			int32_t formattedMin = std::stoi(Range.first);
+			int32_t formattedMax = std::stoi(Range.second);
+			int32_t formattedValue = std::stoi(sValue);
+			return (formattedValue >= formattedMin && formattedValue <= formattedMax);
+		}
+		else if (GetType() == SettingTypes::TYPE_BOOL)
+		{
+			return (sValue == "0" || sValue == "false" || sValue == "1" || sValue == "true");
+		}
+		else if (GetType() == SettingTypes::TYPE_FLOAT)
+		{
+			float formattedMin = std::stof(Range.first);
+			float formattedMax = std::stof(Range.second);
+			float formattedValue = std::stof(sValue);
+			return ((formattedValue >= formattedMin) && (formattedValue <= formattedMax));
+		}
+		else if (GetType() == SettingTypes::TYPE_ROTATOR)
+		{
+			Rotator value = Format::ToRotator(sValue);
+			Rotator rangeMin = Format::ToRotator(Range.first);
+			Rotator rangeMax = Format::ToRotator(Range.second);
+
+			if ((value.Pitch < rangeMin.Pitch) || (value.Pitch > rangeMax.Pitch)
+				|| (value.Yaw < rangeMin.Yaw) || (value.Yaw > rangeMax.Yaw)
+				|| (value.Roll < rangeMin.Roll) || (value.Yaw > rangeMax.Roll))
+			{
+				return false;
+			}
+		}
+		else if (GetType() == SettingTypes::TYPE_VECTOR_3D)
+		{
+			VectorF value = Format::ToVectorF(sValue);
+			VectorF rangeMin = Format::ToVectorF(Range.first);
+			VectorF rangeMax = Format::ToVectorF(Range.second);
+
+			if ((value.X < rangeMin.X) || (value.X > rangeMax.X)
+				|| (value.Y < rangeMin.Y) || (value.Y > rangeMax.Y)
+				|| (value.Z < rangeMin.Z) || (value.Z > rangeMax.Z))
+			{
+				return false;
+			}
+		}
+		else if (GetType() == SettingTypes::TYPE_VECTOR_2D)
+		{
+			Vector2DF value = Format::ToVector2DF(sValue);
+			Vector2DF rangeMin = Format::ToVector2DF(Range.first);
+			Vector2DF rangeMax = Format::ToVector2DF(Range.second);
+
+			if ((value.X < rangeMin.X) || (value.X > rangeMax.X)
+				|| (value.Y < rangeMin.Y) || (value.Y > rangeMax.Y))
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool Setting::IsValueValid(const std::string& sValue) const
+{
+	if (GetType() == SettingTypes::TYPE_INT)
+	{
+		if (Format::IsStringDecimal(sValue))
+		{
+			return true;
+		}
+		else
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports 32 bit integer values.");
+			return false;
+		}
+	}
+	else if (GetType() == SettingTypes::TYPE_BOOL)
+	{
+		if (sValue == "1" || sValue == "true" || sValue == "0" || sValue == "false")
+		{
+			return true;
+		}
+		else
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports true or false values.");
+			return false;
+		}
+	}
+	else if (GetType() == SettingTypes::TYPE_FLOAT)
+	{
+		if (Format::IsStringFloat(sValue))
+		{
+			return true;
+		}
+		else
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or optionally 32 bit integer values.");
+			return false;
+		}
+	}
+	else if (GetType() == SettingTypes::TYPE_COLOR)
+	{
+		if (sValue.find("#") == 0 || Format::IsStringHexadecimal(sValue))
+		{
+			return true;
+		}
+		else
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports RGB hexadecimal values.");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Setting::IsModifiable() const
+{
+	return Modifiable;
+}
+
+bool Setting::HasCallback() const
+{
+	return (!!Callback);
+}
+
+bool Setting::HasArgumentCallback() const
+{
+	return (!!ArgumentCallback);
+}
+
+std::string Setting::GetDefaultValue() const
+{
+	return DefaultValue;
+}
+
+std::string Setting::GetStringValue() const
+{
+	if (GetType() == SettingTypes::TYPE_COLOR)
+	{
+		return Colors::DecimalToHex(std::stoi(CurrentValue), true);
+	}
+
+	return CurrentValue;
 }
 
 int32_t Setting::GetIntValue() const
@@ -128,21 +282,6 @@ float Setting::GetFloatValue() const
 	return 0.0f;
 }
 
-std::string Setting::GetDefaultValue() const
-{
-	return DefaultValue;
-}
-
-std::string Setting::GetStringValue() const
-{
-	if (GetType() == SettingTypes::TYPE_COLOR)
-	{
-		return Colors::DecimalToHex(std::stoi(CurrentValue), true);
-	}
-
-	return CurrentValue;
-}
-
 Color Setting::GetColorValue() const
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
@@ -167,171 +306,71 @@ Rotator Setting::GetRotatorValue() const
 {
 	if (GetType() == SettingTypes::TYPE_ROTATOR)
 	{
-		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
-		Rotator returnRotator;
-
-		if (values.size() == 3)
-		{
-			returnRotator.Pitch = std::stoi(values[0]);
-			returnRotator.Yaw = std::stoi(values[1]);
-			returnRotator.Roll = std::stoi(values[2]);
-		}
-
-		return returnRotator;
+		return Format::ToRotator(GetStringValue());
 	}
 
 	return Rotator();
 }
 
-VectorF Setting::GetVector3DValue() const
+VectorF Setting::GetVector3DFValue() const
 {
-	if (GetType() == SettingTypes::TYPE_VECTOR_3D)
+	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
 	{
-		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
-		VectorF returnVector;
-
-		if (values.size() == 3)
-		{
-			returnVector.X = std::stof(values[0]);
-			returnVector.Y = std::stof(values[1]);
-			returnVector.Z = std::stof(values[2]);
-		}
-
-		return returnVector;
+		return Format::ToVectorF(GetStringValue());
 	}
 
 	return VectorF();
 }
 
-Vector2DF Setting::GetVector2DValue() const
+VectorI Setting::GetVector3DIValue() const
 {
 	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
 	{
-		std::vector<std::string> values = Format::SplitArguments(GetStringValue());
-		Vector2DF returnVector;
+		return Format::ToVectorI(GetStringValue());
+	}
 
-		if (values.size() >= 2)
-		{
-			returnVector.X = std::stof(values[0]);
-			returnVector.Y = std::stof(values[1]);
-		}
+	return VectorI();
+}
 
-		return returnVector;
+Vector2DF Setting::GetVector2DFValue() const
+{
+	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
+	{
+		return Format::ToVector2DF(GetStringValue());
 	}
 
 	return Vector2DF();
 }
 
-bool Setting::IsModifiable() const
+Vector2DI Setting::GetVector2DIValue() const
 {
-	return Modifiable;
+	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
+	{
+		return Format::ToVector2DI(GetStringValue());
+	}
+
+	return Vector2DI();
 }
 
-bool Setting::HasRange() const
+Setting* Setting::ResetToDefault(ThreadTypes thread)
 {
-	return (!Range.first.empty() && !Range.second.empty());
+	SetStringValue(GetDefaultValue(), thread);
+	return this;
 }
 
-bool Setting::InRange(const std::string& value) const
-{
-	if (HasRange())
-	{
-		if (IsValueValid(value))
-		{
-			if (GetType() == SettingTypes::TYPE_INT)
-			{
-				int32_t formattedMin = std::stoi(Range.first);
-				int32_t formattedMax = std::stoi(Range.second);
-				int32_t formattedValue = std::stoi(value);
-				return (formattedValue >= formattedMin && formattedValue <= formattedMax);
-			}
-			else if (GetType() == SettingTypes::TYPE_BOOL)
-			{
-				return (value == "0" || value == "false" || value == "1" || value == "true");
-			}
-			else if (GetType() == SettingTypes::TYPE_FLOAT)
-			{
-				float formattedMin = std::stof(Range.first);
-				float formattedMax = std::stof(Range.second);
-				float formattedValue = std::stof(value);
-				return (formattedValue >= formattedMin && formattedValue <= formattedMax);
-			}
-		}
-	}
-
-	return true;
-}
-
-bool Setting::IsValueValid(const std::string& value) const
-{
-	if (GetType() == SettingTypes::TYPE_INT)
-	{
-		if (Format::IsStringNumber(value))
-		{
-			return true;
-		}
-		else
-		{
-			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports 32 bit integer values.");
-			return false;
-		}
-	}
-	else if (GetType() == SettingTypes::TYPE_BOOL)
-	{
-		if (value == "1"
-			|| value == "true"
-			|| value == "0"
-			|| value == "false")
-		{
-			return true;
-		}
-		else
-		{
-			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports true or false values.");
-			return false;
-		}
-	}
-	else if (GetType() == SettingTypes::TYPE_FLOAT)
-	{
-		if (Format::IsStringFloat(value) || Format::IsStringNumber(value))
-		{
-			return true;
-		}
-		else
-		{
-			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or optionally 32 bit integer values.");
-			return false;
-		}
-	}
-	else if (GetType() == SettingTypes::TYPE_COLOR)
-	{
-		if (value.find("#") == 0 || Format::IsStringNumber(value))
-		{
-			return true;
-		}
-		else
-		{
-			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports RGB hexadecimal or RGB decimal values.");
-			return false;
-		}
-	}
-
-	return true;
-}
-
-Setting* Setting::SetValue(const std::string& value, ThreadTypes thread)
+Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 {
 	if (thread != ThreadTypes::THREAD_GAME)
 	{
-		ManagerComponent::QueueCommand(this->GetName(), value, (thread == ThreadTypes::THREAD_RENDER ? false : true));
+		ManagerComponent::QueueCommand(GetName(), sValue, (thread == ThreadTypes::THREAD_RENDER ? false : true));
 	}
-	else if (IsValueValid(value))
+	else if (IsValueValid(sValue))
 	{
-		if (InRange(value))
+		if (InRange(sValue))
 		{
 			if (GetType() == SettingTypes::TYPE_BOOL)
 			{
-				if (value == "1" || value == "true")
+				if (sValue == "1" || sValue == "true")
 				{
 					CurrentValue = "true";
 				}
@@ -342,23 +381,14 @@ Setting* Setting::SetValue(const std::string& value, ThreadTypes thread)
 			}
 			else if (GetType() == SettingTypes::TYPE_COLOR)
 			{
-				if (value.find("#") == 0)
-				{
-					CurrentValue = std::to_string(Colors::HexToDecimal(value));
-				}
-				else
-				{
-					CurrentValue = value;
-				}
-
-				TriggerCallback();
+				CurrentValue = std::to_string(Colors::HexToDecimal(sValue));
 			}
 			else
 			{
-				CurrentValue = value;
+				CurrentValue = sValue;
 			}
 
-			TriggerCallback();
+			TriggerCallbacks();
 		}
 		else
 		{
@@ -369,20 +399,213 @@ Setting* Setting::SetValue(const std::string& value, ThreadTypes thread)
 	return this;
 }
 
-Setting* Setting::SetRange(const std::string& minimumvalue, const std::string& maximumValue)
+Setting* Setting::SetIntValue(int32_t iValue, ThreadTypes thread)
 {
-	Range = std::make_pair(minimumvalue, maximumValue);
+	SetStringValue(std::to_string(iValue), thread);
 	return this;
 }
 
-bool Setting::HasCallback() const
+Setting* Setting::SetBoolValue(bool bValue, ThreadTypes thread)
 {
-	return (!!Callback);
+	SetStringValue((bValue ? "true" : "false"), thread);
+	return this;
 }
 
-bool Setting::HasArgumentCallback() const
+Setting* Setting::SetFloatValue(float fValue, ThreadTypes thread)
 {
-	return (!!ArgumentCallback);
+	SetStringValue(std::to_string(fValue), thread);
+	return this;
+}
+
+Setting* Setting::SetColorValue(const Color& cValue, ThreadTypes thread)
+{
+	SetStringValue(Colors::ColorToHex(cValue), thread);
+	return this;
+}
+
+Setting* Setting::SetLinearValue(const LinearColor& lValue, ThreadTypes thread)
+{
+	SetStringValue(Colors::LinearToHex(lValue), thread);
+	return this;
+}
+
+Setting* Setting::SetRotatorValue(const Rotator& rValue, ThreadTypes thread)
+{
+	SetStringValue(std::to_string(rValue.Pitch) + " " + std::to_string(rValue.Yaw) + " " + std::to_string(rValue.Roll), thread);
+	return this;
+}
+
+Setting* Setting::SetVectorFValue(const VectorF& vfValue, ThreadTypes thread)
+{
+	SetStringValue(std::to_string(vfValue.X) + " " + std::to_string(vfValue.Y) + " " + std::to_string(vfValue.Z), thread);
+	return this;
+}
+
+Setting* Setting::SetVectorIValue(const VectorI& viValue, ThreadTypes thread)
+{
+	SetStringValue(std::to_string(viValue.X) + " " + std::to_string(viValue.Y) + " " + std::to_string(viValue.Z), thread);
+	return this;
+}
+
+Setting* Setting::SetVector2DFValue(const Vector2DF& vfValue, ThreadTypes thread)
+{
+	SetStringValue(std::to_string(vfValue.X) + " " + std::to_string(vfValue.Y), thread);
+	return this;
+}
+
+Setting* Setting::SetVector2DIValue(const Vector2DI& viValue, ThreadTypes thread)
+{
+	SetStringValue(std::to_string(viValue.X) + " " + std::to_string(viValue.Y), thread);
+	return this;
+}
+
+Setting* Setting::RemoveRange()
+{
+	Range.first.clear();
+	Range.second.clear();
+	return this;
+}
+
+Setting* Setting::SetStringRange(const std::string& minValue, const std::string& maxValue)
+{
+	Range = std::make_pair(minValue, maxValue);
+	return this;
+}
+
+Setting* Setting::SetIntRange(int32_t minValue, int32_t maxValue)
+{
+	SetStringRange(std::to_string(minValue), std::to_string(maxValue));
+	return this;
+}
+
+Setting* Setting::SetFloatRange(float minValue, float maxValue)
+{
+	SetStringRange(std::to_string(minValue), std::to_string(maxValue));
+	return this;
+}
+
+Setting* Setting::SetRotatorRange(const Rotator& minValue, const Rotator& maxValue)
+{
+	SetStringRange(std::to_string(minValue.Pitch) + " " + std::to_string(minValue.Yaw) + " " + std::to_string(minValue.Roll), std::to_string(maxValue.Pitch) + " " + std::to_string(maxValue.Yaw) + " " + std::to_string(maxValue.Roll));
+	return this;
+}
+
+Setting* Setting::SetVectorFRange(const VectorF& minValue, const VectorF& maxValue)
+{
+	SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y) + " " + std::to_string(minValue.Z), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y) + " " + std::to_string(maxValue.Z));
+	return this;
+}
+
+Setting* Setting::SetVectorIRange(const VectorI& minValue, const VectorI& maxValue)
+{
+	SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y) + " " + std::to_string(minValue.Z), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y) + " " + std::to_string(maxValue.Z));
+	return this;
+}
+
+Setting* Setting::SetVector2DFRange(const Vector2DF& minValue, const Vector2DF& maxValue)
+{
+	SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y));
+	return this;
+}
+
+Setting* Setting::SetVector2DIRange(const Vector2DI& minValue, const Vector2DI& maxValue)
+{
+	SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y));
+	return this;
+}
+
+std::pair<int32_t, int32_t> Setting::GetIntRange() const
+{
+	std::pair<float, float> floatRange = GetFloatRange();
+	return std::make_pair(static_cast<int32_t>(floatRange.first), static_cast<int32_t>(floatRange.second));
+}
+
+std::pair<float, float> Setting::GetFloatRange() const
+{
+	std::pair<float, float> returnRange = std::make_pair(0.0f, 0.0f);
+
+	if (HasRange())
+	{
+		if (Format::IsStringFloat(Range.first) && Format::IsStringFloat(Range.second))
+		{
+			returnRange.first = std::stof(Range.first);
+			returnRange.second = std::stof(Range.second);
+		}
+	}
+
+	return returnRange;
+}
+
+std::pair<Rotator, Rotator> Setting::GetRotatorRange() const
+{
+	std::pair<Rotator, Rotator> returnRange = std::make_pair(Rotator(), Rotator());
+
+	if (HasRange())
+	{
+		returnRange.first = Format::ToRotator(Range.first);
+		returnRange.second = Format::ToRotator(Range.second);
+	}
+
+	return returnRange;
+}
+
+std::pair<VectorF, VectorF> Setting::GetVectorFRange() const
+{
+	std::pair<VectorF, VectorF> returnRange = std::make_pair(VectorF(), VectorF());
+
+	if (HasRange())
+	{
+		returnRange.first = Format::ToVectorF(Range.first);
+		returnRange.second = Format::ToVectorF(Range.second);
+	}
+
+	return returnRange;
+}
+
+std::pair<VectorI, VectorI> Setting::GetVectorIRange() const
+{
+	std::pair<VectorI, VectorI> returnRange = std::make_pair(VectorI(), VectorI());
+
+	if (HasRange())
+	{
+		returnRange.first = Format::ToVectorI(Range.first);
+		returnRange.second = Format::ToVectorI(Range.second);
+	}
+
+	return returnRange;
+}
+
+std::pair<Vector2DF, Vector2DF> Setting::GetVector2DFRange() const
+{
+	std::pair<Vector2DF, Vector2DF> returnRange = std::make_pair(Vector2DF(), Vector2DF());
+
+	if (HasRange())
+	{
+		returnRange.first = Format::ToVector2DF(Range.first);
+		returnRange.second = Format::ToVector2DF(Range.second);
+	}
+
+	return returnRange;
+}
+
+std::pair<Vector2DI, Vector2DI> Setting::GetVector2DIRange() const
+{
+	std::pair<Vector2DI, Vector2DI> returnRange = std::make_pair(Vector2DI(), Vector2DI());
+
+	if (HasRange())
+	{
+		returnRange.first = Format::ToVector2DI(Range.first);
+		returnRange.second = Format::ToVector2DI(Range.second);
+	}
+
+	return returnRange;
+}
+
+Setting* Setting::UnbindCallbacks()
+{
+	Callback = nullptr;
+	ArgumentCallback = nullptr;
+	return this;
 }
 
 Setting* Setting::BindCallback(std::function<void()> callback)
@@ -397,14 +620,7 @@ Setting* Setting::BindCallback(std::function<void(std::string)> callback)
 	return this;
 }
 
-Setting* Setting::UnbindCallbacks()
-{
-	Callback = nullptr;
-	ArgumentCallback = nullptr;
-	return this;
-}
-
-void Setting::TriggerCallback() const
+void Setting::TriggerCallbacks() const
 {
 	if (HasCallback())
 	{
@@ -414,11 +630,6 @@ void Setting::TriggerCallback() const
 	{
 		ArgumentCallback(GetStringValue());
 	}
-}
-
-void Setting::ResetToDefault(ThreadTypes thread)
-{
-	SetValue(GetDefaultValue());
 }
 
 Command::Command(VariableIds variable, const std::string& description, bool bSearchable) :
@@ -512,15 +723,9 @@ QueueData::QueueData(const std::string& command, const std::string& arguments, b
 
 QueueData::~QueueData() {}
 
-ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, commands, and mods.")
-{
-	OnCreate();
-}
+ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, commands, and mods.") { OnCreate(); }
 
-ManagerComponent::~ManagerComponent()
-{
-	OnDestroy();
-}
+ManagerComponent::~ManagerComponent() { OnDestroy(); }
 
 void ManagerComponent::OnCreate()
 {
@@ -586,7 +791,7 @@ void ManagerComponent::ConsoleCommand(const std::string& command, const std::str
 				if (arguments.length() > 0)
 				{
 					std::string oldValue = consoleSetting->GetStringValue();
-					consoleSetting->SetValue(arguments);
+					consoleSetting->SetStringValue(arguments);
 
 					if (bLogToConsole)
 					{
@@ -863,8 +1068,8 @@ void ManagerComponent::Initialize()
 		// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
 		CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::TYPE_BOOL, "Enable/disable the placeholder module.", "false", true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
 		
-		// Integer setting that has a minimum value of "0" and a maximum  value of "100".
-		CreateSetting(new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::TYPE_INT, "Some random integer value with a custom range.", "0", true))->SetRange("0", "100")->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+		// Integer setting that has a minimum value of "0" and a maximum value of "100".
+		CreateSetting(new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::TYPE_INT, "Some random integer value with a custom range.", "0", true))->SetIntRange(0, 100)->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
 
 		PlaceholderMod->UpdateSettings();
 	}

@@ -1,15 +1,9 @@
 #include "Instances.hpp"
 #include "../Includes.hpp"
 
-InstancesComponent::InstancesComponent() : Component("Instances", "Manages class instances and objects.")
-{
-	OnCreate();
-}
+InstancesComponent::InstancesComponent() : Component("Instances", "Manages class instances and objects.") { OnCreate(); }
 
-InstancesComponent::~InstancesComponent()
-{
-	OnDestroy();
-}
+InstancesComponent::~InstancesComponent() { OnDestroy(); }
 
 void InstancesComponent::OnCreate()
 {

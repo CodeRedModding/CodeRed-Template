@@ -1,5 +1,10 @@
 #pragma once
 /* 
+    Changes in v1.3.1:
+    - Remade and added tons of extra functions to the "Setting" class in "Manager.hpp/cpp", the additions and changes include all new range and value functions, as well as extra saftey checks.
+    - Remade and added a bunch of extra helper functions in "Formatting.hpp", you should uh check them out if you want.
+    - Changed the "AreGlobalsValid" function in "Core.cpp".
+
     Changes in v1.3.0: 
     - Modified some of the arguments for function hooking in "Events.hpp", as well as added extra functions for using their index directly.
     - Improved and fixed various operators and functions for the color and math classes in both "Colors.hpp/cpp" and "Math.hpp/cpp".

@@ -1,15 +1,9 @@
 #include "GameState.hpp"
 #include "../Includes.hpp"
 
-GameStateComponent::GameStateComponent() : Component("GameState", "Tracks which game state the player is currently in.")
-{
-	OnCreate();
-}
+GameStateComponent::GameStateComponent() : Component("GameState", "Tracks which game state the player is currently in.") { OnCreate(); }
 
-GameStateComponent::~GameStateComponent()
-{
-	OnDestroy();
-}
+GameStateComponent::~GameStateComponent() { OnDestroy(); }
 
 void GameStateComponent::OnCreate()
 {

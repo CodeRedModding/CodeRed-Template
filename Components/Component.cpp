@@ -1,14 +1,8 @@
 #include "Component.hpp"
 
-Component::Component(const std::string& name, const std::string& description) : Name(name), FormattedName("[" + Name + " Component] "), Description(description)
-{
-	OnCreate();
-}
+Component::Component(const std::string& name, const std::string& description) : Name(name), FormattedName("[" + Name + " Component] "), Description(description) { OnCreate(); }
 
-Component::~Component()
-{
-	OnDestroy();
-}
+Component::~Component() { OnDestroy(); }
 
 void Component::OnCreate() {}
 

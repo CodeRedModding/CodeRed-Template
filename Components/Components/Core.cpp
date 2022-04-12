@@ -1,48 +1,20 @@
 #include "Core.hpp"
 #include "../Includes.hpp"
 
-CoreComponent::CoreComponent() : Component("Core", "Initializes globals, components, and modules.")
-{
-	OnCreate();
-}
+CoreComponent::CoreComponent() : Component("Core", "Initializes globals, components, and modules.") { OnCreate(); }
 
-CoreComponent::~CoreComponent()
-{
-	OnDestroy();
-}
+CoreComponent::~CoreComponent() { OnDestroy(); }
 
 void CoreComponent::OnCreate()
 {
 	MainThread = nullptr;
 }
 
-void CoreComponent::OnDestroy() { }
+void CoreComponent::OnDestroy() {}
 
 void CoreComponent::InitializeThread()
 {
 	MainThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(InitializeGlobals), nullptr, 0, nullptr);
-}
-
-bool CoreComponent::AreGlobalsValid()
-{
-	static bool alreadyChecked = false;
-	static bool globalsValid = false;
-
-	if (!alreadyChecked)
-	{
-		if (AreGObjectsValid() && AreGNamesValid())
-		{
-			globalsValid = true;
-		}
-		else
-		{
-			globalsValid = false;
-		}
-
-		alreadyChecked = true;
-	}
-
-	return globalsValid;
 }
 
 void CoreComponent::InitializeGlobals(HMODULE hModule)
@@ -50,6 +22,11 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 	// Disables the DLL_THREAD_ATTACH and DLL_THREAD_DETACH notifications.
 
 	DisableThreadLibraryCalls(hModule);
+
+#ifdef I_CAN_ONLY_COPY_PASTE_CODE
+	Console.Notify("WOW, LOOK AT ME, I DIDN'T LOOK AT ANY OF THE CODE AND JUST PRESSED BUILD AND TRIED TO INJECT! This is from the core Core.cpp file btw...");
+	return;
+#endif
 
 	// Initialize the console file which also opens the standard out stream.
 
@@ -70,10 +47,9 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 		//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Index method.
 		//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(GetModuleHandleW(NULL), ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
 
-		Console.Notify("[Core Module] Entry Point " + Format::Hex(entryPoint, sizeof(entryPoint)));
-		Console.Notify("[Core Module] Global Objects: " + Format::Hex(reinterpret_cast<uintptr_t>(GObjects), sizeof(GObjects)));
-		Console.Notify("[Core Module] Global Names: " + Format::Hex(reinterpret_cast<uintptr_t>(GNames), sizeof(GNames)));
-
+		Console.Notify("[Core Module] Entry Point " + Format::ToHex(reinterpret_cast<void*>(entryPoint)));
+		Console.Notify("[Core Module] Global Objects: " + Format::ToHex(GObjects));
+		Console.Notify("[Core Module] Global Names: " + Format::ToHex(GNames));
 		Console.Write("[Core Module] Initialized!");
 
 		Instances.Initialize(); // Initialize class instances that aren't automatically set by function hooks.
@@ -86,9 +62,15 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 	}
 }
 
+bool CoreComponent::AreGlobalsValid()
+{
+	return (AreGObjectsValid() && AreGNamesValid());
+}
+
 bool CoreComponent::AreGObjectsValid()
 {
-	if (UObject::GObjObjects()->Num() > 0
+	if (GObjects
+		&& UObject::GObjObjects()->Num() > 0
 		&& UObject::GObjObjects()->Max() > UObject::GObjObjects()->Num())
 	{
 		return true;
@@ -99,7 +81,8 @@ bool CoreComponent::AreGObjectsValid()
 
 bool CoreComponent::AreGNamesValid()
 {
-	if (FName::Names()->Num() > 0
+	if (GNames
+		&& FName::Names()->Num() > 0
 		&& FName::Names()->Max() > FName::Names()->Num())
 	{
 		return true;
