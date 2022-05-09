@@ -80,7 +80,7 @@ public:
 	Vector2DF GetVector2DFValue() const;
 	Vector2DI GetVector2DIValue() const;
 	Setting* ResetToDefault(ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetStringValue(const std::string& sValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* SetStringValue(const std::string& sValue, ThreadTypes thread = ThreadTypes::THREAD_GAME, bool bOverride = false);
 	Setting* SetIntValue(int32_t iValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
 	Setting* SetBoolValue(bool bValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
 	Setting* SetFloatValue(float fValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);

@@ -20,26 +20,22 @@ void CoreComponent::InitializeThread()
 void CoreComponent::InitializeGlobals(HMODULE hModule)
 {
 	// Disables the DLL_THREAD_ATTACH and DLL_THREAD_DETACH notifications.
-
 	DisableThreadLibraryCalls(hModule);
 
-#ifdef I_CAN_ONLY_COPY_PASTE_CODE
-	Console.Notify("WOW, LOOK AT ME, I DIDN'T LOOK AT ANY OF THE CODE AND JUST PRESSED BUILD AND TRIED TO INJECT! This is from the core Core.cpp file btw...");
+#ifdef WALKTHROUGH
+	Console.Notify("\"Components\\Components\\Core.cpp -> CoreComponent::InitializeGlobals\". Looks like you forgot to check this file, this is important for initializing your sdk, components, and modules!");
 	return;
 #endif
 
 	// Initialize the console file which also opens the standard out stream.
-
 	Console.Initialize(std::filesystem::current_path(), "CodeRed.log");
 
 	// Populate the GObject and GName addresses, remember to replace "PlaceholderGame" with your game.
-
 	uintptr_t entryPoint = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL));
 	GObjects = reinterpret_cast<TArray<UObject*>*>(Memory::FindPattern(GetModuleHandleW(NULL), GObjects_Pattern, GObjects_Mask));
 	GNames = reinterpret_cast<TArray<FNameEntry*>*>(Memory::FindPattern(GetModuleHandleW(NULL), GNames_Pattern, GNames_Mask));
 
 	// Verifies the global addresses are correct before continuing.
-
 	if (AreGlobalsValid())
 	{
 		// You can use either a pattern for Process Event or its place in the VfTable index (not both).

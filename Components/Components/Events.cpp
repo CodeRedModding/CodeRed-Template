@@ -348,8 +348,12 @@ void EventsComponent::HookEventPost(uint32_t functionIndex, std::function<void(c
 
 void EventsComponent::Initialize()
 {
-	// Example functions only, you will need to function scan in your game for your own to hook!
+#ifdef WALKTHROUGH
+	Console.Notify("\"Components\\Components\\Events.cpp -> EventsComponent::Initialize()\". Looks like you forgot to check this file, the only thing here are demo functions hooks!");
+	return;
+#endif
 
+	// Example functions only, you will need to function scan in your game for your own to hook!
 	BlacklistEvent("Function Engine.Tracker.ReportMetrics");
 
 	// You can hook functions like this.

@@ -27,15 +27,18 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		UClass* staticClass = T::StaticClass();
 
-		for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
+		if (staticClass)
 		{
-			UObject* uObject = UObject::GObjObjects()->At(i);
-
-			if (uObject && uObject->IsA(staticClass))
+			for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
 			{
-				if (uObject->GetFullName().find("Default__") != std::string::npos)
+				UObject* uObject = UObject::GObjObjects()->At(i);
+
+				if (uObject && uObject->IsA(staticClass))
 				{
-					return static_cast<T*>(uObject);
+					if (uObject->GetFullName().find("Default__") != std::string::npos)
+					{
+						return static_cast<T*>(uObject);
+					}
 				}
 			}
 		}
@@ -48,15 +51,18 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		UClass* staticClass = T::StaticClass();
 
-		for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
+		if (staticClass)
 		{
-			UObject* uObject = UObject::GObjObjects()->At(i);
-
-			if (uObject && uObject->IsA(staticClass))
+			for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
 			{
-				if (uObject->GetFullName().find("Default__") == std::string::npos)
+				UObject* uObject = UObject::GObjObjects()->At(i);
+
+				if (uObject && uObject->IsA(staticClass))
 				{
-					return static_cast<T*>(uObject);
+					if (uObject->GetFullName().find("Default__") == std::string::npos)
+					{
+						return static_cast<T*>(uObject);
+					}
 				}
 			}
 		}
@@ -70,13 +76,16 @@ public: // Helper functions for class instance grabbing/manipulation.
 		std::vector<T*> objectInstances;
 		UClass* staticClass = T::StaticClass();
 
-		for (UObject* uObject : *UObject::GObjObjects())
+		if (staticClass)
 		{
-			if (uObject && uObject->IsA(staticClass))
+			for (UObject* uObject : *UObject::GObjObjects())
 			{
-				if (uObject->GetFullName().find("Default__") == std::string::npos)
+				if (uObject && uObject->IsA(staticClass))
 				{
-					objectInstances.push_back(static_cast<T*>(uObject));
+					if (uObject->GetFullName().find("Default__") == std::string::npos)
+					{
+						objectInstances.push_back(static_cast<T*>(uObject));
+					}
 				}
 			}
 		}
@@ -90,13 +99,16 @@ public: // Helper functions for class instance grabbing/manipulation.
 		std::vector<T*> objectInstances;
 		UClass* staticClass = T::StaticClass();
 
-		for (UObject* uObject : *UObject::GObjObjects())
+		if (staticClass)
 		{
-			if (uObject && uObject->IsA(staticClass))
+			for (UObject* uObject : *UObject::GObjObjects())
 			{
-				if (uObject->GetFullName().find("Default__") != std::string::npos)
+				if (uObject && uObject->IsA(staticClass))
 				{
-					objectInstances.push_back(static_cast<T*>(uObject));
+					if (uObject->GetFullName().find("Default__") != std::string::npos)
+					{
+						objectInstances.push_back(static_cast<T*>(uObject));
+					}
 				}
 			}
 		}
@@ -109,17 +121,20 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		UClass* staticClass = T::StaticClass();
 
-		for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
+		if (staticClass)
 		{
-			UObject* uObject = UObject::GObjObjects()->At(i);
-
-			if (uObject && uObject->IsA(staticClass))
+			for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
 			{
-				std::string objectFullName = uObject->GetFullName();
+				UObject* uObject = UObject::GObjObjects()->At(i);
 
-				if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
+				if (uObject && uObject->IsA(staticClass))
 				{
-					return static_cast<T*>(uObject);
+					std::string objectFullName = uObject->GetFullName();
+
+					if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
+					{
+						return static_cast<T*>(uObject);
+					}
 				}
 			}
 		}
@@ -133,17 +148,20 @@ public: // Helper functions for class instance grabbing/manipulation.
 		std::vector<T*> objectInstances;
 		UClass* staticClass = T::StaticClass();
 
-		for (int32_t i = 0; i < UObject::GObjObjects()->Num(); i++)
+		if (staticClass)
 		{
-			UObject* uObject = UObject::GObjObjects()->At(i);
-
-			if (uObject && uObject->IsA(staticClass))
+			for (int32_t i = 0; i < UObject::GObjObjects()->Num(); i++)
 			{
-				std::string objectFullName = uObject->GetFullName();
+				UObject* uObject = UObject::GObjObjects()->At(i);
 
-				if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
+				if (uObject && uObject->IsA(staticClass))
 				{
-					objectInstances.push_back(static_cast<T*>(uObject));
+					std::string objectFullName = uObject->GetFullName();
+
+					if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
+					{
+						objectInstances.push_back(static_cast<T*>(uObject));
+					}
 				}
 			}
 		}

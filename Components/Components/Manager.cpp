@@ -354,18 +354,32 @@ Vector2DI Setting::GetVector2DIValue() const
 
 Setting* Setting::ResetToDefault(ThreadTypes thread)
 {
-	SetStringValue(GetDefaultValue(), thread);
+	SetStringValue(GetDefaultValue(), thread, true);
 	return this;
 }
 
-Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
+Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread, bool bOverride)
 {
 	if (thread != ThreadTypes::THREAD_GAME)
 	{
-		ManagerComponent::QueueCommand(GetName(), sValue, (thread == ThreadTypes::THREAD_RENDER ? false : true));
+		if ((GetType() == SettingTypes::TYPE_COLOR) && Format::IsStringDecimal(sValue))
+		{
+			ManagerComponent::QueueCommand(GetName(), Colors::DecimalToHex(std::stoi(sValue)), (thread == ThreadTypes::THREAD_RENDER ? false : true));
+		}
+		else
+		{
+			ManagerComponent::QueueCommand(GetName(), sValue, (thread == ThreadTypes::THREAD_RENDER ? false : true));
+		}
 	}
 	else if (IsValueValid(sValue))
 	{
+		if (bOverride)
+		{
+			CurrentValue = sValue;
+			TriggerCallbacks();
+			return this;
+		}
+
 		if (InRange(sValue))
 		{
 			if (GetType() == SettingTypes::TYPE_BOOL)

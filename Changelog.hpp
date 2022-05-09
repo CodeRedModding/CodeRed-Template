@@ -1,5 +1,13 @@
 #pragma once
 /* 
+    Changes in v1.3.2:
+    - Added some console logging ifdefs to remind new people using this template how it works.
+    - Added some extra null checks for the functions in "Instances.hpp".
+    - Added a default bool argument for the "SetStringValue" function in the "Setting" class called "bOverride", if set to true when setting a string it skips and saftey checks internally.
+    - Changed the "ResetToDefault" function in "Setting" class to use the new bool argument set to true as explained above.
+    - Fixed color values not resetting to default properly if you called the function from a different thread.
+    - Fixed the "DecimalToHex" function in "Colors.cpp".
+
     Changes in v1.3.1:
     - Remade and added tons of extra functions to the "Setting" class in "Manager.hpp/cpp", the additions and changes include all new range and value functions, as well as extra saftey checks.
     - Remade and added a bunch of extra helper functions in "Formatting.hpp", you should uh check them out if you want.

@@ -24,4 +24,4 @@
 #include <detours.h>
 
 #include "PlaceHolderSDK/SdkHeaders.hpp"
-#define I_CAN_ONLY_COPY_PASTE_CODE
+#define WALKTHROUGH
