@@ -304,7 +304,15 @@ namespace Colors
 
 	std::string DecimalToHex(int32_t decimal, bool bInlcudeHead)
 	{
-		return ColorToHex(DecimalToColor(decimal), bInlcudeHead);
+		std::stringstream ss;
+
+		if (bInlcudeHead)
+		{
+			ss << "#";
+		}
+
+		ss << std::setfill('0') << std::setw(6) << std::uppercase << std::hex << decimal;
+		return ss.str();
 	}
 
 	std::string ColorToHex(const Color& color, bool bInlcudeHead)
