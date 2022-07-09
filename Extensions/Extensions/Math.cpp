@@ -168,18 +168,18 @@ float VectorF::Magnitude() const
 void VectorF::Normalize()
 {
 	float magnitude = Magnitude();
-	X = X / magnitude;
-	Y = Y / magnitude;
-	Z = Z / magnitude;
+	X = (X / magnitude);
+	Y = (Y / magnitude);
+	Z = (Z / magnitude);
 }
 
 VectorF VectorF::GetNormalize() const
 {
 	float magnitude = Magnitude();
 	VectorF mutableThis = *this;
-	mutableThis.X = X / magnitude;
-	mutableThis.Y = Y / magnitude;
-	mutableThis.Z = Z / magnitude;
+	mutableThis.X = (X / magnitude);
+	mutableThis.Y = (Y / magnitude);
+	mutableThis.Z = (Z / magnitude);
 	return mutableThis;
 }
 
@@ -199,9 +199,9 @@ VectorF VectorF::Dot(const VectorF& other) const
 
 VectorF VectorF::Cross(const VectorF& other) const
 {
-	float x = Y * other.Z - Z * other.Y;
-	float y = Z * other.X - X * other.Z;
-	float z = X * other.Y - Y * other.X;
+	float x = (Y * other.Z - Z * other.Y);
+	float y = (Z * other.X - X * other.Z);
+	float z = (X * other.Y - Y * other.X);
 	return VectorF(x, y, z);
 }
 
@@ -660,9 +660,14 @@ VectorF Quat::GetRotationAxis() const
 	return VectorF(X * scale, Y * scale, Z * scale);
 }
 
-Quat Quat::GetInverse() const
+Quat Quat::Conjugate() const
 {
 	return Quat(-X, -Y, -Z, W);
+}
+
+Quat Quat::GetInverse() const
+{
+	return (Conjugate() / GetNormalize());
 }
 
 void Quat::Normalize(float tolerance)
@@ -727,9 +732,10 @@ Rotator Quat::GetRotator() const
 
 VectorF Quat::Rotate(const VectorF& other) const
 {
-	VectorF q(X, Y, Z);
-	VectorF t = (2.0f * q.Cross(other));
-	return VectorF(other + (W * t) + q.Cross(t));
+	Quat thisQuat = *this;
+	Quat otherQuat = Quat(other.X, other.Y, other.Z, 0.0f);
+	Quat rotatedQuat = (thisQuat * otherQuat * Conjugate());
+	return VectorF(rotatedQuat.X, rotatedQuat.Y, rotatedQuat.Z);
 }
 
 Quat& Quat::operator+=(const Quat& other)

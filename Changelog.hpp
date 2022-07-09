@@ -1,5 +1,16 @@
 #pragma once
 /* 
+    Changes in v1.3.3:
+    - Revamped the console command and queue system, replaced it with "InternalCommand" and "ConsoleCommand" functions, they now automatically queue based on which thread you are calling them from!
+    - Added a bunch of extra functions to the "Color" and "LinearColor" classes, they can convert the underlying color values to decimal or hex in "Colors.hpp/cpp".
+    - Added some template saftey checks in "Instances.hpp".
+    - Added a "Conjugate" function to the "Quat" class in "Math.hpp/cpp"
+    - Changed how the "UnrealCommand" function works in "Manager.cpp", added checks to remove the original command and only pass the arguments.
+    - Changed how color values are stored in the "Setting" class in "Manager.cpp", they are now stored as their hex values instead of decimal.
+    - Changed/added functions for how the "IsValueValid" function is determined for the "Setting" class in "Manager.cpp" as well how "SetStringValue" works in combination.
+    - Fixed the "GetInverse" and modified the "Rotate" function which returns a vector rotated by the given quat.
+    - Removed the "bOverride" option for the "Setting" class in "Manager.hpp/cpp".
+
     Changes in v1.3.2:
     - Added some console logging ifdefs to remind new people using this template how it works.
     - Added some extra null checks for the functions in "Instances.hpp".

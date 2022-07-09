@@ -105,14 +105,13 @@ namespace Hooks
 		{
 			AHUD* hud = event.GetCaller<AHUD>();
 			Instances.SetHUD(hud);
-			Instances.SetCanvas(hud->Canvas);
 		}
 	}
 
 	void HUDPostRenderPost(const PostEvent& event)
 	{
-		FRainbowColor::OnTick(); // Example of where you could put your rainbow color hook.
-		Manager.QueueTick(); // Example of where you could put your command queue tick.
+		GRainbowColor::OnTick(); // Example of where you could put your rainbow color hook.
+		Manager.OnTick(); // Example of where you could put your command queue tick.
 	}
 
 	void GameViewPortPostRender(PreEvent& event)

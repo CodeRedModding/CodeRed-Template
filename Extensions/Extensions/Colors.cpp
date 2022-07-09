@@ -12,6 +12,8 @@ Color::Color(int32_t r, int32_t g, int32_t b, int32_t a) : R(r), G(g), B(b), A(a
 
 Color::Color(float r, float g, float b, float a) : R(r * 255.0f), G(g * 255.0f), B(b * 255.0f), A(a * 255.0f) {}
 
+Color::Color(const std::string& hexColor) : R(255), G(255), B(255), A(255) { FromHex(hexColor); }
+
 Color::Color(const Color& other) : R(other.R), G(other.G), B(other.B), A(other.A) {}
 
 Color::Color(const struct FColor& other) : R(other.R), G(other.G), B(other.B), A(other.A) {}
@@ -26,6 +28,50 @@ struct FColor Color::UnrealColor() const
 struct LinearColor Color::ToLinear() const
 {
 	return LinearColor(static_cast<float>(R) / 255.0f, static_cast<float>(G) / 255.0f, static_cast<float>(B) / 255.0f, static_cast<float>(A) / 255.0f);
+}
+
+uint32_t Color::ToDecimal() const
+{
+	return ((R & 0xFF) << 16) | ((G & 0xFF) << 8) | (B & 0xFF);
+}
+
+std::string Color::ToHex(bool bNotation) const
+{
+	std::stringstream ss;
+
+	if (bNotation)
+	{
+		ss << "#";
+	}
+
+	ss << std::setfill('0') << std::setw(6) << std::uppercase << std::hex << ToDecimal();
+	return ss.str();
+}
+
+Color& Color::FromDecimal(uint32_t decimalColor)
+{
+	R = (decimalColor >> 16) & 0xFF;
+	G = (decimalColor >> 8) & 0xFF;
+	B = (decimalColor) & 0xFF;
+	A = 255;
+	return *this;
+}
+
+Color& Color::FromHex(std::string hexColor)
+{
+	uint32_t decimalColor = 0;
+	size_t notationPos = hexColor.find("#");
+
+	if (notationPos != std::string::npos)
+	{
+		hexColor = hexColor.erase(notationPos, 1);
+	}
+
+	std::stringstream ss;
+	ss << std::hex << hexColor;
+	ss >> decimalColor;
+
+	return FromDecimal(decimalColor);
 }
 
 Color& Color::operator=(const Color& other)
@@ -74,6 +120,8 @@ LinearColor::LinearColor(float r, float g, float b, float a) : R(r), G(g), B(b),
 
 LinearColor::LinearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : R(r / 255.0f), G(g / 255.0f), B(b / 255.0f), A(a / 255.0f) {}
 
+LinearColor::LinearColor(const std::string& hexColor) : R(1.0f), G(1.0f), B(1.0f), A(1.0f) { FromHex(hexColor); }
+
 LinearColor::LinearColor(const LinearColor& other) : R(other.R), G(other.G), B(other.B), A(other.A) {}
 
 LinearColor::LinearColor(const struct FLinearColor& other) : R(other.R), G(other.G), B(other.B), A(other.A) {}
@@ -88,6 +136,42 @@ struct FLinearColor LinearColor::UnrealColor() const
 struct Color LinearColor::ToColor() const
 {
 	return Color(R, G, B, A);
+}
+
+uint32_t LinearColor::ToDecimal() const
+{
+	return ToColor().ToDecimal();
+}
+
+std::string LinearColor::ToHex(bool bNotation) const
+{
+	return ToColor().ToHex();
+}
+
+LinearColor& LinearColor::FromDecimal(uint32_t decimalColor)
+{
+	R = ((decimalColor >> 16) & 0xFF) / 255.0f;
+	G = ((decimalColor >> 8) & 0xFF) / 255.0f;
+	B = ((decimalColor) & 0xFF) / 255.0f;
+	A = 1.0f;
+	return *this;
+}
+
+LinearColor& LinearColor::FromHex(std::string hexColor)
+{
+	uint32_t decimalColor = 0;
+	size_t notationPos = hexColor.find("#");
+
+	if (notationPos != std::string::npos)
+	{
+		hexColor = hexColor.erase(notationPos, 1);
+	}
+
+	std::stringstream ss;
+	ss << std::hex << hexColor;
+	ss >> decimalColor;
+
+	return FromDecimal(decimalColor);
 }
 
 LinearColor& LinearColor::operator=(const LinearColor& other)
@@ -128,17 +212,23 @@ bool LinearColor::operator!=(const struct FLinearColor& other) const
 	return (R != other.R || G != other.G || B != other.B || A != other.A);
 }
 
-Color FRainbowColor::GetByte()
+Color GRainbowColor::GetByte()
 {
 	return ByteRainbow;
 }
 
-LinearColor FRainbowColor::GetLinear()
+LinearColor GRainbowColor::GetLinear()
 {
 	return LinearRainbow;
 }
 
-void FRainbowColor::OnTick()
+void GRainbowColor::Reset()
+{
+	ByteRainbow = Color(0, 0, 255, 255);
+	LinearRainbow = LinearColor(0.0f, 0.0f, 1.0f, 1.0f);
+}
+
+void GRainbowColor::OnTick()
 {
 	if (ByteRainbow.R == 255 && ByteRainbow.G < 255 && ByteRainbow.B == 0) { ByteRainbow.G += 1; } 	// Green goes up to 255.
 	else if (ByteRainbow.R > 0 && ByteRainbow.G == 255 && ByteRainbow.B == 0) { ByteRainbow.R -= 1; } // Red goes down to 0.
@@ -148,6 +238,120 @@ void FRainbowColor::OnTick()
 	else if (ByteRainbow.R == 255 && ByteRainbow.G == 0 && ByteRainbow.B > 0) { ByteRainbow.B -= 1; } // Blue goes down to 0.
 
 	LinearRainbow = Colors::ColorToLinear(ByteRainbow);
+}
+
+namespace Colors
+{
+	// Color to Decimal/Base10
+
+	uint32_t HexToDecimal(std::string hexString)
+	{
+		int32_t returnDecimal = 0;
+		size_t headPos = hexString.find("#");
+
+		if (headPos != std::string::npos)
+		{
+			hexString = hexString.erase(headPos, 1);
+		}
+
+		std::stringstream ss;
+		ss << std::hex << hexString;
+		ss >> returnDecimal;
+
+		return returnDecimal;
+	}
+
+	uint32_t ColorToDecimal(const Color& color)
+	{
+		return ((color.R & 0xFF) << 16) | ((color.G & 0xFF) << 8) | (color.B & 0xFF);
+	}
+
+	uint32_t LinearToDecimal(const LinearColor& linearColor)
+	{
+		return ColorToDecimal(LinearToColor(linearColor));
+	}
+
+	// Decimal/Base10 to Color
+
+	Color DecimalToColor(uint32_t decimal)
+	{
+		Color returnColor;
+
+		returnColor.R = (decimal >> 16) & 0xFF;
+		returnColor.G = (decimal >> 8) & 0xFF;
+		returnColor.B = (decimal) & 0xFF;
+		returnColor.A = 255;
+
+		return returnColor;
+	}
+
+	LinearColor DecimalToLinear(uint32_t decimal)
+	{
+		return ColorToLinear(DecimalToColor(decimal));
+	}
+
+	// Color to Hexidecimal/Base16
+
+	std::string DecimalToHex(uint32_t decimal, bool bNotation)
+	{
+		std::stringstream ss;
+
+		if (bNotation)
+		{
+			ss << "#";
+		}
+
+		ss << std::setfill('0') << std::setw(6) << std::uppercase << std::hex << decimal;
+		return ss.str();
+	}
+
+	std::string ColorToHex(const Color& color, bool bNotation)
+	{
+		return DecimalToHex(ColorToDecimal(color), bNotation);
+	}
+
+	std::string LinearToHex(const LinearColor& linearColor, bool bNotation)
+	{
+		return DecimalToHex(LinearToDecimal(linearColor), bNotation);
+	}
+
+	// Hexidecimal/Base16 to Color
+
+	Color HexToColor(std::string hexString)
+	{
+		return DecimalToColor(HexToDecimal(hexString));
+	}
+
+	LinearColor HexToLinear(std::string hexString)
+	{
+		return DecimalToLinear(HexToDecimal(hexString));
+	}
+
+	// Direct Color Conversions
+
+	Color LinearToColor(const LinearColor& linearColor)
+	{
+		Color convertedColor;
+
+		convertedColor.R = (linearColor.R * 255.0f);
+		convertedColor.G = (linearColor.G * 255.0f);
+		convertedColor.B = (linearColor.B * 255.0f);
+		convertedColor.A = (linearColor.A * 255.0f);
+
+		return convertedColor;
+	}
+
+	LinearColor ColorToLinear(const Color& color)
+	{
+		LinearColor convertedColor;
+
+		convertedColor.R = (color.R / 255.0f);
+		convertedColor.G = (color.G / 255.0f);
+		convertedColor.B = (color.B / 255.0f);
+		convertedColor.A = (color.A / 255.0f);
+
+		return convertedColor;
+	}
 }
 
 const Color GColorList::White = Color(255, 255, 255, 255);
@@ -249,117 +453,3 @@ const Color GColorList::Violet = Color(79, 47, 79, 255);
 const Color GColorList::VioletRed = Color(204, 50, 153, 255);
 const Color GColorList::Wheat = Color(216, 216, 191, 255);
 const Color GColorList::YellowGreen = Color(153, 204, 50, 255);
-
-namespace Colors
-{
-	// Color to Decimal/Base10
-
-	int32_t HexToDecimal(std::string hexString)
-	{
-		int32_t returnDecimal = 0;
-		size_t headPos = hexString.find("#");
-
-		if (headPos != std::string::npos)
-		{
-			hexString = hexString.erase(headPos, 1);
-		}
-
-		std::stringstream ss;
-		ss << std::hex << hexString;
-		ss >> returnDecimal;
-
-		return returnDecimal;
-	}
-
-	int32_t ColorToDecimal(const Color& color)
-	{
-		return ((color.R & 0xFF) << 16) | ((color.G & 0xFF) << 8) | (color.B & 0xFF);
-	}
-
-	int32_t LinearToDecimal(const LinearColor& linearColor)
-	{
-		return ColorToDecimal(LinearToColor(linearColor));
-	}
-
-	// Decimal/Base10 to Color
-
-	Color DecimalToColor(int32_t decimal)
-	{
-		Color returnColor;
-
-		returnColor.R = (decimal >> 16) & 0xFF;
-		returnColor.G = (decimal >> 8) & 0xFF;
-		returnColor.B = (decimal) & 0xFF;
-		returnColor.A = 255;
-
-		return returnColor;
-	}
-
-	LinearColor DecimalToLinear(int32_t decimal)
-	{
-		return ColorToLinear(DecimalToColor(decimal));
-	}
-
-	// Color to Hexidecimal/Base16
-
-	std::string DecimalToHex(int32_t decimal, bool bInlcudeHead)
-	{
-		std::stringstream ss;
-
-		if (bInlcudeHead)
-		{
-			ss << "#";
-		}
-
-		ss << std::setfill('0') << std::setw(6) << std::uppercase << std::hex << decimal;
-		return ss.str();
-	}
-
-	std::string ColorToHex(const Color& color, bool bInlcudeHead)
-	{
-		return DecimalToHex(ColorToDecimal(color), bInlcudeHead);
-	}
-
-	std::string LinearToHex(const LinearColor& linearColor, bool bInlcudeHead)
-	{
-		return DecimalToHex(LinearToDecimal(linearColor), bInlcudeHead);
-	}
-
-	// Hexidecimal/Base16 to Color
-
-	Color HexToColor(std::string hexString)
-	{
-		return DecimalToColor(HexToDecimal(hexString));
-	}
-
-	LinearColor HexToLinear(std::string hexString)
-	{
-		return DecimalToLinear(HexToDecimal(hexString));
-	}
-
-	// Direct Color Conversions
-
-	Color LinearToColor(const LinearColor& linearColor)
-	{
-		Color convertedColor;
-
-		convertedColor.R = (linearColor.R * 255.0f);
-		convertedColor.G = (linearColor.G * 255.0f);
-		convertedColor.B = (linearColor.B * 255.0f);
-		convertedColor.A = (linearColor.A * 255.0f);
-
-		return convertedColor;
-	}
-
-	LinearColor ColorToLinear(const Color& color)
-	{
-		LinearColor convertedColor;
-
-		convertedColor.R = (color.R / 255.0f);
-		convertedColor.G = (color.G / 255.0f);
-		convertedColor.B = (color.B / 255.0f);
-		convertedColor.A = (color.A / 255.0f);
-
-		return convertedColor;
-	}
-}

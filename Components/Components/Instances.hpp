@@ -25,11 +25,11 @@ public: // Helper functions for class instance grabbing/manipulation.
 	// Get the default constructor of a class type. Example: UGameData_TA* gameData = GetDefaultInstanceOf<UGameData_TA>();
 	template<typename T> T* GetDefaultInstanceOf()
 	{
-		UClass* staticClass = T::StaticClass();
-
-		if (staticClass)
+		if (std::is_base_of<UObject, T>::value)
 		{
-			for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
+			UClass* staticClass = T::StaticClass();
+
+			for (int32_t i = 0; i < UObject::GObjObjects()->Num(); i++)
 			{
 				UObject* uObject = UObject::GObjObjects()->At(i);
 
@@ -49,19 +49,22 @@ public: // Helper functions for class instance grabbing/manipulation.
 	// Get the most current/active instance of a class. Example: UEngine* engine = GetInstanceOf<UEngine>();
 	template<typename T> T* GetInstanceOf()
 	{
-		UClass* staticClass = T::StaticClass();
-
-		if (staticClass)
+		if (std::is_base_of<UObject, T>::value)
 		{
-			for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
-			{
-				UObject* uObject = UObject::GObjObjects()->At(i);
+			UClass* staticClass = T::StaticClass();
 
-				if (uObject && uObject->IsA(staticClass))
+			if (staticClass)
+			{
+				for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
 				{
-					if (uObject->GetFullName().find("Default__") == std::string::npos)
+					UObject* uObject = UObject::GObjObjects()->At(i);
+
+					if (uObject && uObject->IsA(staticClass))
 					{
-						return static_cast<T*>(uObject);
+						if (uObject->GetFullName().find("Default__") == std::string::npos)
+						{
+							return static_cast<T*>(uObject);
+						}
 					}
 				}
 			}
@@ -74,17 +77,21 @@ public: // Helper functions for class instance grabbing/manipulation.
 	template<typename T> std::vector<T*> GetAllInstancesOf()
 	{
 		std::vector<T*> objectInstances;
-		UClass* staticClass = T::StaticClass();
 
-		if (staticClass)
+		if (std::is_base_of<UObject, T>::value)
 		{
-			for (UObject* uObject : *UObject::GObjObjects())
+			UClass* staticClass = T::StaticClass();
+
+			if (staticClass)
 			{
-				if (uObject && uObject->IsA(staticClass))
+				for (UObject* uObject : *UObject::GObjObjects())
 				{
-					if (uObject->GetFullName().find("Default__") == std::string::npos)
+					if (uObject && uObject->IsA(staticClass))
 					{
-						objectInstances.push_back(static_cast<T*>(uObject));
+						if (uObject->GetFullName().find("Default__") == std::string::npos)
+						{
+							objectInstances.push_back(static_cast<T*>(uObject));
+						}
 					}
 				}
 			}
@@ -97,17 +104,21 @@ public: // Helper functions for class instance grabbing/manipulation.
 	template<typename T> std::vector<T*> GetAllDefaultInstancesOf()
 	{
 		std::vector<T*> objectInstances;
-		UClass* staticClass = T::StaticClass();
 
-		if (staticClass)
+		if (std::is_base_of<UObject, T>::value)
 		{
-			for (UObject* uObject : *UObject::GObjObjects())
+			UClass* staticClass = T::StaticClass();
+
+			if (staticClass)
 			{
-				if (uObject && uObject->IsA(staticClass))
+				for (UObject* uObject : *UObject::GObjObjects())
 				{
-					if (uObject->GetFullName().find("Default__") != std::string::npos)
+					if (uObject && uObject->IsA(staticClass))
 					{
-						objectInstances.push_back(static_cast<T*>(uObject));
+						if (uObject->GetFullName().find("Default__") != std::string::npos)
+						{
+							objectInstances.push_back(static_cast<T*>(uObject));
+						}
 					}
 				}
 			}
@@ -119,21 +130,24 @@ public: // Helper functions for class instance grabbing/manipulation.
 	// Get an object instance by it's name and class type. Example: UTexture2D* texture = FindObject<UTexture2D>("WhiteSquare");
 	template<typename T> T* FindObject(const std::string& objectName)
 	{
-		UClass* staticClass = T::StaticClass();
-
-		if (staticClass)
+		if (std::is_base_of<UObject, T>::value)
 		{
-			for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
+			UClass* staticClass = T::StaticClass();
+
+			if (staticClass)
 			{
-				UObject* uObject = UObject::GObjObjects()->At(i);
-
-				if (uObject && uObject->IsA(staticClass))
+				for (int32_t i = UObject::GObjObjects()->Num(); i > 0; i--)
 				{
-					std::string objectFullName = uObject->GetFullName();
+					UObject* uObject = UObject::GObjObjects()->At(i);
 
-					if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
+					if (uObject && uObject->IsA(staticClass))
 					{
-						return static_cast<T*>(uObject);
+						std::string objectFullName = uObject->GetFullName();
+
+						if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
+						{
+							return static_cast<T*>(uObject);
+						}
 					}
 				}
 			}
@@ -146,21 +160,25 @@ public: // Helper functions for class instance grabbing/manipulation.
 	template<typename T> std::vector<T*> FindAllObjects(const std::string& objectName)
 	{
 		std::vector<T*> objectInstances;
-		UClass* staticClass = T::StaticClass();
 
-		if (staticClass)
+		if (std::is_base_of<UObject, T>::value)
 		{
-			for (int32_t i = 0; i < UObject::GObjObjects()->Num(); i++)
+			UClass* staticClass = T::StaticClass();
+
+			if (staticClass)
 			{
-				UObject* uObject = UObject::GObjObjects()->At(i);
-
-				if (uObject && uObject->IsA(staticClass))
+				for (int32_t i = 0; i < UObject::GObjObjects()->Num(); i++)
 				{
-					std::string objectFullName = uObject->GetFullName();
+					UObject* uObject = UObject::GObjObjects()->At(i);
 
-					if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
+					if (uObject && uObject->IsA(staticClass))
 					{
-						objectInstances.push_back(static_cast<T*>(uObject));
+						std::string objectFullName = uObject->GetFullName();
+
+						if (objectFullName == objectName || objectFullName.find(objectName) != std::string::npos)
+						{
+							objectInstances.push_back(static_cast<T*>(uObject));
+						}
 					}
 				}
 			}
@@ -179,19 +197,23 @@ public: // Helper functions for class instance grabbing/manipulation.
 	template<typename T> T* CreateInstance()
 	{
 		T* returnObject = nullptr;
-		T* defaultObject = GetDefaultInstanceOf<T>();
-		UClass* staticClass = T::StaticClass();
 
-		if (defaultObject && staticClass)
+		if (std::is_base_of<UObject, T>::value)
 		{
-			returnObject = static_cast<T*>(defaultObject->DuplicateObject(defaultObject, defaultObject->Outer, staticClass));
-		}
+			T* defaultObject = GetDefaultInstanceOf<T>();
+			UClass* staticClass = T::StaticClass();
 
-		// Making sure newly created object doesn't get randomly destoyed by the garbage collector when we don't want it do.
-		if (returnObject)
-		{
-			MarkInvincible(returnObject);
-			CreatedInstances.push_back(returnObject);
+			if (defaultObject && staticClass)
+			{
+				returnObject = static_cast<T*>(defaultObject->DuplicateObject(defaultObject, defaultObject->Outer, staticClass));
+			}
+
+			// Making sure newly created object doesn't get randomly destoyed by the garbage collector when we don't want it do.
+			if (returnObject)
+			{
+				MarkInvincible(returnObject);
+				CreatedInstances.push_back(returnObject);
+			}
 		}
 
 		return returnObject;

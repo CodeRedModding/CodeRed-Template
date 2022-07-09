@@ -2,14 +2,15 @@
 #include "../pch.hpp"
 
 // https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Source/Runtime/Core/Public/Math/UnrealMathUtility.h
+// https://cs.stanford.edu/~acoates/quaternion.h
 
-static constexpr float PI = 3.1415926535897932f;						// Extra digits if needed: 3.1415926535897932384626433832795f
+static constexpr float PI = 3.1415926535897932f;										// Extra digits if needed: 3.1415926535897932384626433832795f
 static constexpr float SMALL_NUMBER = 1.e-8f;
 static constexpr float KINDA_SMALL_NUMBER = 1.e-4f;
 static constexpr float BIG_NUMBER = 3.4e+38f;
 static constexpr float EULERS_NUMBER = 2.71828182845904523536f;
-static constexpr float UE_GOLDEN_RATIO = 1.6180339887498948482045868343656381f;		// Also known as divine proportion, golden mean, or golden section - related to the Fibonacci Sequence = (1 + sqrt(5)) / 2
-static constexpr float FLOAT_NON_FRACTIONAL = 8388608.0f;									// All single-precision floating point numbers greater than or equal to this have no fractional value.
+static constexpr float UE_GOLDEN_RATIO = 1.6180339887498948482045868343656381f;			// Also known as divine proportion, golden mean, or golden section - related to the Fibonacci Sequence = (1 + sqrt(5)) / 2
+static constexpr float FLOAT_NON_FRACTIONAL = 8388608.0f;								// All single-precision floating point numbers greater than or equal to this have no fractional value.
 
 static constexpr float MAX_FLT = 3.402823466e+38f;
 static constexpr float INV_PI = 0.31830988618f;
@@ -25,28 +26,28 @@ static constexpr float UE_HALF_SQRT_3 = 0.86602540378443864676372317075294f;
 static constexpr float DELTA = 0.00001f;
 static constexpr float FLOAT_NORMAL_THRESH = 0.0001f;
 
-static constexpr float THRESH_POINT_ON_PLANE = 0.10f;										// Thickness of plane for front/back/inside test.
-static constexpr float THRESH_POINT_ON_SIDE = 0.20f;										// Thickness of polygon side's side-plane for point-inside/outside/on side test.
-static constexpr float THRESH_POINTS_ARE_SAME = 0.00002f;									// Two points are same if within this distance.
-static constexpr float THRESH_POINTS_ARE_NEAR = 0.00002f;									// Two points are near if within this distance and can be combined if imprecise math is ok.
-static constexpr float THRESH_NORMALS_ARE_SAME = 0.00002f;									// Two normal points are same if within this distance.
+static constexpr float THRESH_POINT_ON_PLANE = 0.10f;									// Thickness of plane for front/back/inside test.
+static constexpr float THRESH_POINT_ON_SIDE = 0.20f;									// Thickness of polygon side's side-plane for point-inside/outside/on side test.
+static constexpr float THRESH_POINTS_ARE_SAME = 0.00002f;								// Two points are same if within this distance.
+static constexpr float THRESH_POINTS_ARE_NEAR = 0.00002f;								// Two points are near if within this distance and can be combined if imprecise math is ok.
+static constexpr float THRESH_NORMALS_ARE_SAME = 0.00002f;								// Two normal points are same if within this distance.
 static constexpr float THRESH_UVS_ARE_SAME = 0.0009765625f;								// Two UV are same if within this threshold (1.0f/1024f).
-static constexpr float THRESH_VECTORS_ARE_NEAR = 0.0004f;									// Two vectors are near if within this distance and can be combined if imprecise math is ok.
-static constexpr float THRESH_SPLIT_POLY_WITH_PLANE = 0.25f;										// A plane splits a polygon in half.
-static constexpr float THRESH_SPLIT_POLY_PRECISELY = 0.01f;										// A plane exactly splits a polygon.
-static constexpr float THRESH_ZERO_NORM_SQUARED = 0.0001f;									// Size of a unit normal that is considered "zero", squared.
-static constexpr float THRESH_NORMALS_ARE_PARALLEL = 0.999845f;									// Two unit vectors are parallel if abs(A dot B) is greater than or equal to this. This is roughly cosine(1.0 degrees).
-static constexpr float THRESH_NORMALS_ARE_ORTHOGONAL = 0.017455f;									// Two unit vectors are orthogonal (perpendicular) if abs(A dot B) is less than or equal this. This is roughly cosine(89.0f degrees).
-static constexpr float THRESH_VECTOR_NORMALIZED = 0.01f;										// Allowed error for a normalized vector (against squared magnitude).
-static constexpr float THRESH_QUAT_NORMALIZED = 0.01f;										// Allowed error for a normalized quaternion (against squared magnitude).
+static constexpr float THRESH_VECTORS_ARE_NEAR = 0.0004f;								// Two vectors are near if within this distance and can be combined if imprecise math is ok.
+static constexpr float THRESH_SPLIT_POLY_WITH_PLANE = 0.25f;							// A plane splits a polygon in half.
+static constexpr float THRESH_SPLIT_POLY_PRECISELY = 0.01f;								// A plane exactly splits a polygon.
+static constexpr float THRESH_ZERO_NORM_SQUARED = 0.0001f;								// Size of a unit normal that is considered "zero", squared.
+static constexpr float THRESH_NORMALS_ARE_PARALLEL = 0.999845f;							// Two unit vectors are parallel if abs(A dot B) is greater than or equal to this. This is roughly cosine(1.0 degrees).
+static constexpr float THRESH_NORMALS_ARE_ORTHOGONAL = 0.017455f;						// Two unit vectors are orthogonal (perpendicular) if abs(A dot B) is less than or equal this. This is roughly cosine(89.0f degrees).
+static constexpr float THRESH_VECTOR_NORMALIZED = 0.01f;								// Allowed error for a normalized vector (against squared magnitude).
+static constexpr float THRESH_QUAT_NORMALIZED = 0.01f;									// Allowed error for a normalized quaternion (against squared magnitude).
 
 static constexpr int32_t Rotation360 = 65535;
 static constexpr int32_t Rotation180 = 32768;
 static constexpr double RotationToRadians = PI / Rotation180;
 static constexpr double RadiansToRotation = Rotation180 * PI;
 
-static constexpr float UU_CM = 1.0f;										// One Unreal Unit is equal to one centimeter.
-static constexpr float UU_PIXEL = 6.25f;										// Four pixels are equal to twenty five unreal units.
+static constexpr float UU_CM = 1.0f;													// One Unreal Unit is equal to one centimeter.
+static constexpr float UU_PIXEL = 6.25f;												// Four pixels are equal to twenty five unreal units.
 
 // Credit to @FrancesElMute/Aberinkula/Megasplat for the rotate function, was pulling my hair out tyring to figure it out on my own.
 
@@ -343,6 +344,7 @@ public:
 	VectorF GetAxisY() const;
 	VectorF GetAxisZ() const;
 	VectorF GetRotationAxis() const;
+	Quat Conjugate() const;
 	Quat GetInverse() const;
 	void Normalize(float tolerance = SMALL_NUMBER);
 	Quat GetNormalize(float tolerance = SMALL_NUMBER) const;

@@ -13,14 +13,25 @@ enum class ThreadTypes : uint8_t
 enum class SettingTypes : uint8_t
 {
 	TYPE_NONE,
-	TYPE_INT,
 	TYPE_BOOL,
+	TYPE_INT,
 	TYPE_FLOAT,
 	TYPE_STRING,
 	TYPE_COLOR,
 	TYPE_ROTATOR,
 	TYPE_VECTOR_3D,
 	TYPE_VECTOR_2D
+};
+
+enum class CommandTypes : uint8_t
+{
+	TYPE_NONE,
+	TYPE_QUEUED,
+	TYPE_UNRECOGNIZED,
+	TYPE_EMPTY_ARGUMENTS,
+	TYPE_INVALID_ARGUMENTS,
+	TYPE_MODIFY_SETTING,
+	TYPE_PRINT_SETTING
 };
 
 enum class VariableIds : int32_t
@@ -58,7 +69,7 @@ public:
 	VariableIds GetId() const;
 	SettingTypes GetType() const;
 	std::string GetName() const;
-	std::string GetDescription() const;
+	const std::string& GetDescription() const;
 	bool HasRange() const;
 	bool InRange(const std::string& sValue) const;
 	bool IsValueValid(const std::string& sValue) const;
@@ -67,8 +78,8 @@ public:
 	bool HasArgumentCallback() const;
 
 public:
-	std::string GetDefaultValue() const;
-	std::string GetStringValue() const;
+	const std::string& GetDefaultValue() const;
+	const std::string& GetStringValue() const;
 	int32_t GetIntValue() const;
 	bool GetBoolValue() const;
 	float GetFloatValue() const;
@@ -80,7 +91,7 @@ public:
 	Vector2DF GetVector2DFValue() const;
 	Vector2DI GetVector2DIValue() const;
 	Setting* ResetToDefault(ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetStringValue(const std::string& sValue, ThreadTypes thread = ThreadTypes::THREAD_GAME, bool bOverride = false);
+	Setting* SetStringValue(const std::string& sValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
 	Setting* SetIntValue(int32_t iValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
 	Setting* SetBoolValue(bool bValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
 	Setting* SetFloatValue(float fValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
@@ -133,12 +144,12 @@ public:
 public:
 	VariableIds GetId() const;
 	std::string GetName() const;
-	std::string GetDescription() const;
+	const std::string& GetDescription() const;
 	bool IsSearchable() const;
 	bool HasCallback() const;
 	bool HasArgumentCallback() const;
 	Command* BindCallback(std::function<void()> callback);
-	Command* BindCallback(std::function<void(std::string)> callback);
+	Command* BindCallback(std::function<void(std::string)> argumentCallback);
 	Command* UnbindCallbacks();
 	void TriggerCallback() const;
 	void TriggerCallback(const std::string& arguments) const;
@@ -149,11 +160,11 @@ class QueueData
 public:
 	std::string Command;
 	std::string Arguments;
-	bool LogToConsole;
+	bool Internal;
 
 public:
 	QueueData();
-	QueueData(const std::string& command, const std::string& arguments, bool bLogToConsole = true);
+	QueueData(const std::string& command, const std::string& arguments, bool bInternal);
 	~QueueData();
 };
 
@@ -163,8 +174,6 @@ class ManagerComponent : public Component
 private:
 	static inline std::map<std::string, VariableIds> VariableMap_SID;
 	static inline std::map<VariableIds, std::string> VariableMap_IDS;
-
-private:
 	static inline std::unordered_map<std::string, std::shared_ptr<Module>> ModuleMap;
 	static inline std::unordered_map<std::string, std::shared_ptr<Command>> CommandMap;
 	static inline std::unordered_map<std::string, std::shared_ptr<Setting>> SettingMap;
@@ -183,9 +192,11 @@ public:
 
 public:
 	void UnrealCommand(const std::string& unrealCommand, bool bLogToConsole = true);
-	void ConsoleCommand(const std::string& command, const std::string& arguments, bool bLogToConsole = true);
-	void QueueTick(); // Checks the "CommandQueue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
-	static void QueueCommand(const std::string& command, const std::string& arguments, bool bLogToConsole = true); // Use this if you have ImGui interaction for console commands, as you CANNOT call Process Event on the ImGui render thread.
+	static std::pair<CommandTypes, std::string> InternalCommand(const std::string& command, const std::string& arguments, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	static std::pair<CommandTypes, std::string> InternalCommand(const std::string& command, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	void ConsoleCommand(const std::string& command, const std::string& arguments, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	void ConsoleCommand(const std::string& command, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	void OnTick(); // Checks the "CommandQueue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
 
 public:
 	static void ResetSetting(const std::string& settingName, bool bLogToConsole = true);

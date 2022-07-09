@@ -11,18 +11,7 @@ Setting::Setting(VariableIds variable, SettingTypes settingType, const std::stri
 	Callback(nullptr),
 	ArgumentCallback(nullptr)
 {
-	if (GetType() == SettingTypes::TYPE_BOOL)
-	{
-		SetStringRange("false", "true");
-	}
-	else if (GetType() == SettingTypes::TYPE_COLOR)
-	{
-		if (CurrentValue.find("#") == 0)
-		{
-			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
-			CurrentValue = DefaultValue;
-		}
-	}
+
 }
 
 Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void()> callback) :
@@ -35,18 +24,7 @@ Setting::Setting(VariableIds variable, SettingTypes settingType, const std::stri
 	Callback(callback),
 	ArgumentCallback(nullptr)
 {
-	if (GetType() == SettingTypes::TYPE_BOOL)
-	{
-		SetStringRange("false", "true");
-	}
-	else if (GetType() == SettingTypes::TYPE_COLOR)
-	{
-		if (CurrentValue.find("#") == 0 || Format::IsStringHexadecimal(CurrentValue))
-		{
-			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
-			CurrentValue = DefaultValue;
-		}
-	}
+
 }
 
 Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void(std::string)> callback) :
@@ -59,18 +37,7 @@ Setting::Setting(VariableIds variable, SettingTypes settingType, const std::stri
 	Callback(nullptr),
 	ArgumentCallback(callback)
 {
-	if (GetType() == SettingTypes::TYPE_BOOL)
-	{
-		SetStringRange("false", "true");
-	}
-	else if (GetType() == SettingTypes::TYPE_COLOR)
-	{
-		if (CurrentValue.find("#") == 0 || Format::IsStringHexadecimal(CurrentValue))
-		{
-			DefaultValue = std::to_string(Colors::HexToDecimal(CurrentValue));
-			CurrentValue = DefaultValue;
-		}
-	}
+
 }
 
 Setting::~Setting() {}
@@ -90,7 +57,7 @@ std::string Setting::GetName() const
 	return ManagerComponent::GetVariableName(GetId());
 }
 
-std::string Setting::GetDescription() const
+const std::string& Setting::GetDescription() const
 {
 	return Description;
 }
@@ -104,16 +71,16 @@ bool Setting::InRange(const std::string& sValue) const
 {
 	if (HasRange())
 	{
-		if (GetType() == SettingTypes::TYPE_INT)
+		if (GetType() == SettingTypes::TYPE_BOOL)
+		{
+			return (sValue == "0" || sValue == "false" || sValue == "1" || sValue == "true");
+		}
+		else if (GetType() == SettingTypes::TYPE_INT)
 		{
 			int32_t formattedMin = std::stoi(Range.first);
 			int32_t formattedMax = std::stoi(Range.second);
 			int32_t formattedValue = std::stoi(sValue);
 			return (formattedValue >= formattedMin && formattedValue <= formattedMax);
-		}
-		else if (GetType() == SettingTypes::TYPE_BOOL)
-		{
-			return (sValue == "0" || sValue == "false" || sValue == "1" || sValue == "true");
 		}
 		else if (GetType() == SettingTypes::TYPE_FLOAT)
 		{
@@ -167,37 +134,25 @@ bool Setting::InRange(const std::string& sValue) const
 
 bool Setting::IsValueValid(const std::string& sValue) const
 {
-	if (GetType() == SettingTypes::TYPE_INT)
+	if (GetType() == SettingTypes::TYPE_BOOL)
 	{
-		if (Format::IsStringDecimal(sValue))
-		{
-			return true;
-		}
-		else
-		{
-			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports 32 bit integer values.");
-			return false;
-		}
-	}
-	else if (GetType() == SettingTypes::TYPE_BOOL)
-	{
-		if (sValue == "1" || sValue == "true" || sValue == "0" || sValue == "false")
-		{
-			return true;
-		}
-		else
+		if (!(sValue == "1" || sValue == "true" || sValue == "0" || sValue == "false"))
 		{
 			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports true or false values.");
 			return false;
 		}
 	}
+	if (GetType() == SettingTypes::TYPE_INT)
+	{
+		if (!Format::IsStringFloat(sValue))
+		{
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or 32 bit integer values.");
+			return false;
+		}
+	}
 	else if (GetType() == SettingTypes::TYPE_FLOAT)
 	{
-		if (Format::IsStringFloat(sValue))
-		{
-			return true;
-		}
-		else
+		if (!Format::IsStringFloat(sValue))
 		{
 			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or optionally 32 bit integer values.");
 			return false;
@@ -205,15 +160,56 @@ bool Setting::IsValueValid(const std::string& sValue) const
 	}
 	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		if (sValue.find("#") == 0 || Format::IsStringHexadecimal(sValue))
-		{
-			return true;
-		}
-		else
+		if (!((sValue.length() == 7) && (sValue.find("#") == 0)))
 		{
 			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports RGB hexadecimal values.");
 			return false;
 		}
+	}
+	else if (GetType() == SettingTypes::TYPE_ROTATOR)
+	{
+		std::vector<std::string> values = Format::Split(sValue, ' ');
+
+		if (values.size() >= 3)
+		{
+			if (Format::IsStringDecimal(values[0]) && Format::IsStringDecimal(values[1]) && Format::IsStringDecimal(values[2]))
+			{
+				return true;
+			}
+		}
+
+		Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports three 32 bit integer values.");
+		return false;
+	}
+	else if (GetType() == SettingTypes::TYPE_VECTOR_3D)
+	{
+		std::vector<std::string> values = Format::Split(sValue, ' ');
+
+		if (values.size() >= 3)
+		{
+			if (Format::IsStringFloat(values[0]) && Format::IsStringFloat(values[1]) && Format::IsStringFloat(values[2]))
+			{
+				return true;
+			}
+		}
+
+		Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports three floating point numbers or optionally 32 bit integer values.");
+		return false;
+	}
+	else if (GetType() == SettingTypes::TYPE_VECTOR_2D)
+	{
+		std::vector<std::string> values = Format::Split(sValue, ' ');
+
+		if (values.size() >= 2)
+		{
+			if (Format::IsStringFloat(values[0]) && Format::IsStringFloat(values[1]))
+			{
+				return true;
+			}
+		}
+
+		Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports two floating point numbers or optionally 32 bit integer values.");
+		return false;
 	}
 
 	return true;
@@ -234,18 +230,13 @@ bool Setting::HasArgumentCallback() const
 	return (!!ArgumentCallback);
 }
 
-std::string Setting::GetDefaultValue() const
+const std::string& Setting::GetDefaultValue() const
 {
 	return DefaultValue;
 }
 
-std::string Setting::GetStringValue() const
+const std::string& Setting::GetStringValue() const
 {
-	if (GetType() == SettingTypes::TYPE_COLOR)
-	{
-		return Colors::DecimalToHex(std::stoi(CurrentValue), true);
-	}
-
 	return CurrentValue;
 }
 
@@ -253,7 +244,7 @@ int32_t Setting::GetIntValue() const
 {
 	if (GetType() == SettingTypes::TYPE_INT)
 	{
-		return std::stoi(CurrentValue);
+		return std::stoi(GetStringValue());
 	}
 
 	return 0;
@@ -263,7 +254,7 @@ bool Setting::GetBoolValue() const
 {
 	if (GetType() == SettingTypes::TYPE_BOOL)
 	{
-		if (CurrentValue == "true" || CurrentValue == "1")
+		if ((GetStringValue() == "true") || (GetStringValue() == "1"))
 		{
 			return true;
 		}
@@ -276,7 +267,7 @@ float Setting::GetFloatValue() const
 {
 	if (GetType() == SettingTypes::TYPE_FLOAT)
 	{
-		return std::stof(CurrentValue);
+		return std::stof(GetStringValue());
 	}
 
 	return 0.0f;
@@ -286,7 +277,7 @@ Color Setting::GetColorValue() const
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		return Colors::DecimalToColor(std::stoi(CurrentValue));
+		return Color(GetStringValue());
 	}
 
 	return Color();
@@ -296,7 +287,7 @@ LinearColor Setting::GetLinearValue() const
 {
 	if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		return Colors::DecimalToLinear(std::stoi(CurrentValue));
+		return LinearColor(GetStringValue());
 	}
 
 	return LinearColor();
@@ -314,7 +305,7 @@ Rotator Setting::GetRotatorValue() const
 
 VectorF Setting::GetVector3DFValue() const
 {
-	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
+	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
 	{
 		return Format::ToVectorF(GetStringValue());
 	}
@@ -324,7 +315,7 @@ VectorF Setting::GetVector3DFValue() const
 
 VectorI Setting::GetVector3DIValue() const
 {
-	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
+	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
 	{
 		return Format::ToVectorI(GetStringValue());
 	}
@@ -334,7 +325,7 @@ VectorI Setting::GetVector3DIValue() const
 
 Vector2DF Setting::GetVector2DFValue() const
 {
-	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
+	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
 	{
 		return Format::ToVector2DF(GetStringValue());
 	}
@@ -344,7 +335,7 @@ Vector2DF Setting::GetVector2DFValue() const
 
 Vector2DI Setting::GetVector2DIValue() const
 {
-	if (GetType() == SettingTypes::TYPE_VECTOR_3D || GetType() == SettingTypes::TYPE_VECTOR_2D)
+	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
 	{
 		return Format::ToVector2DI(GetStringValue());
 	}
@@ -354,32 +345,18 @@ Vector2DI Setting::GetVector2DIValue() const
 
 Setting* Setting::ResetToDefault(ThreadTypes thread)
 {
-	SetStringValue(GetDefaultValue(), thread, true);
+	SetStringValue(GetDefaultValue(), thread);
 	return this;
 }
 
-Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread, bool bOverride)
+Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 {
 	if (thread != ThreadTypes::THREAD_GAME)
 	{
-		if ((GetType() == SettingTypes::TYPE_COLOR) && Format::IsStringDecimal(sValue))
-		{
-			ManagerComponent::QueueCommand(GetName(), Colors::DecimalToHex(std::stoi(sValue)), (thread == ThreadTypes::THREAD_RENDER ? false : true));
-		}
-		else
-		{
-			ManagerComponent::QueueCommand(GetName(), sValue, (thread == ThreadTypes::THREAD_RENDER ? false : true));
-		}
+		ManagerComponent::InternalCommand(GetName(), sValue, thread);
 	}
 	else if (IsValueValid(sValue))
 	{
-		if (bOverride)
-		{
-			CurrentValue = sValue;
-			TriggerCallbacks();
-			return this;
-		}
-
 		if (InRange(sValue))
 		{
 			if (GetType() == SettingTypes::TYPE_BOOL)
@@ -392,10 +369,6 @@ Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread, 
 				{
 					CurrentValue = "false";
 				}
-			}
-			else if (GetType() == SettingTypes::TYPE_COLOR)
-			{
-				CurrentValue = std::to_string(Colors::HexToDecimal(sValue));
 			}
 			else
 			{
@@ -433,13 +406,13 @@ Setting* Setting::SetFloatValue(float fValue, ThreadTypes thread)
 
 Setting* Setting::SetColorValue(const Color& cValue, ThreadTypes thread)
 {
-	SetStringValue(Colors::ColorToHex(cValue), thread);
+	SetStringValue(cValue.ToHex(), thread);
 	return this;
 }
 
 Setting* Setting::SetLinearValue(const LinearColor& lValue, ThreadTypes thread)
 {
-	SetStringValue(Colors::LinearToHex(lValue), thread);
+	SetStringValue(lValue.ToHex(), thread);
 	return this;
 }
 
@@ -668,7 +641,7 @@ std::string Command::GetName() const
 	return Manager.GetVariableName(GetId());
 }
 
-std::string Command::GetDescription() const
+const std::string& Command::GetDescription() const
 {
 	return Description;
 }
@@ -694,9 +667,9 @@ Command* Command::BindCallback(std::function<void()> callback)
 	return this;
 }
 
-Command* Command::BindCallback(std::function<void(std::string)> callback)
+Command* Command::BindCallback(std::function<void(std::string)> argumentCallback)
 {
-	ArgumentCallback = callback;
+	ArgumentCallback = argumentCallback;
 	return this;
 }
 
@@ -731,9 +704,9 @@ void Command::TriggerCallback(const std::string& arguments) const
 	}
 }
 
-QueueData::QueueData() {}
+QueueData::QueueData() : Internal(false) {}
 
-QueueData::QueueData(const std::string& command, const std::string& arguments, bool bLogToConsole) : Command(command), Arguments(arguments), LogToConsole(bLogToConsole) {}
+QueueData::QueueData(const std::string& command, const std::string& arguments, bool bInternal) : Command(command), Arguments(arguments), Internal(bInternal) {}
 
 QueueData::~QueueData() {}
 
@@ -755,106 +728,171 @@ void ManagerComponent::OnDestroy()
 
 void ManagerComponent::UnrealCommand(const std::string& unrealCommand, bool bLogToConsole)
 {
-	AActor* randomActor = Instances.GetDefaultInstanceOf<AActor>();
+	static AActor* defaultActor = nullptr;
 
-	if (randomActor)
+	if (!defaultActor)
 	{
-		if (bLogToConsole)
-		{
-			Console.Write(GetNameFormatted() +  "Executing unreal command: \"" + unrealCommand + "\"");
-		}
-
-		//randomActor->ConsoleCommand(StringWrapper(unrealCommand).ToUnrealString(), false); // I have my own custom wrappers, they are too game-specific to implement directly here.
+		defaultActor = Instances.GetDefaultInstanceOf<AActor>();
 	}
-}
 
-void ManagerComponent::ConsoleCommand(const std::string& command, const std::string& arguments, bool bLogToConsole)
-{
-	std::shared_ptr<Command> consoleCommand = GetCommand(command);
-
-	if (consoleCommand)
+	if (defaultActor)
 	{
-		if (consoleCommand->HasCallback() && arguments.empty())
+		if (unrealCommand.find("unreal_command") == 0)
 		{
-			consoleCommand->TriggerCallback();
-		}
-		else if (consoleCommand->HasArgumentCallback())
-		{
-			if (!arguments.empty())
-			{
-				consoleCommand->TriggerCallback(arguments);
-			}
-			else if (bLogToConsole)
-			{
-				Console.Error(GetNameFormatted() + "Invalid arguments for command \"" + command + "\"!");
-			}
-		}
-		else if (bLogToConsole)
-		{
-			Console.Error(GetNameFormatted() + "Custom arguments are not supported for the command \"" + command + "\"!");
-		}
-	}
-	else
-	{
-		std::shared_ptr<Setting> consoleSetting = GetSetting(command);
+			std::string formattedCommand = unrealCommand;
+			formattedCommand.erase(0, 15);
 
-		if (consoleSetting)
-		{
-			if (consoleSetting->IsModifiable())
+			if (bLogToConsole)
 			{
-				if (arguments.length() > 0)
-				{
-					std::string oldValue = consoleSetting->GetStringValue();
-					consoleSetting->SetStringValue(arguments);
+				Console.Write(GetNameFormatted() + "Executing unreal command \"" + formattedCommand + "\".");
+			}
 
-					if (bLogToConsole)
-					{
-						if (oldValue != consoleSetting->GetStringValue())
-						{
-							Console.Notify(GetNameFormatted() + "" + consoleSetting->GetName() + ": " + oldValue + " -> " + consoleSetting->GetStringValue());
-						}
-					}
-				}
-				else
-				{
-					if (bLogToConsole)
-					{
-						Console.Notify(GetNameFormatted() + "Name: " + consoleSetting->GetName());
-						Console.Notify(GetNameFormatted() + "Description: " + consoleSetting->GetDescription());
-						Console.Notify(GetNameFormatted() + "Current Value: " + consoleSetting->GetStringValue());
-					}
-				}
-			}
-			else
-			{
-				if (bLogToConsole)
-				{
-					Console.Error(GetNameFormatted() + "Unrecognized setting: \"" + command + "\"");
-				}
-			}
+			//defaultActor->ConsoleCommand(StringWrapper(formattedCommand).ToUnrealString(), false);
 		}
 		else
 		{
 			if (bLogToConsole)
 			{
-				Console.Error(GetNameFormatted() + "Unrecognized command: \"" + command + "\"");
+				Console.Write(GetNameFormatted() + "Executing unreal command \"" + unrealCommand + "\".");
+			}
+
+			//defaultActor->ConsoleCommand(StringWrapper(unrealCommand).ToUnrealString(), false);
+		}
+	}
+}
+
+std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const std::string& command, const std::string& arguments, ThreadTypes thread)
+{
+	if (thread != ThreadTypes::THREAD_GAME)
+	{
+		CommandQueue.push_back(QueueData(command, arguments, true));
+		return std::make_pair(CommandTypes::TYPE_QUEUED, "");
+	}
+	else
+	{
+		std::shared_ptr<Command> consoleCommand = GetCommand(command);
+
+		if (consoleCommand)
+		{
+			if (consoleCommand->HasCallback() && arguments.empty())
+			{
+				consoleCommand->TriggerCallback();
+			}
+			else if (consoleCommand->HasArgumentCallback())
+			{
+				if (!arguments.empty())
+				{
+					consoleCommand->TriggerCallback(arguments);
+				}
+				else
+				{
+					return std::make_pair(CommandTypes::TYPE_EMPTY_ARGUMENTS, "");
+				}
+			}
+			else
+			{
+				return std::make_pair(CommandTypes::TYPE_INVALID_ARGUMENTS, "");
+			}
+		}
+		else
+		{
+			std::shared_ptr<Setting> consoleSetting = GetSetting(command);
+
+			if (consoleSetting && consoleSetting->IsModifiable())
+			{
+				if (!arguments.empty())
+				{
+					std::string oldValue = consoleSetting->GetStringValue();
+					consoleSetting->SetStringValue(arguments);
+					return std::make_pair(CommandTypes::TYPE_MODIFY_SETTING, oldValue);
+				}
+				else
+				{
+					return std::make_pair(CommandTypes::TYPE_PRINT_SETTING, "");
+				}
+			}
+			else
+			{
+				return std::make_pair(CommandTypes::TYPE_UNRECOGNIZED, "");
+			}
+		}
+	}
+
+	return std::make_pair(CommandTypes::TYPE_NONE, "");
+}
+
+std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const std::string& command, ThreadTypes thread)
+{
+	return InternalCommand(command, "", thread);
+}
+
+void ManagerComponent::ConsoleCommand(const std::string& command, const std::string& arguments, ThreadTypes thread)
+{
+	if (thread != ThreadTypes::THREAD_GAME)
+	{
+		CommandQueue.push_back(QueueData(command, arguments, false));
+	}
+	else
+	{
+		std::pair<CommandTypes, std::string> returnType = InternalCommand(command, arguments, thread);
+
+		if (returnType.first != CommandTypes::TYPE_NONE)
+		{
+			if (returnType.first == CommandTypes::TYPE_UNRECOGNIZED)
+			{
+				Console.Error(GetNameFormatted() + "Unrecognized command: \"" + command + "\".");
+			}
+			else if (returnType.first == CommandTypes::TYPE_EMPTY_ARGUMENTS)
+			{
+				Console.Error(GetNameFormatted() + "Invalid arguments provided for: \"" + command + "\".");
+			}
+			else if (returnType.first == CommandTypes::TYPE_INVALID_ARGUMENTS)
+			{
+				Console.Error(GetNameFormatted() + "Arguments are not supported for: \"" + command + "\".");
+			}
+			else if (returnType.first == CommandTypes::TYPE_MODIFY_SETTING)
+			{
+				std::shared_ptr<Setting> consoleSetting = GetSetting(command);
+
+				if (consoleSetting)
+				{
+					Console.Notify(GetNameFormatted() + consoleSetting->GetName() + ": " + returnType.second + " -> " + consoleSetting->GetStringValue());
+				}
+			}
+			else if (returnType.first == CommandTypes::TYPE_PRINT_SETTING)
+			{
+				std::shared_ptr<Setting> consoleSetting = GetSetting(command);
+
+				if (consoleSetting)
+				{
+					Console.Notify(GetNameFormatted() + "Name: " + consoleSetting->GetName());
+					Console.Notify(GetNameFormatted() + "Description: " + consoleSetting->GetDescription());
+					Console.Notify(GetNameFormatted() + "Current Value: " + consoleSetting->GetStringValue());
+				}
 			}
 		}
 	}
 }
 
-void ManagerComponent::QueueCommand(const std::string& command, const std::string& arguments, bool bLogToConsole)
+void ManagerComponent::ConsoleCommand(const std::string& command, ThreadTypes thread)
 {
-	CommandQueue.emplace_back(QueueData(command, arguments, bLogToConsole));
+	return ConsoleCommand(command, "", thread);
 }
 
-void ManagerComponent::QueueTick()
+void ManagerComponent::OnTick()
 {
 	if (!CommandQueue.empty())
 	{
 		for (const QueueData& data : CommandQueue)
 		{
-			ConsoleCommand(data.Command, data.Arguments, data.LogToConsole);
+			if (data.Internal)
+			{
+				InternalCommand(data.Command, data.Arguments, ThreadTypes::THREAD_GAME);
+			}
+			else
+			{
+				ConsoleCommand(data.Command, data.Arguments, ThreadTypes::THREAD_GAME);
+			}
 		}
 
 		CommandQueue.clear();
