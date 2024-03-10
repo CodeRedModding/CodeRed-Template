@@ -2,7 +2,7 @@
 
 namespace Math
 {
-	void SinCos(float* scalarSin, float* scalarCos, float value)
+	void SinCos(float& scalarSin, float& scalarCos, float value)
 	{
 		// Map Value to y in [-pi, pi], x = 2 * pi * quotient + remainder.
 
@@ -40,12 +40,46 @@ namespace Math
 
 		float y2 = y * y;
 
-		// 11-degree minimax approximation
-		*scalarSin = (((((-2.3889859e-08f * y2 + 2.7525562e-06f) * y2 - 0.00019840874f) * y2 + 0.0083333310f) * y2 - 0.16666667f) * y2 + 1.f) * y;
+		// 11-degree minimax approximation.
+		scalarSin = (((((-2.3889859e-08f * y2 + 2.7525562e-06f) * y2 - 0.00019840874f) * y2 + 0.0083333310f) * y2 - 0.16666667f) * y2 + 1.f) * y;
 
-		// 10-degree minimax approximation
+		// 10-degree minimax approximation.
 		float p = ((((-2.6051615e-07f * y2 + 2.4760495e-05f) * y2 - 0.0013888378f) * y2 + 0.041666638f) * y2 - 0.5f) * y2 + 1.f;
-		*scalarCos = sign * p;
+		scalarCos = sign * p;
+	}
+
+	float RandomFloat()
+	{
+		std::mt19937 random(std::random_device{}());
+		return std::generate_canonical<float, 32>(random);
+	}
+
+	float RandomRangeFloat(float min, float max)
+	{
+		std::mt19937 random(std::random_device{}());
+		std::uniform_real_distribution<float> distro(min, max);
+		return distro(random);
+	}
+
+	int32_t RandomRange(int32_t min, int32_t max)
+	{
+		return RandomRange32<int32_t>(min, max);
+	}
+
+	char RandomAlphabet(bool bIncludeUpper)
+	{
+		static std::string alphabetLower = "abcdefghijklmnopqrstuvwxyz";
+		static std::string alphabetFull = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		std::string& alphabet = (bIncludeUpper ? alphabetFull : alphabetLower);
+		return alphabet[RandomRange(0, (alphabet.length() - 1))];
+	}
+
+	char RandomAlphaNum(bool bIncludeUpper)
+	{
+		static std::string alphabetLower = "abcdefghijklmnopqrstuvwxyz0123456789";
+		static std::string alphabetFull = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		std::string& alphabet = (bIncludeUpper ? alphabetFull : alphabetLower);
+		return alphabet[RandomRange(0, (alphabet.length() - 1))];
 	}
 }
 
@@ -160,7 +194,7 @@ VectorF VectorF::Copy() const
 
 float VectorF::Magnitude() const
 {
-	return std::sqrtf(X * X + Y * Y + Z * Z);
+	return std::sqrtf((X * X) + (Y * Y) + (Z * Z));
 }
 
 void VectorF::Normalize()
@@ -169,6 +203,11 @@ void VectorF::Normalize()
 	X = (X / magnitude);
 	Y = (Y / magnitude);
 	Z = (Z / magnitude);
+}
+
+float VectorF::Dot(const VectorF& other) const
+{
+	return (X * other.X + Y * other.Y + Z * other.Z);
 }
 
 VectorF VectorF::GetNormalize() const
@@ -188,11 +227,6 @@ class Rotator VectorF::GetRotator() const
 	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.0f / PI);
 	result.Roll = 0.f;
 	return result;
-}
-
-VectorF VectorF::Dot(const VectorF& other) const
-{
-	return VectorF(X * other.X + Y * other.Y + Z * other.Z);
 }
 
 VectorF VectorF::Cross(const VectorF& other) const
@@ -223,9 +257,9 @@ VectorF VectorF::MidpointTo(const VectorF& other) const
 
 VectorF VectorF::Rotate(const Rotator& rotation, const VectorF& location)
 {
-	double pitch = (static_cast<double>(rotation.Pitch) / RadiansToRotation);
-	double yaw = (static_cast<double>(rotation.Yaw) / RadiansToRotation);
-	double roll = (static_cast<double>(rotation.Roll) / RadiansToRotation);
+	double pitch = (static_cast<double>(rotation.Pitch) / RADIANS_TO_ROTATION);
+	double yaw = (static_cast<double>(rotation.Yaw) / RADIANS_TO_ROTATION);
+	double roll = (static_cast<double>(rotation.Roll) / RADIANS_TO_ROTATION);
 
 	float sz = sin(pitch);
 	float cz = cos(pitch);
@@ -377,7 +411,13 @@ Rotator::Rotator(int32_t pyr) : Pitch(pyr), Yaw(pyr), Roll(pyr) {}
 
 Rotator::Rotator(int32_t pitch, int32_t yaw, int32_t roll) : Pitch(pitch), Yaw(yaw), Roll(roll) {}
 
-Rotator::Rotator(const struct FRotator& other) : Pitch(other.Pitch), Yaw(other.Yaw), Roll(other.Roll) {}
+Rotator::Rotator(const struct FRotator& other, bool bURR) : Pitch(other.Pitch), Yaw(other.Yaw), Roll(other.Roll)
+{
+	if (bURR)
+	{
+		FromUnrealRotator(other);
+	}
+}
 
 Rotator::Rotator(const Rotator& other) : Pitch(other.Pitch), Yaw(other.Yaw), Roll(other.Roll) {}
 
@@ -385,22 +425,26 @@ Rotator::~Rotator() {}
 
 struct FRotator Rotator::UnrealRotator(bool bURR) const
 {
+	float pitch = Pitch; pitch *= ROTATIONS_TO_DEGREES;
+	float yaw = Yaw; yaw *= ROTATIONS_TO_DEGREES;
+	float roll = Roll; roll *= ROTATIONS_TO_DEGREES;
+
 	return FRotator{
-		(bURR ? (Pitch * Rotation360) : Pitch),
-		(bURR ? (Yaw * Rotation360) : Yaw),
-		(bURR ? (Roll * Rotation360) : Roll)
+		(bURR ? lroundf(pitch) : Pitch),
+		(bURR ? lroundf(yaw) : Yaw),
+		(bURR ? lroundf(roll) : Roll)
 	};
 }
 
 Rotator& Rotator::FromUnrealRotator(const struct FRotator& other)
 {
-	float pitch = other.Pitch;
-	float yaw = other.Yaw;
-	float roll = other.Roll;
+	float pitch = Pitch; pitch /= ROTATIONS_TO_DEGREES;
+	float yaw = Yaw; yaw /= ROTATIONS_TO_DEGREES;
+	float roll = Roll; roll /= ROTATIONS_TO_DEGREES;
 
-	Pitch = static_cast<int32_t>(pitch / RotationsToDegrees);
-	Yaw = static_cast<int32_t>(yaw / RotationsToDegrees);
-	Roll = static_cast<int32_t>(roll / RotationsToDegrees);
+	Pitch = lroundf(pitch);
+	Yaw = lroundf(yaw);
+	Roll = lroundf(roll);
 
 	return Normalize();
 }
@@ -452,7 +496,7 @@ float Rotator::NormalizeAxis(float a)
 class Quat Rotator::GetQuat() const
 {
 	float DEG_TO_RAD = (PI / 180.0f);
-	float DIVIDE_BY_2 = DEG_TO_RAD / 2.0f;
+	float DIVIDE_BY_2 = (DEG_TO_RAD / 2.0f);
 
 	float SP = sin(Pitch * DIVIDE_BY_2);
 	float CP = cos(Pitch * DIVIDE_BY_2);
@@ -483,17 +527,17 @@ VectorF Rotator::GetVector() const
 	const float YawNoWinding = fmod(Yaw, 360.0f);
 
 	float CP, SP, CY, SY;
-	Math::SinCos(&SP, &CP, (PitchNoWinding * (PI / 180.0f)));
-	Math::SinCos(&SY, &CY, (YawNoWinding * (PI / 180.0f)));
+	Math::SinCos(SP, CP, (PitchNoWinding * (PI / 180.0f)));
+	Math::SinCos(SY, CY, (YawNoWinding * (PI / 180.0f)));
 
 	return VectorF(CP * CY, CP * SY, SP);
 }
 
 VectorF Rotator::Rotate(VectorF other) const
 {
-	double pitch = (static_cast<double>(Pitch) / RadiansToRotation);
-	double yaw = (static_cast<double>(Yaw) / RadiansToRotation);
-	double roll = (static_cast<double>(Roll) / RadiansToRotation);
+	double pitch = (static_cast<double>(Pitch) / RADIANS_TO_ROTATION);
+	double yaw = (static_cast<double>(Yaw) / RADIANS_TO_ROTATION);
+	double roll = (static_cast<double>(Roll) / RADIANS_TO_ROTATION);
 
 	float sz = sin(pitch);
 	float cz = cos(pitch);
@@ -510,6 +554,21 @@ VectorF Rotator::Rotate(VectorF other) const
 	other.Z = other.Y;
 	other.Y = tmp;
 	return other;
+}
+
+bool Rotator::IsValid() const
+{
+	int32_t minValue = -180;
+	int32_t maxValue = 180;
+
+	if ((Pitch < minValue) || (Pitch > maxValue)
+		|| (Yaw < minValue) || (Yaw > maxValue)
+		|| (Roll < minValue) || (Roll > maxValue))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 Rotator& Rotator::operator+=(const Rotator& other)
@@ -586,8 +645,7 @@ Rotator& Rotator::operator=(const Rotator& other)
 
 Rotator& Rotator::operator=(const struct FRotator& other)
 {
-	FromUnrealRotator(other);
-	return *this;
+	return FromUnrealRotator(other);
 }
 
 Rotator& Rotator::operator=(int32_t other)
@@ -603,9 +661,10 @@ bool Rotator::operator==(const Rotator& other) const
 	return (Pitch == other.Pitch && Yaw == other.Yaw && Roll == other.Roll);
 }
 
-bool Rotator::operator==(const struct FRotator& other) const
+bool Rotator::operator==(struct FRotator other) const
 {
-	return (Pitch == other.Pitch && Yaw == other.Yaw && Roll == other.Roll);
+	Rotator otherRotator(other);
+	return (*this == otherRotator);
 }
 
 bool Rotator::operator!=(const Rotator& other) const
@@ -620,9 +679,9 @@ bool Rotator::operator!=(const struct FRotator& other) const
 
 VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
 {
-	double pitch = (static_cast<double>(rotation.Pitch) / RadiansToRotation);
-	double yaw = (static_cast<double>(rotation.Yaw) / RadiansToRotation);
-	double roll = (static_cast<double>(rotation.Roll) / RadiansToRotation);
+	double pitch = (static_cast<double>(rotation.Pitch) / RADIANS_TO_ROTATION);
+	double yaw = (static_cast<double>(rotation.Yaw) / RADIANS_TO_ROTATION);
+	double roll = (static_cast<double>(rotation.Roll) / RADIANS_TO_ROTATION);
 
 	float sz = sin(pitch);
 	float cz = cos(pitch);
@@ -641,18 +700,6 @@ VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
 	point += location;
 	return point;
 }
-
-Quat::Quat() : X(0.0f), Y(0.0f), Z(0.0f), W(0.0f) {}
-
-Quat::Quat(float xyzw) : X(xyzw), Y(xyzw), Z(xyzw), W(xyzw) {}
-
-Quat::Quat(float x, float y, float z, float w) : X(x), Y(y), Z(z), W(w) {}
-
-Quat::Quat(const struct FQuat& other) : X(other.X), Y(other.Y), Z(other.Z), W(other.W) {}
-
-Quat::Quat(const Quat& other) : X(other.X), Y(other.Y), Z(other.Z), W(other.W) {}
-
-Quat::~Quat() {}
 
 struct FQuat Quat::UnrealQuat() const
 {
@@ -720,14 +767,14 @@ VectorF Quat::GetAxisZ() const
 
 VectorF Quat::GetRotationAxis() const
 {
-	const float sqrSum = X * X + Y * Y + Z * Z;
+	const float sqrSum = (X * X + Y * Y + Z * Z);
 
 	if (sqrSum < SMALL_NUMBER)
 	{
 		return VectorF(1.0f, 0.0f, 0.0f);
 	}
 
-	const float scale = 1.0f / sqrtf(sqrSum);
+	const float scale = (1.0f / sqrtf(sqrSum));
 	return VectorF(X * scale, Y * scale, Z * scale);
 }
 
@@ -924,6 +971,143 @@ bool Quat::operator!=(const Quat& other) const
 }
 
 bool Quat::operator!=(const struct FQuat& other) const
+{
+	return (X != other.X || Y != other.Y || Z != other.Z || W != other.W);
+}
+
+struct FPlane Plane::UnrealPlane() const
+{
+	return FPlane{ X, Y, Z, W };
+}
+
+void Plane::Erase()
+{
+	X = 0.0f;
+	Y = 0.0f;
+	Z = 0.0f;
+	W = 0.0f;
+}
+
+Plane Plane::Copy() const
+{
+	return Plane(X, Y, Z, W);
+}
+
+Plane& Plane::operator+=(const Plane& other)
+{
+	X += other.X;
+	Y += other.Y;
+	Z += other.Z;
+	W += other.W;
+	return *this;
+}
+
+Plane& Plane::operator-=(const Plane& other)
+{
+	X -= other.X;
+	Y -= other.Y;
+	Z -= other.Z;
+	W -= other.W;
+	return *this;
+}
+
+Plane& Plane::operator*=(const Plane& other)
+{
+	X *= other.X;
+	Y *= other.Y;
+	Z *= other.Z;
+	W *= other.W;
+	return *this;
+}
+
+Plane& Plane::operator/=(const Plane& other)
+{
+	X /= other.X;
+	Y /= other.Y;
+	Z /= other.Z;
+	W /= other.W;
+	return *this;
+}
+
+Plane& Plane::operator+=(float other)
+{
+	X += other;
+	Y += other;
+	Z += other;
+	W += other;
+	return *this;
+}
+
+Plane& Plane::operator-=(float other)
+{
+	X -= other;
+	Y -= other;
+	Z -= other;
+	W -= other;
+	return *this;
+}
+
+Plane& Plane::operator*=(float other)
+{
+	X *= other;
+	Y *= other;
+	Z *= other;
+	W *= other;
+	return *this;
+}
+
+Plane& Plane::operator/=(float other)
+{
+	X /= other;
+	Y /= other;
+	Z /= other;
+	W /= other;
+	return *this;
+}
+
+Plane& Plane::operator=(const Plane& other)
+{
+	X = other.X;
+	Y = other.Y;
+	Z = other.Z;
+	W = other.W;
+	return *this;
+}
+
+Plane& Plane::operator=(const struct FPlane& other)
+{
+	X = other.X;
+	Y = other.Y;
+	Z = other.Z;
+	W = other.W;
+	return *this;
+}
+
+Plane& Plane::operator=(float other)
+{
+	X = other;
+	Y = other;
+	Z = other;
+	W = other;
+	return *this;
+}
+
+bool Plane::operator==(const Plane& other) const
+{
+	return (X == other.X && Y == other.Y && Z == other.Z && W == other.W);
+}
+
+bool Plane::operator==(const struct FPlane& other) const
+{
+	return (X == other.X && Y == other.Y && Z == other.Z && W == other.W);
+}
+
+bool Plane::operator!=(const Plane& other) const
+{
+	return (X != other.X || Y != other.Y || Z != other.Z || W != other.W);
+}
+
+bool Plane::operator!=(const struct FPlane& other) const
 {
 	return (X != other.X || Y != other.Y || Z != other.Z || W != other.W);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "../Component.hpp"
 
-enum class TextColors : uint16_t
+enum class TextColors : uint32_t
 {
 	Black = 0,
 	Blue = 1,
@@ -18,7 +18,8 @@ enum class TextColors : uint16_t
 	LightRed = 12,
 	LightPurple = 13,
 	LightYellow = 14,
-	BrightWhite = 15
+	BrightWhite = 15,
+	END
 };
 
 // Manages the standard out stream, as well as logging to an offline file.
@@ -28,6 +29,7 @@ private:
 	std::ofstream m_logFile;
 	HANDLE m_outputHandle;
 	FILE* m_outputFile;
+	bool m_24hourClock; // If you want timestamps to be in 24 hour format or 12 hour.
 
 public:
 	ConsoleComponent();
@@ -37,18 +39,21 @@ public:
 	void OnCreate() override;
 	void OnDestroy() override;
 
+public: // Utils
+	void SetClockStyle(bool bIs24Hours);
+	std::string CreateTimestamp(bool bBrackets = true);
+	std::string CreateTimestampISO8601(bool bBrackets = true);
+
 public:
-	void Write(const std::string& text, TextColors textColor = TextColors::BrightWhite);
-	void WriteInternal(std::string text, TextColors textColor);
+	void Write(const std::string& text, TextColors textColor = TextColors::White);
 	void Warning(const std::string& text);
 	void Error(const std::string& text);
-	void Success(const std::string& textt);
+	void Success(const std::string& text);
 	void Notify(const std::string& text);
+	void WriteDemo();
 
 public:
 	void Initialize(const std::filesystem::path& directory, const std::string& fileName);
-	void SetTextColor(TextColors textColor);
-	static std::string GetTimestamp(bool bWithSpace);
 };
 
 extern class ConsoleComponent Console;

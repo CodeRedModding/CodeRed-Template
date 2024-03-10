@@ -86,6 +86,9 @@
     <ClCompile Include="Extensions\Extensions\Formatting.cpp">
       <Filter>Extensions\Extensions</Filter>
     </ClCompile>
+    <ClCompile Include="Extensions\Extensions\Time.cpp">
+      <Filter>Extensions\Extensions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Components\Component.hpp">
@@ -155,6 +158,9 @@
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
     <ClInclude Include="Extensions\Extensions\Formatting.hpp">
+      <Filter>Extensions\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="Extensions\Extensions\Time.hpp">
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
   </ItemGroup>

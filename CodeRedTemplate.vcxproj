@@ -154,6 +154,7 @@
     <ClCompile Include="Extensions\Extensions\Formatting.cpp" />
     <ClCompile Include="Extensions\Extensions\Math.cpp" />
     <ClCompile Include="Extensions\Extensions\Memory.cpp" />
+    <ClCompile Include="Extensions\Extensions\Time.cpp" />
     <ClCompile Include="Extensions\Extensions\UnrealMemory.cpp" />
     <ClCompile Include="Modules\Mods\Placeholder.cpp" />
     <ClCompile Include="Modules\Module.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Extensions\Extensions\Formatting.hpp" />
     <ClInclude Include="Extensions\Extensions\Math.hpp" />
     <ClInclude Include="Extensions\Extensions\Memory.hpp" />
+    <ClInclude Include="Extensions\Extensions\Time.hpp" />
     <ClInclude Include="Extensions\Extensions\UnrealMemory.hpp" />
     <ClInclude Include="Extensions\Includes.hpp" />
     <ClInclude Include="Modules\Includes.hpp" />

@@ -1,4 +1,6 @@
 #include "Memory.hpp"
+#include <Psapi.h>
+#pragma comment(lib, "Psapi.lib")
 
 namespace Memory
 {

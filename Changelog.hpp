@@ -2,6 +2,9 @@
 /*
     Changes in v1.4.0:
     - Revamped the entire project to use modern C++ standards, functions, and naming conventions.
+    - Remade the console component in "Console.hpp/cpp", added macros for logging to std::cout, opening a console window, and using 24 hour or 12 hour timestamps.
+    - Added new timestamp and clock utils in "Extensions/Time.hpp".
+    - Added new random number and letter functions in "Math.hpp", as well as added a new "Plane" class.
     - Improved all the color classes and functions in "Colors.hpp/cpp", also added hashing and sorting operators.
     - Improved all the functions in "Formatting.hpp/cpp", as well as added inline functions and bug fixes.
     - Fixed a crash that could happen when using any of the "GetInstanceOf" functions.
