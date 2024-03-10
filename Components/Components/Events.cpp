@@ -201,38 +201,45 @@ void EventsComponent::DetachDetour()
 
 void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result)
 {
-	if (m_processEvent && function)
+	if (m_processEvent)
 	{
-		bool shouldDetour = true;
-		PreEvent event(caller, function, params);
-		auto preIt = m_preHooks.find(function->ObjectInternalInteger);
-
-		if (preIt != m_preHooks.end())
+		if (function)
 		{
-			for (const auto& preEvent : preIt->second)
-			{
-				preEvent(event);
+			bool shouldDetour = true;
+			PreEvent event(caller, function, params);
+			auto preIt = m_preHooks.find(function->ObjectInternalInteger);
 
-				if (!event.ShouldDetour())
+			if (preIt != m_preHooks.end())
+			{
+				for (const auto& preEvent : preIt->second)
 				{
-					shouldDetour = false;
+					preEvent(event);
+
+					if (!event.ShouldDetour())
+					{
+						shouldDetour = false;
+					}
+				}
+			}
+
+			if (shouldDetour && !IsEventBlacklisted(function->ObjectInternalInteger))
+			{
+				m_processEvent(caller, function, params, result);
+			}
+
+			auto postIt = m_postHooks.find(function->ObjectInternalInteger);
+
+			if (postIt != m_postHooks.end())
+			{
+				for (const auto& postEvent : postIt->second)
+				{
+					postEvent(PostEvent(caller, function, params, result));
 				}
 			}
 		}
-
-		if (shouldDetour && !IsEventBlacklisted(function->ObjectInternalInteger))
+		else
 		{
 			m_processEvent(caller, function, params, result);
-		}
-
-		auto postIt = m_postHooks.find(function->ObjectInternalInteger);
-
-		if (postIt != m_postHooks.end())
-		{
-			for (const auto& postEvent : postIt->second)
-			{
-				postEvent(PostEvent(caller, function, params, result));
-			}
 		}
 	}
 }
