@@ -51,6 +51,16 @@ std::string ConsoleComponent::CreateTimestampISO8601(bool bBrackets)
 	return Time::Timestamp::Create(m_24hourClock).FormatISO8601(bBrackets);
 }
 
+void ConsoleComponent::ColorConsole(TextColors textColor)
+{
+	if (m_outputHandle)
+	{
+#ifdef STANDARD_OUTPUT
+		SetConsoleTextAttribute(m_outputHandle, static_cast<uint16_t>(textColor));
+#endif
+	}
+}
+
 void ConsoleComponent::Write(const std::string& text, TextColors textColor)
 {
 	std::string str = (CreateTimestamp() + " " + text);
@@ -63,7 +73,9 @@ void ConsoleComponent::Write(const std::string& text, TextColors textColor)
 #endif
 
 #ifdef STANDARD_OUTPUT
+	ColorConsole(textColor);
 	std::cout << str << std::endl;
+	ColorConsole(TextColors::White);
 #endif
 }
 

@@ -13,7 +13,7 @@ namespace Format
 	bool IsStringFloat(std::string str);
 	bool IsStringBase64(std::string str);
 
-	// String Addon Functions.
+	// String Utils.
 
 	bool Contains(std::string_view baseStr, std::string_view strToFind);
 	std::string ToLower(std::string str);
@@ -32,7 +32,7 @@ namespace Format
 	std::string ReverseString(std::string str);
 	void ReverseStringInline(std::string& str);
 
-	// Stream Addon Functions.
+	// Stream Utils.
 
 	void Empty(std::ostringstream& stream);
 	void FillRight(std::ostringstream& stream, char fill, size_t width);

@@ -153,7 +153,7 @@ namespace Format
         return true;
     }
 
-    // String addon functions.
+    // String Utils
 
     bool Contains(std::string_view baseStr, std::string_view strToFind)
     {
@@ -281,7 +281,7 @@ namespace Format
         }
     }
 
-    // Stream addon functions.
+    // Stream Utils.
 
     void Empty(std::ostringstream& stream)
     {

@@ -18,11 +18,11 @@ void InstancesComponent::OnDestroy()
 	m_staticClasses.clear();
 	m_staticFunctions.clear();
 
-	for (UObject* object : m_createdObjects)
+	for (UObject* uObject : m_createdObjects)
 	{
-		if (object)
+		if (uObject)
 		{
-			MarkForDestory(object);
+			MarkForDestory(uObject);
 		}
 	}
 
@@ -31,7 +31,19 @@ void InstancesComponent::OnDestroy()
 
 class UClass* InstancesComponent::FindStaticClass(const std::string& className)
 {
-	MapObjects();
+	if (m_staticClasses.empty())
+	{
+		for (UObject* uObject : *UObject::GObjObjects())
+		{
+			if (uObject)
+			{
+				if ((uObject->GetFullName().find("Class") == 0) && !(uObject->ObjectFlags & EObjectFlags::RF_Transient))
+				{
+					m_staticClasses[uObject->GetFullName()] = static_cast<UClass*>(uObject);
+				}
+			}
+		}
+	}
 
 	if (m_staticClasses.contains(className))
 	{
@@ -43,7 +55,16 @@ class UClass* InstancesComponent::FindStaticClass(const std::string& className)
 
 class UFunction* InstancesComponent::FindStaticFunction(const std::string& className)
 {
-	MapObjects();
+	if (m_staticFunctions.empty())
+	{
+		for (UObject* uObject : *UObject::GObjObjects())
+		{
+			if (uObject && uObject->IsA<UFunction>())
+			{
+				m_staticFunctions[uObject->GetFullName()] = static_cast<UFunction*>(uObject);
+			}
+		}
+	}
 
 	if (m_staticFunctions.contains(className))
 	{
@@ -156,36 +177,8 @@ void InstancesComponent::SetPlayerController(class APlayerController* playerCont
 	}
 }
 
-void InstancesComponent::MapObjects()
-{
-	if (m_staticClasses.empty() || m_staticFunctions.empty())
-	{
-		for (UObject* uObject : *UObject::GObjObjects())
-		{
-			if (uObject)
-			{
-				if (uObject->GetPackageName() != FName(L"Transient"))
-				{
-					std::string objectFullName = uObject->GetFullName();
-
-					if (objectFullName.find("Class ") == 0)
-					{
-						m_staticClasses.emplace(objectFullName, reinterpret_cast<UClass*>(uObject));
-					}
-					else if (objectFullName.find("Function ") == 0)
-					{
-						m_staticFunctions.emplace(objectFullName, reinterpret_cast<UFunction*>(uObject));
-					}
-				}
-			}
-		}
-	}
-}
-
-
 void InstancesComponent::Initialize()
 {
-	MapObjects();
 	Console.Write(GetNameFormatted() + "Initialized!");
 }
 

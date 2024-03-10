@@ -203,8 +203,9 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 {
 	if (m_processEvent && function)
 	{
-		auto preIt = m_preHooks.find(function->ObjectInternalInteger);
+		bool shouldDetour = true;
 		PreEvent event(caller, function, params);
+		auto preIt = m_preHooks.find(function->ObjectInternalInteger);
 
 		if (preIt != m_preHooks.end())
 		{
@@ -212,13 +213,14 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 			{
 				preEvent(event);
 
-				if (event.ShouldDetour())
+				if (!event.ShouldDetour())
 				{
-					m_processEvent(caller, function, params, result);
+					shouldDetour = false;
 				}
 			}
 		}
-		else if (event.ShouldDetour())
+
+		if (shouldDetour && !IsEventBlacklisted(function->ObjectInternalInteger))
 		{
 			m_processEvent(caller, function, params, result);
 		}

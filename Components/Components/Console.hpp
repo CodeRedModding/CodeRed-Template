@@ -45,6 +45,7 @@ public: // Utils
 	std::string CreateTimestampISO8601(bool bBrackets = true);
 
 public:
+	void ColorConsole(TextColors textColor);
 	void Write(const std::string& text, TextColors textColor = TextColors::White);
 	void Warning(const std::string& text);
 	void Error(const std::string& text);

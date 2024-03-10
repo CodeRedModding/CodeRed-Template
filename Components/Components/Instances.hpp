@@ -227,7 +227,6 @@ public: // These should only be used by function hooks, do not manually call the
 	void SetHUD(class AHUD* hud);
 	void SetGameViewportClient(class UGameViewportClient* viewportClient);
 	void SetPlayerController(class APlayerController* playerController);
-	void MapObjects(); // Maps all static objects to "StaticClasses" and "StaticFunctions".
 	void Initialize(); // Initialize classes that can't be grabbed from function hooks.
 };
 
