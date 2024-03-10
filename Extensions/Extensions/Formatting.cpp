@@ -142,15 +142,9 @@ namespace Format
             return false;
         }
 
-        ToLowerInline(str);
-
         for (char c : str)
         {
-            if (std::isalpha(c) || std::isdigit(c))
-            {
-                continue;
-            }
-            else if ((c != '+') && (c != '=') && (c != '/'))
+            if ((!std::isalpha(c) && !std::isdigit(c)) && ((c != '+') && (c != '=') && (c != '/') && (c != '.') && (c != '_') && (c != '-')))
             {
                 return false;
             }
