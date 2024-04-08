@@ -22,7 +22,7 @@ void InstancesComponent::OnDestroy()
 	{
 		if (uObject)
 		{
-			MarkForDestory(uObject);
+			MarkForDestroy(uObject);
 		}
 	}
 
@@ -33,11 +33,13 @@ class UClass* InstancesComponent::FindStaticClass(const std::string& className)
 {
 	if (m_staticClasses.empty())
 	{
-		for (UObject* uObject : *UObject::GObjObjects())
+		for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 		{
+			UObject* uObject = UObject::GObjObjects()->at(i);
+
 			if (uObject)
 			{
-				if ((uObject->GetFullName().find("Class") == 0) && !(uObject->ObjectFlags & EObjectFlags::RF_Transient))
+				if ((uObject->GetFullName().find("Class") == 0))
 				{
 					m_staticClasses[uObject->GetFullName()] = static_cast<UClass*>(uObject);
 				}
@@ -57,11 +59,16 @@ class UFunction* InstancesComponent::FindStaticFunction(const std::string& class
 {
 	if (m_staticFunctions.empty())
 	{
-		for (UObject* uObject : *UObject::GObjObjects())
+		for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 		{
-			if (uObject && uObject->IsA<UFunction>())
+			UObject* uObject = UObject::GObjObjects()->at(i);
+
+			if (uObject)
 			{
-				m_staticFunctions[uObject->GetFullName()] = static_cast<UFunction*>(uObject);
+				if (uObject && uObject->IsA<UFunction>())
+				{
+					m_staticFunctions[uObject->GetFullName()] = static_cast<UFunction*>(uObject);
+				}
 			}
 		}
 	}
@@ -87,7 +94,7 @@ void InstancesComponent::MarkInvincible(class UObject* object)
 	}
 }
 
-void InstancesComponent::MarkForDestory(class UObject* object)
+void InstancesComponent::MarkForDestroy(class UObject* object)
 {
 	if (object)
 	{
@@ -95,6 +102,13 @@ void InstancesComponent::MarkForDestory(class UObject* object)
 		object->ObjectFlags |= EObjectFlags::RF_Public;
 		object->ObjectFlags |= EObjectFlags::RF_Transient;
 		object->ObjectFlags |= EObjectFlags::RF_TagGarbageTemp;
+
+		auto objectIt = std::find(m_createdObjects.begin(), m_createdObjects.end(), object);
+
+		if (objectIt != m_createdObjects.end())
+		{
+			m_createdObjects.erase(objectIt);
+		}
 	}
 }
 

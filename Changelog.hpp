@@ -1,5 +1,11 @@
 #pragma once
 /*
+    Changes in v1.4.1:
+    - Added a new "GetOrCreateInstance" function in "Instances.hpp", if no instance of a class is found it will create one.
+    - Improved all of the "GetInstanceOf" functions again to prevent a possible crash in "Instances.hpp".
+    - Improved the "FindStaticClass" and "FindStaticFunction" functions in "Instances.cpp" to also be more safe.
+    - The "MarkForDestroy" function will now also remove the object from the cached created object list if one is found.
+
     Changes in v1.4.0:
     - Revamped the entire project to use modern C++ standards, functions, and naming conventions.
     - Remade the console component in "Console.hpp/cpp", added macros for logging to std::cout, opening a console window, and using 24 hour or 12 hour timestamps.

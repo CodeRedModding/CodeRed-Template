@@ -1,6 +1,8 @@
 #pragma once
 #include "../Component.hpp"
 
+static constexpr int32_t INSTANCES_INTERATE_OFFSET = 100;
+
 // THIS COMPONENT IS LARGELY DEPENDENT ON YOUR GAME
 // Automatically stores active class instances that can be retrieved at any time.
 class InstancesComponent : public Component
@@ -27,8 +29,10 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		if (std::is_base_of<UObject, T>::value)
 		{
-			for (UObject* uObject : *UObject::GObjObjects())
+			for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 			{
+				UObject* uObject = UObject::GObjObjects()->at(i);
+
 				if (uObject && uObject->IsA<T>())
 				{
 					if (uObject->GetFullName().find("Default__") != std::string::npos)
@@ -47,7 +51,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		if (std::is_base_of<UObject, T>::value)
 		{
-			for (int32_t i = (UObject::GObjObjects()->size() - 100); i > 0; i--)
+			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
 				UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -64,6 +68,30 @@ public: // Helper functions for class instance grabbing/manipulation.
 		return nullptr;
 	}
 
+	// Get the most current/active instance of a class, if one isn't found it creates a new instance. Example: UEngine* engine = GetInstanceOf<UEngine>();
+	template<typename T> T* GetOrCreateInstance()
+	{
+		if (std::is_base_of<UObject, T>::value)
+		{
+			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+			{
+				UObject* uObject = UObject::GObjObjects()->at(i);
+
+				if (uObject && uObject->IsA<T>())
+				{
+					if (uObject->GetFullName().find("Default__") == std::string::npos)
+					{
+						return static_cast<T*>(uObject);
+					}
+				}
+			}
+
+			return CreateInstance<T>();
+		}
+
+		return nullptr;
+	}
+
 	// Get all active instances of a class type. Example: std::vector<APawn*> pawns = GetAllInstancesOf<APawn>();
 	template<typename T> std::vector<T*> GetAllInstancesOf()
 	{
@@ -71,8 +99,10 @@ public: // Helper functions for class instance grabbing/manipulation.
 
 		if (std::is_base_of<UObject, T>::value)
 		{
-			for (UObject* uObject : *UObject::GObjObjects())
+			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
+				UObject* uObject = UObject::GObjObjects()->at(i);
+
 				if (uObject && uObject->IsA<T>())
 				{
 					if (uObject->GetFullName().find("Default__") == std::string::npos)
@@ -93,18 +123,15 @@ public: // Helper functions for class instance grabbing/manipulation.
 
 		if (std::is_base_of<UObject, T>::value)
 		{
-			UClass* staticClass = T::StaticClass();
-
-			if (staticClass)
+			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
-				for (UObject* uObject : *UObject::GObjObjects())
+				UObject* uObject = UObject::GObjObjects()->at(i);
+
+				if (uObject && uObject->IsA<T>())
 				{
-					if (uObject && uObject->IsA<T>())
+					if (uObject->GetFullName().find("Default__") != std::string::npos)
 					{
-						if (uObject->GetFullName().find("Default__") != std::string::npos)
-						{
-							objectInstances.push_back(static_cast<T*>(uObject));
-						}
+						objectInstances.push_back(static_cast<T*>(uObject));
 					}
 				}
 			}
@@ -118,7 +145,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		if (std::is_base_of<UObject, T>::value)
 		{
-			for (int32_t i = (UObject::GObjObjects()->size() - 100); i > 0; i--)
+			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
 				UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -151,7 +178,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 
 		if (std::is_base_of<UObject, T>::value)
 		{
-			for (int32_t i = (UObject::GObjObjects()->size() - 100); i > 0; i--)
+			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
 				UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -204,7 +231,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	void MarkInvincible(class UObject* object);
 
 	// Set object as a temporary object and marks it for the garbage collector to destroy.
-	void MarkForDestory(class UObject* object);
+	void MarkForDestroy(class UObject* object);
 
 private: 
 	class UCanvas* I_UCanvas;
