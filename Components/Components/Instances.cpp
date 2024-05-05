@@ -86,11 +86,10 @@ void InstancesComponent::MarkInvincible(class UObject* object)
 	if (object)
 	{
 		object->ObjectFlags &= ~EObjectFlags::RF_Transient;
-		object->ObjectFlags &= ~EObjectFlags::RF_TagGarbageTemp;
-		object->ObjectFlags |= EObjectFlags::RF_Public;
-		object->ObjectFlags |= EObjectFlags::RF_Standalone;
-		object->ObjectFlags |= EObjectFlags::RF_MarkAsRootSet;
-		object->ObjectFlags |= EObjectFlags::RF_KeepForCooker;
+		object->ObjectFlags &= ~EObjectFlags::RF_TagGarbage;
+		object->ObjectFlags &= ~EObjectFlags::RF_PendingKill;
+		object->ObjectFlags |= EObjectFlags::RF_DisregardForGC;
+		object->ObjectFlags |= EObjectFlags::RF_RootSet;
 	}
 }
 
@@ -98,10 +97,9 @@ void InstancesComponent::MarkForDestroy(class UObject* object)
 {
 	if (object)
 	{
-		object->ObjectFlags = 0;
-		object->ObjectFlags |= EObjectFlags::RF_Public;
 		object->ObjectFlags |= EObjectFlags::RF_Transient;
-		object->ObjectFlags |= EObjectFlags::RF_TagGarbageTemp;
+		object->ObjectFlags |= EObjectFlags::RF_TagGarbage;
+		object->ObjectFlags |= EObjectFlags::RF_PendingKill;
 
 		auto objectIt = std::find(m_createdObjects.begin(), m_createdObjects.end(), object);
 

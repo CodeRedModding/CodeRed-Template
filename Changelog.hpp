@@ -1,5 +1,8 @@
 #pragma once
 /*
+    Changes in v1.4.2:
+    - Fixed the "MarkInvincible" and "MarkForDestroy" functions in "Instances.cpp" using the wrong flags.
+
     Changes in v1.4.1:
     - Added a new "GetOrCreateInstance" function in "Instances.hpp", if no instance of a class is found it will create one.
     - Improved all of the "GetInstanceOf" functions again to prevent a possible crash in "Instances.hpp".
