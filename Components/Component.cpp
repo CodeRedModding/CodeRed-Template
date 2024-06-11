@@ -24,3 +24,10 @@ std::string Component::GetDescription() const
 {
 	return m_description;
 }
+
+Component& Component::operator=(const Component& component)
+{
+	m_name = component.m_name;
+	m_description = component.m_description;
+	return *this;
+}

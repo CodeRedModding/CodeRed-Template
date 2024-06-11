@@ -2,40 +2,54 @@
 #include "../Includes.hpp"
 
 Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable) :
-	Variable(variable),
-	Type(settingType),
-	Description(description),
-	DefaultValue(defaultValue),
-	CurrentValue(defaultValue),
-	Modifiable(bModifiable),
-	Callback(nullptr),
-	ArgumentCallback(nullptr)
+	m_variable(variable),
+	m_type(settingType),
+	m_description(description),
+	m_defaultValue(defaultValue),
+	m_currentValue(defaultValue),
+	m_modifiable(bModifiable),
+	m_callback(nullptr),
+	m_argumentCallback(nullptr)
 {
 
 }
 
 Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void()> callback) :
-	Variable(variable),
-	Type(settingType),
-	Description(description),
-	DefaultValue(defaultValue),
-	CurrentValue(defaultValue),
-	Modifiable(bModifiable),
-	Callback(callback),
-	ArgumentCallback(nullptr)
+	m_variable(variable),
+	m_type(settingType),
+	m_description(description),
+	m_defaultValue(defaultValue),
+	m_currentValue(defaultValue),
+	m_modifiable(bModifiable),
+	m_callback(callback),
+	m_argumentCallback(nullptr)
 {
 
 }
 
 Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void(std::string)> callback) :
-	Variable(variable),
-	Type(settingType),
-	Description(description),
-	DefaultValue(defaultValue),
-	CurrentValue(defaultValue),
-	Modifiable(bModifiable),
-	Callback(nullptr),
-	ArgumentCallback(callback)
+	m_variable(variable),
+	m_type(settingType),
+	m_description(description),
+	m_defaultValue(defaultValue),
+	m_currentValue(defaultValue),
+	m_modifiable(bModifiable),
+	m_callback(nullptr),
+	m_argumentCallback(callback)
+{
+
+}
+
+Setting::Setting(const Setting& setting) :
+	m_variable(setting.m_variable),
+	m_type(setting.m_type),
+	m_description(setting.m_description),
+	m_defaultValue(setting.m_defaultValue),
+	m_currentValue(setting.m_currentValue),
+	m_range(setting.m_range),
+	m_modifiable(setting.m_modifiable),
+	m_callback(setting.m_callback),
+	m_argumentCallback(setting.m_argumentCallback)
 {
 
 }
@@ -44,12 +58,12 @@ Setting::~Setting() {}
 
 VariableIds Setting::GetId() const
 {
-	return Variable;
+	return m_variable;
 }
 
 SettingTypes Setting::GetType() const
 {
-	return Type;
+	return m_type;
 }
 
 std::string Setting::GetName() const
@@ -59,12 +73,12 @@ std::string Setting::GetName() const
 
 const std::string& Setting::GetDescription() const
 {
-	return Description;
+	return m_description;
 }
 
 bool Setting::HasRange() const
 {
-	return (!Range.first.empty() && !Range.second.empty());
+	return (!m_range.first.empty() && !m_range.second.empty());
 }
 
 bool Setting::InRange(const std::string& sValue) const
@@ -77,23 +91,23 @@ bool Setting::InRange(const std::string& sValue) const
 		}
 		else if (GetType() == SettingTypes::TYPE_INT)
 		{
-			int32_t formattedMin = std::stoi(Range.first);
-			int32_t formattedMax = std::stoi(Range.second);
+			int32_t formattedMin = std::stoi(m_range.first);
+			int32_t formattedMax = std::stoi(m_range.second);
 			int32_t formattedValue = std::stoi(sValue);
 			return (formattedValue >= formattedMin && formattedValue <= formattedMax);
 		}
 		else if (GetType() == SettingTypes::TYPE_FLOAT)
 		{
-			float formattedMin = std::stof(Range.first);
-			float formattedMax = std::stof(Range.second);
+			float formattedMin = std::stof(m_range.first);
+			float formattedMax = std::stof(m_range.second);
 			float formattedValue = std::stof(sValue);
 			return ((formattedValue >= formattedMin) && (formattedValue <= formattedMax));
 		}
 		else if (GetType() == SettingTypes::TYPE_ROTATOR)
 		{
 			Rotator value = Format::ToRotator(sValue);
-			Rotator rangeMin = Format::ToRotator(Range.first);
-			Rotator rangeMax = Format::ToRotator(Range.second);
+			Rotator rangeMin = Format::ToRotator(m_range.first);
+			Rotator rangeMax = Format::ToRotator(m_range.second);
 
 			if ((value.Pitch < rangeMin.Pitch) || (value.Pitch > rangeMax.Pitch)
 				|| (value.Yaw < rangeMin.Yaw) || (value.Yaw > rangeMax.Yaw)
@@ -105,8 +119,8 @@ bool Setting::InRange(const std::string& sValue) const
 		else if (GetType() == SettingTypes::TYPE_VECTOR_3D)
 		{
 			VectorF value = Format::ToVectorF(sValue);
-			VectorF rangeMin = Format::ToVectorF(Range.first);
-			VectorF rangeMax = Format::ToVectorF(Range.second);
+			VectorF rangeMin = Format::ToVectorF(m_range.first);
+			VectorF rangeMax = Format::ToVectorF(m_range.second);
 
 			if ((value.X < rangeMin.X) || (value.X > rangeMax.X)
 				|| (value.Y < rangeMin.Y) || (value.Y > rangeMax.Y)
@@ -118,8 +132,8 @@ bool Setting::InRange(const std::string& sValue) const
 		else if (GetType() == SettingTypes::TYPE_VECTOR_2D)
 		{
 			Vector2DF value = Format::ToVector2DF(sValue);
-			Vector2DF rangeMin = Format::ToVector2DF(Range.first);
-			Vector2DF rangeMax = Format::ToVector2DF(Range.second);
+			Vector2DF rangeMin = Format::ToVector2DF(m_range.first);
+			Vector2DF rangeMax = Format::ToVector2DF(m_range.second);
 
 			if ((value.X < rangeMin.X) || (value.X > rangeMax.X)
 				|| (value.Y < rangeMin.Y) || (value.Y > rangeMax.Y))
@@ -226,27 +240,27 @@ bool Setting::IsValueValid(const std::string& sValue) const
 
 bool Setting::IsModifiable() const
 {
-	return Modifiable;
+	return m_modifiable;
 }
 
 bool Setting::HasCallback() const
 {
-	return (!!Callback);
+	return !!m_callback;
 }
 
 bool Setting::HasArgumentCallback() const
 {
-	return (!!ArgumentCallback);
+	return !!m_argumentCallback;
 }
 
 const std::string& Setting::GetDefaultValue() const
 {
-	return DefaultValue;
+	return m_defaultValue;
 }
 
 const std::string& Setting::GetStringValue() const
 {
-	return CurrentValue;
+	return m_currentValue;
 }
 
 int32_t Setting::GetIntValue() const
@@ -370,25 +384,25 @@ Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 		{
 			if (GetType() == SettingTypes::TYPE_BOOL)
 			{
-				if (sValue == "1" || sValue == "true")
+				if ((sValue == "1") || (sValue == "true"))
 				{
-					CurrentValue = "true";
+					m_currentValue = "true";
 				}
 				else
 				{
-					CurrentValue = "false";
+					m_currentValue = "false";
 				}
 			}
 			else
 			{
-				CurrentValue = sValue;
+				m_currentValue = sValue;
 			}
 
 			TriggerCallbacks();
 		}
 		else
 		{
-			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is out of range, this setting has a minimum value of \"" + Range.first + "\" and a maximum value of \"" + Range.second + "\".");
+			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is out of range, this setting has a minimum value of \"" + m_range.first + "\" and a maximum value of \"" + m_range.second + "\".");
 		}
 	}
 
@@ -457,14 +471,14 @@ Setting* Setting::SetVector2DIValue(const Vector2DI& viValue, ThreadTypes thread
 
 Setting* Setting::RemoveRange()
 {
-	Range.first.clear();
-	Range.second.clear();
+	m_range.first.clear();
+	m_range.second.clear();
 	return this;
 }
 
 Setting* Setting::SetStringRange(const std::string& minValue, const std::string& maxValue)
 {
-	Range = std::make_pair(minValue, maxValue);
+	m_range = { minValue, maxValue };
 	return this;
 }
 
@@ -513,19 +527,19 @@ Setting* Setting::SetVector2DIRange(const Vector2DI& minValue, const Vector2DI& 
 std::pair<int32_t, int32_t> Setting::GetIntRange() const
 {
 	std::pair<float, float> floatRange = GetFloatRange();
-	return std::make_pair(static_cast<int32_t>(floatRange.first), static_cast<int32_t>(floatRange.second));
+	return { static_cast<int32_t>(floatRange.first), static_cast<int32_t>(floatRange.second) };
 }
 
 std::pair<float, float> Setting::GetFloatRange() const
 {
-	std::pair<float, float> returnRange = std::make_pair(0.0f, 0.0f);
+	std::pair<float, float> returnRange{ 0.0f, 0.0f };
 
 	if (HasRange())
 	{
-		if (Format::IsStringFloat(Range.first) && Format::IsStringFloat(Range.second))
+		if (Format::IsStringFloat(m_range.first) && Format::IsStringFloat(m_range.second))
 		{
-			returnRange.first = std::stof(Range.first);
-			returnRange.second = std::stof(Range.second);
+			returnRange.first = std::stof(m_range.first);
+			returnRange.second = std::stof(m_range.second);
 		}
 	}
 
@@ -534,12 +548,12 @@ std::pair<float, float> Setting::GetFloatRange() const
 
 std::pair<Rotator, Rotator> Setting::GetRotatorRange() const
 {
-	std::pair<Rotator, Rotator> returnRange = std::make_pair(Rotator(), Rotator());
+	std::pair<Rotator, Rotator> returnRange;
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToRotator(Range.first);
-		returnRange.second = Format::ToRotator(Range.second);
+		returnRange.first = Format::ToRotator(m_range.first);
+		returnRange.second = Format::ToRotator(m_range.second);
 	}
 
 	return returnRange;
@@ -547,12 +561,12 @@ std::pair<Rotator, Rotator> Setting::GetRotatorRange() const
 
 std::pair<VectorF, VectorF> Setting::GetVectorFRange() const
 {
-	std::pair<VectorF, VectorF> returnRange = std::make_pair(VectorF(), VectorF());
+	std::pair<VectorF, VectorF> returnRange;
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToVectorF(Range.first);
-		returnRange.second = Format::ToVectorF(Range.second);
+		returnRange.first = Format::ToVectorF(m_range.first);
+		returnRange.second = Format::ToVectorF(m_range.second);
 	}
 
 	return returnRange;
@@ -560,12 +574,12 @@ std::pair<VectorF, VectorF> Setting::GetVectorFRange() const
 
 std::pair<VectorI, VectorI> Setting::GetVectorIRange() const
 {
-	std::pair<VectorI, VectorI> returnRange = std::make_pair(VectorI(), VectorI());
+	std::pair<VectorI, VectorI> returnRange;
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToVectorI(Range.first);
-		returnRange.second = Format::ToVectorI(Range.second);
+		returnRange.first = Format::ToVectorI(m_range.first);
+		returnRange.second = Format::ToVectorI(m_range.second);
 	}
 
 	return returnRange;
@@ -573,12 +587,12 @@ std::pair<VectorI, VectorI> Setting::GetVectorIRange() const
 
 std::pair<Vector2DF, Vector2DF> Setting::GetVector2DFRange() const
 {
-	std::pair<Vector2DF, Vector2DF> returnRange = std::make_pair(Vector2DF(), Vector2DF());
+	std::pair<Vector2DF, Vector2DF> returnRange;
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToVector2DF(Range.first);
-		returnRange.second = Format::ToVector2DF(Range.second);
+		returnRange.first = Format::ToVector2DF(m_range.first);
+		returnRange.second = Format::ToVector2DF(m_range.second);
 	}
 
 	return returnRange;
@@ -586,12 +600,12 @@ std::pair<Vector2DF, Vector2DF> Setting::GetVector2DFRange() const
 
 std::pair<Vector2DI, Vector2DI> Setting::GetVector2DIRange() const
 {
-	std::pair<Vector2DI, Vector2DI> returnRange = std::make_pair(Vector2DI(), Vector2DI());
+	std::pair<Vector2DI, Vector2DI> returnRange;
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToVector2DI(Range.first);
-		returnRange.second = Format::ToVector2DI(Range.second);
+		returnRange.first = Format::ToVector2DI(m_range.first);
+		returnRange.second = Format::ToVector2DI(m_range.second);
 	}
 
 	return returnRange;
@@ -599,20 +613,20 @@ std::pair<Vector2DI, Vector2DI> Setting::GetVector2DIRange() const
 
 Setting* Setting::UnbindCallbacks()
 {
-	Callback = nullptr;
-	ArgumentCallback = nullptr;
+	m_callback = nullptr;
+	m_argumentCallback = nullptr;
 	return this;
 }
 
 Setting* Setting::BindCallback(std::function<void()> callback)
 {
-	Callback = callback;
+	m_callback = callback;
 	return this;
 }
 
 Setting* Setting::BindCallback(std::function<void(std::string)> callback)
 {
-	ArgumentCallback = callback;
+	m_argumentCallback = callback;
 	return this;
 }
 
@@ -620,44 +634,44 @@ void Setting::TriggerCallbacks() const
 {
 	if (HasCallback())
 	{
-		Callback();
+		m_callback();
 	}
 	else if (HasArgumentCallback())
 	{
-		ArgumentCallback(GetStringValue());
+		m_argumentCallback(GetStringValue());
 	}
 }
 
 Setting& Setting::operator=(const Setting& setting)
 {
-	Variable = setting.Variable;
-	Type = setting.Type;
-	Description = setting.Description;
-	DefaultValue = setting.DefaultValue;
-	CurrentValue = setting.CurrentValue;
-	Range = setting.Range;
-	Modifiable = setting.Modifiable;
-	Callback = setting.Callback;
-	ArgumentCallback = setting.ArgumentCallback;
+	m_variable = setting.m_variable;
+	m_type = setting.m_type;
+	m_description = setting.m_description;
+	m_defaultValue = setting.m_defaultValue;
+	m_currentValue = setting.m_currentValue;
+	m_range = setting.m_range;
+	m_modifiable = setting.m_modifiable;
+	m_callback = setting.m_callback;
+	m_argumentCallback = setting.m_argumentCallback;
 	return *this;
 }
 
 Command::Command(VariableIds variable, const std::string& description, bool bSearchable) :
-	Variable(variable),
-	Description(description),
-	Searchable(bSearchable),
-	Callback(nullptr),
-	ArgumentCallback(nullptr)
+	m_variable(variable),
+	m_description(description),
+	m_searchable(bSearchable),
+	m_callback(nullptr),
+	m_argumentCallback(nullptr)
 {
 
 }
 
 Command::Command(const Command& command) :
-	Variable(command.Variable),
-	Description(command.Description),
-	Searchable(command.Searchable),
-	Callback(command.Callback),
-	ArgumentCallback(command.ArgumentCallback)
+	m_variable(command.m_variable),
+	m_description(command.m_description),
+	m_searchable(command.m_searchable),
+	m_callback(command.m_callback),
+	m_argumentCallback(command.m_argumentCallback)
 {
 
 }
@@ -666,7 +680,7 @@ Command::~Command() {}
 
 VariableIds Command::GetId() const
 {
-	return Variable;
+	return m_variable;
 }
 
 std::string Command::GetName() const
@@ -676,40 +690,40 @@ std::string Command::GetName() const
 
 const std::string& Command::GetDescription() const
 {
-	return Description;
+	return m_description;
 }
 
 bool Command::IsSearchable() const
 {
-	return Searchable;
+	return m_searchable;
 }
 
 bool Command::HasCallback() const
 {
-	return (!!Callback);
+	return !!m_callback;
 }
 
 bool Command::HasArgumentCallback() const
 {
-	return (!!ArgumentCallback);
+	return !!m_argumentCallback;
 }
 
 Command* Command::BindCallback(std::function<void()> callback)
 {
-	Callback = callback;
+	m_callback = callback;
 	return this;
 }
 
-Command* Command::BindCallback(std::function<void(std::string)> argumentCallback)
+Command* Command::BindCallback(std::function<void(std::string)> m_argumentCallback)
 {
-	ArgumentCallback = argumentCallback;
+	m_argumentCallback = m_argumentCallback;
 	return this;
 }
 
 Command* Command::UnbindCallbacks()
 {
-	Callback = nullptr;
-	ArgumentCallback = nullptr;
+	m_callback = nullptr;
+	m_argumentCallback = nullptr;
 	return this;
 }
 
@@ -717,7 +731,7 @@ void Command::TriggerCallback() const
 {
 	if (HasCallback())
 	{
-		Callback();
+		m_callback();
 	}
 	else
 	{
@@ -729,7 +743,7 @@ void Command::TriggerCallback(const std::string& arguments) const
 {
 	if (HasArgumentCallback())
 	{
-		ArgumentCallback(arguments);
+		m_argumentCallback(arguments);
 	}
 	else
 	{
@@ -739,11 +753,11 @@ void Command::TriggerCallback(const std::string& arguments) const
 
 Command& Command::operator=(const Command& command)
 {
-	Variable = command.Variable;
-	Description = command.Description;
-	Searchable = command.Searchable;
-	Callback = command.Callback;
-	ArgumentCallback = command.ArgumentCallback;
+	m_variable = command.m_variable;
+	m_description = command.m_description;
+	m_searchable = command.m_searchable;
+	m_callback = command.m_callback;
+	m_argumentCallback = command.m_argumentCallback;
 	return *this;
 }
 
@@ -874,7 +888,7 @@ std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const Que
 	if ((thread != ThreadTypes::THREAD_GAME) || (queueData.IsAsync()))
 	{
 		m_queue.push_back(queueData);
-		return std::make_pair(CommandTypes::TYPE_QUEUED, "");
+		return { CommandTypes::TYPE_QUEUED, "" };
 	}
 	else
 	{
@@ -894,12 +908,12 @@ std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const Que
 				}
 				else
 				{
-					return std::make_pair(CommandTypes::TYPE_EMPTY_ARGUMENTS, "");
+					return { CommandTypes::TYPE_EMPTY_ARGUMENTS, "" };
 				}
 			}
 			else
 			{
-				return std::make_pair(CommandTypes::TYPE_INVALID_ARGUMENTS, "");
+				return { CommandTypes::TYPE_INVALID_ARGUMENTS, "" };
 			}
 		}
 		else
@@ -912,21 +926,21 @@ std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const Que
 				{
 					std::string oldValue = consoleSetting->GetStringValue();
 					consoleSetting->SetStringValue(queueData.Arguments);
-					return std::make_pair(CommandTypes::TYPE_MODIFY_SETTING, oldValue);
+					return { CommandTypes::TYPE_MODIFY_SETTING, oldValue };
 				}
 				else
 				{
-					return std::make_pair(CommandTypes::TYPE_PRINT_SETTING, "");
+					return { CommandTypes::TYPE_PRINT_SETTING, "" };
 				}
 			}
 			else
 			{
-				return std::make_pair(CommandTypes::TYPE_UNRECOGNIZED, "");
+				return { CommandTypes::TYPE_UNRECOGNIZED, "" };
 			}
 		}
 	}
 
-	return std::make_pair(CommandTypes::TYPE_NONE, "");
+	return { CommandTypes::TYPE_NONE, "" };
 }
 
 std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const std::string& command, const std::string& arguments, ThreadTypes thread)

@@ -22,4 +22,7 @@ public:
 	std::string GetName() const;
 	std::string GetNameFormatted() const;
 	std::string GetDescription() const;
+
+public:
+	Component& operator=(const Component& component);
 };

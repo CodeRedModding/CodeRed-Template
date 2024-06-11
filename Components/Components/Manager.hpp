@@ -49,21 +49,22 @@ enum class VariableIds : int32_t
 class Setting
 {
 private:
-	VariableIds Variable;									// Settings identification.
-	SettingTypes Type;										// Settings underlying type.
-	std::string Description;								// Settings description.
-	std::string DefaultValue;								// Settings default value.
-	std::string CurrentValue;								// Settings current value.
-	std::pair<std::string, std::string> Range;				// Settings minimum and maximum value range.
-	bool Modifiable;										// If the setting is modifiable/visible by the user.
-	std::function<void()> Callback;							// Callback function if the user has one bound.
-	std::function<void(std::string)> ArgumentCallback;		// Argument callback function if the user has one bound.
+	VariableIds m_variable;									// Settings identification.
+	SettingTypes m_type;									// Settings underlying type.
+	std::string m_description;								// Settings description.
+	std::string m_defaultValue;								// Settings default value.
+	std::string m_currentValue;								// Settings current value.
+	std::pair<std::string, std::string> m_range;			// Settings minimum and maximum value range.
+	bool m_modifiable;										// If the setting is modifiable/visible by the user.
+	std::function<void()> m_callback;						// Callback function if the user has one bound.
+	std::function<void(std::string)> m_argumentCallback;	// Argument callback function if the user has one bound.
 
 public:
 	Setting() = delete;
 	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable);
 	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void()> callback);
 	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void(std::string)> callback);
+	Setting(const Setting& setting);
 	~Setting();
 
 public:
@@ -135,11 +136,11 @@ public:
 class Command
 {
 private:
-	VariableIds Variable;									// Commands identification.
-	std::string Description;								// Commands description.
-	bool Searchable;										// If the command can be searched in the console.
-	std::function<void()> Callback;							// Commands callback.
-	std::function<void(std::string)> ArgumentCallback;		// Commands callback with arguments
+	VariableIds m_variable;									// Commands identification.
+	std::string m_description;								// Commands description.
+	bool m_searchable;										// If the command can be searched in the console.
+	std::function<void()> m_callback;						// Commands callback.
+	std::function<void(std::string)> m_argumentCallback;	// Commands callback with arguments
 
 public:
 	Command() = delete;

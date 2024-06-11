@@ -1,5 +1,10 @@
 #pragma once
 /*
+    Changes in v1.4.3:
+    - Added a new "HooksComponent" in "Events.hpp/cpp", this is to be used in place of the "Hooks" namespace.
+    - Remade the examples for hooking functions in the "EventsComponent::Initialize()" function inside "Events.cpp".
+    - Renamed all the class variables in "Manager.hpp/cpp" to be consistent with the rest of the project.
+
     Changes in v1.4.2:
     - Fixed the "MarkInvincible" and "MarkForDestroy" functions in "Instances.cpp" using the wrong flags.
 

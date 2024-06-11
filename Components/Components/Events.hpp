@@ -47,15 +47,26 @@ public:
 	PostEvent& operator=(const PostEvent& other);
 };
 
-namespace Hooks
+class HooksComponent : public Component
 {
+public:
+	HooksComponent();
+	~HooksComponent() override;
+
+public:
+	void OnCreate() override;
+	void OnDestroy() override;
+
+public: // Pre Hooks
 	void HUDPostRender(PreEvent& event);
-	void HUDPostRenderPost(const PostEvent& event);
 	void GameViewPortPostRender(PreEvent& event);
-	void GFxDataMainMenuAdded(PreEvent& event);
 	void PlayerControllerTick(PreEvent& event);
+
+public: // Post Hooks
 	void GameViewPortKeyPress(const PostEvent& event);
-}
+};
+
+extern class HooksComponent Hooks;
 
 typedef void(*ProcessEventType)(class UObject*, class UFunction*, void*, void*); // Calling object, function, structure pointer with parameters, unused result
 

@@ -96,59 +96,56 @@ PostEvent& PostEvent::operator=(const PostEvent& other)
 	return *this;
 }
 
-namespace Hooks
+HooksComponent::HooksComponent() : Component("Hooks", "Manages hooked functions and their arguments.") { OnCreate(); }
+
+HooksComponent::~HooksComponent() { OnDestroy(); }
+
+void HooksComponent::OnCreate() {}
+
+void HooksComponent::OnDestroy() {}
+
+// Pre Hooks
+
+void HooksComponent::HUDPostRender(PreEvent& event)
 {
-	void HUDPostRender(PreEvent& event)
+	if (event.Caller())
 	{
-		if (event.Caller())
-		{
-			Instances.SetHUD(event.GetCaller<AHUD>());
-		}
-	}
-
-	void HUDPostRenderPost(const PostEvent& event)
-	{
-		if (event.Caller())
-		{
-			Manager.OnTick();
-		}
-	}
-
-	void GameViewPortPostRender(PreEvent& event)
-	{
-		if (event.Caller())
-		{
-			Instances.SetGameViewportClient(event.GetCaller<UGameViewportClient>());			
-		}
-	}
-
-	void PlayerControllerTick(PreEvent& event)
-	{
-		if (event.Caller())
-		{
-			Instances.SetPlayerController(event.GetCaller<APlayerController>());
-		}
-	}
-
-	void GameViewPortKeyPress(const PostEvent& event)
-	{
-		if (event.Params())
-		{
-			UGameViewportClient_TA_execHandleKeyPress_Params* handleKeyPress = event.GetParams<UGameViewportClient_TA_execHandleKeyPress_Params>();
-
-			if (handleKeyPress->EventType == static_cast<uint8_t>(EInputEvent::IE_Released))
-			{
-				// Blah blah do key pressed stuff here blah blah
-			}
-		}
-	}
-
-	void GFxDataMainMenuAdded(PreEvent& event)
-	{
-		GameState.SetState(STATES_MainMenu);
-		event.SetDetour(false); // Purely an example only, if you were to "SetDetour(false)" your hooked function will NOT go through Process Event, so the game will never recognize that it was called.
+		Instances.SetHUD(event.GetCaller<AHUD>());
 	}
 }
+
+void HooksComponent::GameViewPortPostRender(PreEvent& event)
+{
+	if (event.Caller())
+	{
+		Instances.SetGameViewportClient(event.GetCaller<UGameViewportClient>());
+	}
+}
+
+void HooksComponent::PlayerControllerTick(PreEvent& event)
+{
+	if (event.Caller())
+	{
+		Instances.SetPlayerController(event.GetCaller<APlayerController>());
+	}
+}
+
+// Post Hooks
+
+void HooksComponent::GameViewPortKeyPress(const PostEvent& event)
+{
+	if (event.Params())
+	{
+		UGameViewportClient_TA_execHandleKeyPress_Params* handleKeyPress = event.GetParams<UGameViewportClient_TA_execHandleKeyPress_Params>();
+
+		if (handleKeyPress->EventType == static_cast<uint8_t>(EInputEvent::IE_Released))
+		{
+			// Blah blah do key pressed stuff here blah blah
+		}
+	}
+}
+
+class HooksComponent Hooks{};
 
 EventsComponent::EventsComponent() : Component("Events", "Manages function hooks and process event.") { OnCreate(); }
 
@@ -365,23 +362,17 @@ void EventsComponent::Initialize()
 #endif
 
 	// Example functions only, you will need to function scan in your game for your own to hook!
-	BlacklistEvent("Function Engine.Tracker.ReportMetrics");
+	BlacklistEvent("Function Engine.Tracker.UploadData");
 
-	// You can hook functions like this.
-	HookEventPre("Function Engine.HUD.PostRender", &Hooks::HUDPostRender);
+	// Pre Hooks
 
-	// Or like this, with std::bind.
-	HookEventPost("Function Engine.HUD.PostRender", std::bind(&Hooks::HUDPostRenderPost, std::placeholders::_1));
+	HookEventPre("Function Engine.HUD.PostRender", [&](PreEvent& event) { Hooks.HUDPostRender(event); });
+	HookEventPre("Function Engine.GameViewportClient.PostRender", [&](PreEvent& event) { Hooks.GameViewPortPostRender(event); });
+	HookEventPre("Function Engine.PlayerController.PlayerTick", [&](PreEvent& event) { Hooks.PlayerControllerTick(event); });
 
-	// Or even like this, with lambda expressions.
-	HookEventPre("Function Engine.GameViewportClient.PostRender", [&](PreEvent& event) {
-		Hooks::GameViewPortPostRender(event);
-		Console.Write("I'm a lambda function hook!");
-	});
+	// Post Hooks
 
-	HookEventPre("Function Engine.PlayerController.PlayerTick", &Hooks::PlayerControllerTick);
-	HookEventPost("Function Engine.GameViewportClient.HandleKeyPress", &Hooks::GameViewPortKeyPress);
-	HookEventPre("Function Engine.GFxData_MainMenu.MainMenuAdded", &Hooks::GFxDataMainMenuAdded);
+	HookEventPost("Function Engine.GameViewportClient.HandleKeyPress", [&](const PostEvent& event) { Hooks.GameViewPortKeyPress(event); });
 
 	Console.Write(GetNameFormatted() + std::to_string(m_blacklisted.size()) + " Backlisted Event(s)!");
 	Console.Write(GetNameFormatted() + std::to_string(m_preHooks.size()) + " Pre-Hook(s) Initialized!");

@@ -41,3 +41,12 @@ void Module::SetInitialized(bool bInitialized)
 {
 	m_initialized = bInitialized;
 }
+
+Module& Module::operator=(const Module& module)
+{
+	m_name = module.m_name;
+	m_description = module.m_description;
+	m_allowedStates = module.m_allowedStates;
+	m_initialized = module.m_initialized;
+	return *this;
+}

@@ -24,4 +24,7 @@ public:
 	bool IsAllowed() const;
 	bool IsInitialized() const;
 	void SetInitialized(bool bInitialized);
+
+public:
+	Module& operator=(const Module& module);
 };
