@@ -82,7 +82,7 @@ Color& Color::FromHex(std::string hexColor)
 			hexColor = hexColor.substr(0, 8);
 		}
 
-		uint32_t alpha = 255;
+		uint64_t alpha = 255;
 
 		if (hexColor.length() == 8)
 		{
@@ -96,14 +96,19 @@ Color& Color::FromHex(std::string hexColor)
 			hexColor = hexColor.substr(0, 6); // Removes the alpha value, or invalid trailing characters.
 		}
 
-		if (hexColor.length() == 6)
+		if (hexColor.length() >= 2)
 		{
-			uint32_t red = Format::ToDecimal(hexColor.substr(0, 2));
-			uint32_t green = Format::ToDecimal(hexColor.substr(2, 2));
-			uint32_t blue = Format::ToDecimal(hexColor.substr(4, 2));
-			R = static_cast<uint8_t>(red);
-			G = static_cast<uint8_t>(green);
-			B = static_cast<uint8_t>(blue);
+			R = static_cast<uint8_t>(Format::ToDecimal(hexColor.substr(0, 2)));
+		}
+
+		if (hexColor.length() >= 4)
+		{
+			G = static_cast<uint8_t>(Format::ToDecimal(hexColor.substr(2, 2)));
+		}
+
+		if (hexColor.length() >= 6)
+		{
+			B = static_cast<uint8_t>(Format::ToDecimal(hexColor.substr(4, 2)));
 		}
 	}
 

@@ -48,7 +48,7 @@ enum class VariableIds : int32_t
 
 class Setting
 {
-private:
+private: // Storage.
 	VariableIds m_variable;									// Settings identification.
 	SettingTypes m_type;									// Settings underlying type.
 	std::string m_description;								// Settings description.
@@ -56,14 +56,16 @@ private:
 	std::string m_currentValue;								// Settings current value.
 	std::pair<std::string, std::string> m_range;			// Settings minimum and maximum value range.
 	bool m_modifiable;										// If the setting is modifiable/visible by the user.
+
+public: // Callbacks.
 	std::function<void()> m_callback;						// Callback function if the user has one bound.
 	std::function<void(std::string)> m_argumentCallback;	// Argument callback function if the user has one bound.
 
 public:
 	Setting() = delete;
 	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable);
-	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void()> callback);
-	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void(std::string)> callback);
+	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, const std::function<void()>& callback);
+	Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, const std::function<void(std::string)>& callback);
 	Setting(const Setting& setting);
 	~Setting();
 
@@ -125,8 +127,8 @@ public:
 
 public:
 	Setting* UnbindCallbacks();
-	Setting* BindCallback(std::function<void()> callback);
-	Setting* BindCallback(std::function<void(std::string)> callback);
+	Setting* BindCallback(const std::function<void()>& callback);
+	Setting* BindCallback(const std::function<void(std::string)>& callback);
 	void TriggerCallbacks() const;
 
 public:
@@ -135,10 +137,12 @@ public:
 
 class Command
 {
-private:
+private: // Storage.
 	VariableIds m_variable;									// Commands identification.
 	std::string m_description;								// Commands description.
 	bool m_searchable;										// If the command can be searched in the console.
+
+public: // Callbacks.
 	std::function<void()> m_callback;						// Commands callback.
 	std::function<void(std::string)> m_argumentCallback;	// Commands callback with arguments
 
@@ -155,9 +159,9 @@ public:
 	bool IsSearchable() const;
 	bool HasCallback() const;
 	bool HasArgumentCallback() const;
-	Command* BindCallback(std::function<void()> callback);
-	Command* BindCallback(std::function<void(std::string)> argumentCallback);
 	Command* UnbindCallbacks();
+	Command* BindCallback(const std::function<void()>& callback);
+	Command* BindCallback(const std::function<void(std::string)>& callback);
 	void TriggerCallback() const;
 	void TriggerCallback(const std::string& arguments) const;
 
@@ -195,11 +199,11 @@ public:
 class ManagerComponent : public Component
 {
 private:
-	static inline std::map<VariableIds, std::string> m_variables;
-	static inline std::unordered_map<std::string, std::shared_ptr<Module>> m_modules;
-	static inline std::unordered_map<std::string, std::shared_ptr<Command>> m_commands;
-	static inline std::unordered_map<std::string, std::shared_ptr<Setting>> m_settings;
-	static inline std::vector<QueueData> m_queue;
+	std::map<VariableIds, std::string> m_variables;
+	std::map<std::string, std::shared_ptr<Module>> m_modules;
+	std::map<std::string, std::shared_ptr<Command>> m_commands;
+	std::map<std::string, std::shared_ptr<Setting>> m_settings;
+	std::vector<QueueData> m_queue;
 
 public:
 	std::shared_ptr<PlaceholderModule> PlaceholderMod;
@@ -225,11 +229,11 @@ public:
 	void OnTick(); // Checks the "CommandQueue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
 
 public:
-	static void ResetSetting(const std::string& settingName, bool bLogToConsole = true);
-	static void CreateVariable(std::string name, VariableIds variable);
-	static std::string GetVariableName(VariableIds variable);
-	template <typename T> static std::shared_ptr<T> CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind);
-	template <typename T> static std::shared_ptr<T> GetModule(const std::string& moduleName)
+	void ResetSetting(const std::string& settingName, bool bLogToConsole = true);
+	void CreateVariable(std::string name, VariableIds variable);
+	std::string GetVariableName(VariableIds variable);
+	template <typename T> std::shared_ptr<T> CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind);
+	template <typename T> std::shared_ptr<T> GetModule(const std::string& moduleName)
 	{
 		if (m_modules.contains(moduleName))
 		{
@@ -238,12 +242,12 @@ public:
 
 		return nullptr;
 	}
-	static std::shared_ptr<Command> CreateCommand(Command* command);
-	static std::shared_ptr<Command> GetCommand(const std::string& commandName);
-	static std::shared_ptr<Command> GetCommand(VariableIds variable);
-	static std::shared_ptr<Setting> CreateSetting(Setting* setting);
-	static std::shared_ptr<Setting> GetSetting(const std::string& settingName);
-	static std::shared_ptr<Setting> GetSetting(VariableIds variable);
+	std::shared_ptr<Command> CreateCommand(Command* command);
+	std::shared_ptr<Command> GetCommand(const std::string& commandName);
+	std::shared_ptr<Command> GetCommand(VariableIds variable);
+	std::shared_ptr<Setting> CreateSetting(Setting* setting);
+	std::shared_ptr<Setting> GetSetting(const std::string& settingName);
+	std::shared_ptr<Setting> GetSetting(VariableIds variable);
 	void Initialize(); // Creates all settings, commands, modules, and maps them out.
 };
 

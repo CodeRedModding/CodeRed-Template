@@ -14,7 +14,7 @@ Setting::Setting(VariableIds variable, SettingTypes settingType, const std::stri
 
 }
 
-Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void()> callback) :
+Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, const std::function<void()>& callback) :
 	m_variable(variable),
 	m_type(settingType),
 	m_description(description),
@@ -27,7 +27,7 @@ Setting::Setting(VariableIds variable, SettingTypes settingType, const std::stri
 
 }
 
-Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, std::function<void(std::string)> callback) :
+Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, const std::function<void(std::string)>& callback) :
 	m_variable(variable),
 	m_type(settingType),
 	m_description(description),
@@ -68,7 +68,7 @@ SettingTypes Setting::GetType() const
 
 std::string Setting::GetName() const
 {
-	return ManagerComponent::GetVariableName(GetId());
+	return Manager.GetVariableName(GetId());
 }
 
 const std::string& Setting::GetDescription() const
@@ -618,13 +618,13 @@ Setting* Setting::UnbindCallbacks()
 	return this;
 }
 
-Setting* Setting::BindCallback(std::function<void()> callback)
+Setting* Setting::BindCallback(const std::function<void()>& callback)
 {
 	m_callback = callback;
 	return this;
 }
 
-Setting* Setting::BindCallback(std::function<void(std::string)> callback)
+Setting* Setting::BindCallback(const std::function<void(std::string)>& callback)
 {
 	m_argumentCallback = callback;
 	return this;
@@ -708,22 +708,22 @@ bool Command::HasArgumentCallback() const
 	return !!m_argumentCallback;
 }
 
-Command* Command::BindCallback(std::function<void()> callback)
+Command* Command::UnbindCallbacks()
+{
+	m_callback = nullptr;
+	m_argumentCallback = nullptr;
+	return this;
+}
+
+Command* Command::BindCallback(const std::function<void()>& callback)
 {
 	m_callback = callback;
 	return this;
 }
 
-Command* Command::BindCallback(std::function<void(std::string)> m_argumentCallback)
+Command* Command::BindCallback(const std::function<void(std::string)>& callback)
 {
-	m_argumentCallback = m_argumentCallback;
-	return this;
-}
-
-Command* Command::UnbindCallbacks()
-{
-	m_callback = nullptr;
-	m_argumentCallback = nullptr;
+	m_argumentCallback = callback;
 	return this;
 }
 
@@ -830,7 +830,7 @@ QueueData& QueueData::operator=(const QueueData& queueData)
 	return *this;
 }
 
-ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, commands, and mods.") { OnCreate(); }
+ManagerComponent::ManagerComponent() : Component("Manager", "Manages settings, commands, and modules.") { OnCreate(); }
 
 ManagerComponent::~ManagerComponent() { OnDestroy(); }
 

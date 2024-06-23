@@ -1,5 +1,9 @@
 #pragma once
 /*
+    Changes in v1.4.4:
+    - Changed the member variables and functions in "Manager.hpp" being static to just normal, I can't remember why I made them static in the first place.
+    - Fixed a rare case of the "Color::FromHex" function in "Colors.cpp" not parsing a hex string properly.
+
     Changes in v1.4.3:
     - Added a new "HooksComponent" in "Events.hpp/cpp", this is to be used in place of the "Hooks" namespace.
     - Remade the examples for hooking functions in the "EventsComponent::Initialize()" function inside "Events.cpp".
