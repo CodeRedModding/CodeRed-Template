@@ -43,12 +43,12 @@ void ConsoleComponent::SetClockStyle(bool bIs24Hours)
 
 std::string ConsoleComponent::CreateTimestamp(bool bBrackets)
 {
-	return Time::Timestamp::Create(m_24hourClock).FormatStandard(bBrackets, false);
+	return CodeRed::Time::Timestamp::Create(m_24hourClock).FormatStandard(bBrackets, false);
 }
 
 std::string ConsoleComponent::CreateTimestampISO8601(bool bBrackets)
 {
-	return Time::Timestamp::Create(m_24hourClock).FormatISO8601(bBrackets);
+	return CodeRed::Time::Timestamp::Create(m_24hourClock).FormatISO8601(bBrackets);
 }
 
 void ConsoleComponent::ColorConsole(TextColors textColor)

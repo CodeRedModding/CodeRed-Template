@@ -2,14 +2,6 @@
 #include "../Component.hpp"
 #include "../Modules/Includes.hpp"
 
-enum class ThreadTypes : uint8_t
-{
-	THREAD_GAME,
-	THREAD_CANVAS,
-	THREAD_RENDER,
-	THREAD_UNIQUE
-};
-
 enum class SettingTypes : uint8_t
 {
 	TYPE_NONE,
@@ -94,18 +86,18 @@ public:
 	VectorI GetVector3DIValue() const;
 	Vector2DF GetVector2DFValue() const;
 	Vector2DI GetVector2DIValue() const;
-	Setting* ResetToDefault(ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetStringValue(const std::string& sValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetIntValue(int32_t iValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetBoolValue(bool bValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetFloatValue(float fValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetColorValue(const Color& cValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetLinearValue(const LinearColor& lValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetRotatorValue(const Rotator& rValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetVectorFValue(const VectorF& vfValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetVectorIValue(const VectorI& viValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetVector2DFValue(const Vector2DF& vfValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	Setting* SetVector2DIValue(const Vector2DI& viValue, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	Setting* ResetToDefault(ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetStringValue(const std::string& sValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetIntValue(int32_t iValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetBoolValue(bool bValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetFloatValue(float fValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetColorValue(const Color& cValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetLinearValue(const LinearColor& lValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetRotatorValue(const Rotator& rValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetVectorFValue(const VectorF& vfValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetVectorIValue(const VectorI& viValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetVector2DFValue(const Vector2DF& vfValue, ThreadTypes thread = ThreadTypes::Main);
+	Setting* SetVector2DIValue(const Vector2DI& viValue, ThreadTypes thread = ThreadTypes::Main);
 
 public:
 	Setting* RemoveRange();
@@ -218,14 +210,14 @@ public:
 
 public:
 	void UnrealCommand(const std::string& unrealCommand, bool bLogToConsole = true);
-	std::pair<CommandTypes, std::string> InternalCommand(const QueueData& queueData, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	std::pair<CommandTypes, std::string> InternalCommand(const std::string& command, const std::string& arguments, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	std::pair<CommandTypes, std::string> InternalCommand(const std::string& command, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	void ConsoleCommand(const QueueData& queueData, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	void ConsoleCommand(const std::string& command, const std::string& arguments, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	void ConsoleCommand(const std::string& command, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	void AsyncCommand(const std::string& command, const std::string& arguments, uint64_t delay, ThreadTypes thread = ThreadTypes::THREAD_GAME);
-	void AsyncCommand(const std::string& command, uint64_t delay, ThreadTypes thread = ThreadTypes::THREAD_GAME);
+	std::pair<CommandTypes, std::string> InternalCommand(const QueueData& queueData, ThreadTypes thread = ThreadTypes::Main);
+	std::pair<CommandTypes, std::string> InternalCommand(const std::string& command, const std::string& arguments, ThreadTypes thread = ThreadTypes::Main);
+	std::pair<CommandTypes, std::string> InternalCommand(const std::string& command, ThreadTypes thread = ThreadTypes::Main);
+	void ConsoleCommand(const QueueData& queueData, ThreadTypes thread = ThreadTypes::Main);
+	void ConsoleCommand(const std::string& command, const std::string& arguments, ThreadTypes thread = ThreadTypes::Main);
+	void ConsoleCommand(const std::string& command, ThreadTypes thread = ThreadTypes::Main);
+	void AsyncCommand(const std::string& command, const std::string& arguments, uint64_t delay, ThreadTypes thread = ThreadTypes::Main);
+	void AsyncCommand(const std::string& command, uint64_t delay, ThreadTypes thread = ThreadTypes::Main);
 	void OnTick(); // Checks the "CommandQueue" vector to see if there are any commands that need to be sent through the "ConsoleCommand" function above.
 
 public:

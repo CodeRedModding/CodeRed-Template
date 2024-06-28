@@ -32,8 +32,8 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 
 	// Populate the GObject and GName addresses, remember to replace "PlaceholderGame" with your game.
 	uintptr_t entryPoint = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL));
-	GObjects = reinterpret_cast<TArray<UObject*>*>(Memory::FindPattern(GetModuleHandleW(NULL), GObjects_Pattern, GObjects_Mask));
-	GNames = reinterpret_cast<TArray<FNameEntry*>*>(Memory::FindPattern(GetModuleHandleW(NULL), GNames_Pattern, GNames_Mask));
+	GObjects = reinterpret_cast<TArray<UObject*>*>(CodeRed::Memory::FindPattern(GetModuleHandleW(NULL), GObjects_Pattern, GObjects_Mask));
+	GNames = reinterpret_cast<TArray<FNameEntry*>*>(CodeRed::Memory::FindPattern(GetModuleHandleW(NULL), GNames_Pattern, GNames_Mask));
 
 	// Verifies the global addresses are correct before continuing.
 	if (AreGlobalsValid())
@@ -43,9 +43,9 @@ void CoreComponent::InitializeGlobals(HMODULE hModule)
 		//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Index method.
 		//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(GetModuleHandleW(NULL), ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
 
-		Console.Notify("[Core Module] Entry Point " + Format::ToHex(reinterpret_cast<void*>(entryPoint)));
-		Console.Notify("[Core Module] Global Objects: " + Format::ToHex(GObjects));
-		Console.Notify("[Core Module] Global Names: " + Format::ToHex(GNames));
+		Console.Notify("[Core Module] Entry Point " + CodeRed::Format::ToHex(reinterpret_cast<void*>(entryPoint)));
+		Console.Notify("[Core Module] Global Objects: " + CodeRed::Format::ToHex(GObjects));
+		Console.Notify("[Core Module] Global Names: " + CodeRed::Format::ToHex(GNames));
 		Console.Write("[Core Module] Initialized!");
 
 		Instances.Initialize(); // Initialize class instances that aren't automatically set by function hooks.

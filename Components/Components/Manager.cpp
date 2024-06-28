@@ -105,9 +105,9 @@ bool Setting::InRange(const std::string& sValue) const
 		}
 		else if (GetType() == SettingTypes::TYPE_ROTATOR)
 		{
-			Rotator value = Format::ToRotator(sValue);
-			Rotator rangeMin = Format::ToRotator(m_range.first);
-			Rotator rangeMax = Format::ToRotator(m_range.second);
+			Rotator value = CodeRed::Format::ToRotator(sValue);
+			Rotator rangeMin = CodeRed::Format::ToRotator(m_range.first);
+			Rotator rangeMax = CodeRed::Format::ToRotator(m_range.second);
 
 			if ((value.Pitch < rangeMin.Pitch) || (value.Pitch > rangeMax.Pitch)
 				|| (value.Yaw < rangeMin.Yaw) || (value.Yaw > rangeMax.Yaw)
@@ -118,9 +118,9 @@ bool Setting::InRange(const std::string& sValue) const
 		}
 		else if (GetType() == SettingTypes::TYPE_VECTOR_3D)
 		{
-			VectorF value = Format::ToVectorF(sValue);
-			VectorF rangeMin = Format::ToVectorF(m_range.first);
-			VectorF rangeMax = Format::ToVectorF(m_range.second);
+			VectorF value = CodeRed::Format::ToVectorF(sValue);
+			VectorF rangeMin = CodeRed::Format::ToVectorF(m_range.first);
+			VectorF rangeMax = CodeRed::Format::ToVectorF(m_range.second);
 
 			if ((value.X < rangeMin.X) || (value.X > rangeMax.X)
 				|| (value.Y < rangeMin.Y) || (value.Y > rangeMax.Y)
@@ -131,9 +131,9 @@ bool Setting::InRange(const std::string& sValue) const
 		}
 		else if (GetType() == SettingTypes::TYPE_VECTOR_2D)
 		{
-			Vector2DF value = Format::ToVector2DF(sValue);
-			Vector2DF rangeMin = Format::ToVector2DF(m_range.first);
-			Vector2DF rangeMax = Format::ToVector2DF(m_range.second);
+			Vector2DF value = CodeRed::Format::ToVector2DF(sValue);
+			Vector2DF rangeMin = CodeRed::Format::ToVector2DF(m_range.first);
+			Vector2DF rangeMax = CodeRed::Format::ToVector2DF(m_range.second);
 
 			if ((value.X < rangeMin.X) || (value.X > rangeMax.X)
 				|| (value.Y < rangeMin.Y) || (value.Y > rangeMax.Y))
@@ -158,7 +158,7 @@ bool Setting::IsValueValid(const std::string& sValue) const
 	}
 	if (GetType() == SettingTypes::TYPE_INT)
 	{
-		if (!Format::IsStringFloat(sValue))
+		if (!CodeRed::Format::IsStringFloat(sValue))
 		{
 			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or 32 bit integer values.");
 			return false;
@@ -166,7 +166,7 @@ bool Setting::IsValueValid(const std::string& sValue) const
 	}
 	else if (GetType() == SettingTypes::TYPE_FLOAT)
 	{
-		if (!Format::IsStringFloat(sValue))
+		if (!CodeRed::Format::IsStringFloat(sValue))
 		{
 			Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or optionally 32 bit integer values.");
 			return false;
@@ -174,11 +174,11 @@ bool Setting::IsValueValid(const std::string& sValue) const
 	}
 	else if (GetType() == SettingTypes::TYPE_COLOR)
 	{
-		std::string cValue = Format::RemoveAllChars(sValue, '#');
+		std::string cValue = CodeRed::Format::RemoveAllChars(sValue, '#');
 
-		if (Format::IsStringHexadecimal(cValue) && (cValue.length() <= 8))
+		if (CodeRed::Format::IsStringHexadecimal(cValue) && (cValue.length() <= 8))
 		{
-			uint64_t dValue = Format::ToDecimal(cValue);
+			uint64_t dValue = CodeRed::Format::ToDecimal(cValue);
 
 			if (dValue <= 0xFFFFFFFF)
 			{
@@ -191,11 +191,11 @@ bool Setting::IsValueValid(const std::string& sValue) const
 	}
 	else if (GetType() == SettingTypes::TYPE_ROTATOR)
 	{
-		std::vector<std::string> values = Format::Split(sValue, ' ');
+		std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
 
 		if (values.size() >= 3)
 		{
-			if (Format::IsStringDecimal(values[0]) && Format::IsStringDecimal(values[1]) && Format::IsStringDecimal(values[2]))
+			if (CodeRed::Format::IsStringDecimal(values[0]) && CodeRed::Format::IsStringDecimal(values[1]) && CodeRed::Format::IsStringDecimal(values[2]))
 			{
 				return true;
 			}
@@ -206,11 +206,11 @@ bool Setting::IsValueValid(const std::string& sValue) const
 	}
 	else if (GetType() == SettingTypes::TYPE_VECTOR_3D)
 	{
-		std::vector<std::string> values = Format::Split(sValue, ' ');
+		std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
 
 		if (values.size() >= 3)
 		{
-			if (Format::IsStringFloat(values[0]) && Format::IsStringFloat(values[1]) && Format::IsStringFloat(values[2]))
+			if (CodeRed::Format::IsStringFloat(values[0]) && CodeRed::Format::IsStringFloat(values[1]) && CodeRed::Format::IsStringFloat(values[2]))
 			{
 				return true;
 			}
@@ -221,11 +221,11 @@ bool Setting::IsValueValid(const std::string& sValue) const
 	}
 	else if (GetType() == SettingTypes::TYPE_VECTOR_2D)
 	{
-		std::vector<std::string> values = Format::Split(sValue, ' ');
+		std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
 
 		if (values.size() >= 2)
 		{
-			if (Format::IsStringFloat(values[0]) && Format::IsStringFloat(values[1]))
+			if (CodeRed::Format::IsStringFloat(values[0]) && CodeRed::Format::IsStringFloat(values[1]))
 			{
 				return true;
 			}
@@ -320,7 +320,7 @@ Rotator Setting::GetRotatorValue() const
 {
 	if (GetType() == SettingTypes::TYPE_ROTATOR)
 	{
-		return Format::ToRotator(GetStringValue());
+		return CodeRed::Format::ToRotator(GetStringValue());
 	}
 
 	return Rotator();
@@ -330,7 +330,7 @@ VectorF Setting::GetVector3DFValue() const
 {
 	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
 	{
-		return Format::ToVectorF(GetStringValue());
+		return CodeRed::Format::ToVectorF(GetStringValue());
 	}
 
 	return VectorF();
@@ -340,7 +340,7 @@ VectorI Setting::GetVector3DIValue() const
 {
 	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
 	{
-		return Format::ToVectorI(GetStringValue());
+		return CodeRed::Format::ToVectorI(GetStringValue());
 	}
 
 	return VectorI();
@@ -350,7 +350,7 @@ Vector2DF Setting::GetVector2DFValue() const
 {
 	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
 	{
-		return Format::ToVector2DF(GetStringValue());
+		return CodeRed::Format::ToVector2DF(GetStringValue());
 	}
 
 	return Vector2DF();
@@ -360,7 +360,7 @@ Vector2DI Setting::GetVector2DIValue() const
 {
 	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
 	{
-		return Format::ToVector2DI(GetStringValue());
+		return CodeRed::Format::ToVector2DI(GetStringValue());
 	}
 
 	return Vector2DI();
@@ -374,7 +374,7 @@ Setting* Setting::ResetToDefault(ThreadTypes thread)
 
 Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 {
-	if (thread != ThreadTypes::THREAD_GAME)
+	if (thread != ThreadTypes::Main)
 	{
 		Manager.InternalCommand(GetName(), sValue, thread);
 	}
@@ -536,7 +536,7 @@ std::pair<float, float> Setting::GetFloatRange() const
 
 	if (HasRange())
 	{
-		if (Format::IsStringFloat(m_range.first) && Format::IsStringFloat(m_range.second))
+		if (CodeRed::Format::IsStringFloat(m_range.first) && CodeRed::Format::IsStringFloat(m_range.second))
 		{
 			returnRange.first = std::stof(m_range.first);
 			returnRange.second = std::stof(m_range.second);
@@ -552,8 +552,8 @@ std::pair<Rotator, Rotator> Setting::GetRotatorRange() const
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToRotator(m_range.first);
-		returnRange.second = Format::ToRotator(m_range.second);
+		returnRange.first = CodeRed::Format::ToRotator(m_range.first);
+		returnRange.second = CodeRed::Format::ToRotator(m_range.second);
 	}
 
 	return returnRange;
@@ -565,8 +565,8 @@ std::pair<VectorF, VectorF> Setting::GetVectorFRange() const
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToVectorF(m_range.first);
-		returnRange.second = Format::ToVectorF(m_range.second);
+		returnRange.first = CodeRed::Format::ToVectorF(m_range.first);
+		returnRange.second = CodeRed::Format::ToVectorF(m_range.second);
 	}
 
 	return returnRange;
@@ -578,8 +578,8 @@ std::pair<VectorI, VectorI> Setting::GetVectorIRange() const
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToVectorI(m_range.first);
-		returnRange.second = Format::ToVectorI(m_range.second);
+		returnRange.first = CodeRed::Format::ToVectorI(m_range.first);
+		returnRange.second = CodeRed::Format::ToVectorI(m_range.second);
 	}
 
 	return returnRange;
@@ -591,8 +591,8 @@ std::pair<Vector2DF, Vector2DF> Setting::GetVector2DFRange() const
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToVector2DF(m_range.first);
-		returnRange.second = Format::ToVector2DF(m_range.second);
+		returnRange.first = CodeRed::Format::ToVector2DF(m_range.first);
+		returnRange.second = CodeRed::Format::ToVector2DF(m_range.second);
 	}
 
 	return returnRange;
@@ -604,8 +604,8 @@ std::pair<Vector2DI, Vector2DI> Setting::GetVector2DIRange() const
 
 	if (HasRange())
 	{
-		returnRange.first = Format::ToVector2DI(m_range.first);
-		returnRange.second = Format::ToVector2DI(m_range.second);
+		returnRange.first = CodeRed::Format::ToVector2DI(m_range.first);
+		returnRange.second = CodeRed::Format::ToVector2DI(m_range.second);
 	}
 
 	return returnRange;
@@ -885,7 +885,7 @@ void ManagerComponent::UnrealCommand(const std::string& unrealCommand, bool bLog
 
 std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const QueueData& queueData, ThreadTypes thread)
 {
-	if ((thread != ThreadTypes::THREAD_GAME) || (queueData.IsAsync()))
+	if ((thread != ThreadTypes::Main) || (queueData.IsAsync()))
 	{
 		m_queue.push_back(queueData);
 		return { CommandTypes::TYPE_QUEUED, "" };
@@ -955,7 +955,7 @@ std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const std
 
 void ManagerComponent::ConsoleCommand(const QueueData& queueData, ThreadTypes thread)
 {
-	if (thread != ThreadTypes::THREAD_GAME)
+	if (thread != ThreadTypes::Main)
 	{
 		m_queue.push_back(queueData);
 	}
@@ -1048,13 +1048,13 @@ void ManagerComponent::OnTick()
 				{
 					safeToClear = false;
 					data.Expired = true;
-					InternalCommand(data.Command, data.Arguments, ThreadTypes::THREAD_GAME);
+					InternalCommand(data.Command, data.Arguments, ThreadTypes::Main);
 				}
 				else
 				{
 					safeToClear = false;
 					data.Expired = true;
-					ConsoleCommand(data.Command, data.Arguments, ThreadTypes::THREAD_GAME);
+					ConsoleCommand(data.Command, data.Arguments, ThreadTypes::Main);
 				}
 			}
 		}
@@ -1107,7 +1107,7 @@ void ManagerComponent::CreateVariable(std::string name, VariableIds variable)
 {
 	if (!name.empty())
 	{
-		Format::ToLowerInline(name);
+		CodeRed::Format::ToLowerInline(name);
 
 		for (const auto& variablePair : m_variables)
 		{

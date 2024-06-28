@@ -2,7 +2,7 @@
 #include <Psapi.h>
 #pragma comment(lib, "Psapi.lib")
 
-namespace Memory
+namespace CodeRed::Memory
 {
     uintptr_t GetEntryPoint()
     {

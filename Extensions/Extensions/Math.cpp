@@ -1,85 +1,88 @@
 #include "Math.hpp"
 
-namespace Math
+namespace CodeRed
 {
-	void SinCos(float& scalarSin, float& scalarCos, float value)
+	namespace Math
 	{
-		// Map Value to y in [-pi, pi], x = 2 * pi * quotient + remainder.
-
-		float quotient = (INV_PI * 0.5f) * value;
-
-		if (value >= 0.0f)
+		void SinCos(float& scalarSin, float& scalarCos, float value)
 		{
-			quotient = (float)((int32_t)(quotient + 0.5f));
+			// Map Value to y in [-pi, pi], x = 2 * pi * quotient + remainder.
+
+			float quotient = (INV_PI * 0.5f) * value;
+
+			if (value >= 0.0f)
+			{
+				quotient = (float)((int32_t)(quotient + 0.5f));
+			}
+			else
+			{
+				quotient = (float)((int32_t)(quotient - 0.5f));
+			}
+
+			float y = value - (2.0f * PI) * quotient;
+
+			// Map y to [-pi / 2, pi / 2] with sin(y) = sin(Value).
+
+			float sign;
+
+			if (y > HALF_PI)
+			{
+				y = PI - y;
+				sign = -1.0f;
+			}
+			else if (y < -HALF_PI)
+			{
+				y = -PI - y;
+				sign = -1.0f;
+			}
+			else
+			{
+				sign = +1.0f;
+			}
+
+			float y2 = y * y;
+
+			// 11-degree minimax approximation.
+			scalarSin = (((((-2.3889859e-08f * y2 + 2.7525562e-06f) * y2 - 0.00019840874f) * y2 + 0.0083333310f) * y2 - 0.16666667f) * y2 + 1.f) * y;
+
+			// 10-degree minimax approximation.
+			float p = ((((-2.6051615e-07f * y2 + 2.4760495e-05f) * y2 - 0.0013888378f) * y2 + 0.041666638f) * y2 - 0.5f) * y2 + 1.f;
+			scalarCos = sign * p;
 		}
-		else
+
+		float RandomFloat()
 		{
-			quotient = (float)((int32_t)(quotient - 0.5f));
+			std::mt19937 random(std::random_device{}());
+			return std::generate_canonical<float, 32>(random);
 		}
 
-		float y = value - (2.0f * PI) * quotient;
-
-		// Map y to [-pi / 2, pi / 2] with sin(y) = sin(Value).
-
-		float sign;
-
-		if (y > HALF_PI)
+		float RandomRangeFloat(float min, float max)
 		{
-			y = PI - y;
-			sign = -1.0f;
+			std::mt19937 random(std::random_device{}());
+			std::uniform_real_distribution<float> distro(min, max);
+			return distro(random);
 		}
-		else if (y < -HALF_PI)
+
+		int32_t RandomRange(int32_t min, int32_t max)
 		{
-			y = -PI - y;
-			sign = -1.0f;
+			return RandomRange32<int32_t>(min, max);
 		}
-		else
+
+		char RandomAlphabet(bool bIncludeUpper)
 		{
-			sign = +1.0f;
+			static std::string alphabetLower = "abcdefghijklmnopqrstuvwxyz";
+			static std::string alphabetFull = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			std::string& alphabet = (bIncludeUpper ? alphabetFull : alphabetLower);
+			return alphabet[RandomRange(0, (alphabet.length() - 1))];
 		}
 
-		float y2 = y * y;
-
-		// 11-degree minimax approximation.
-		scalarSin = (((((-2.3889859e-08f * y2 + 2.7525562e-06f) * y2 - 0.00019840874f) * y2 + 0.0083333310f) * y2 - 0.16666667f) * y2 + 1.f) * y;
-
-		// 10-degree minimax approximation.
-		float p = ((((-2.6051615e-07f * y2 + 2.4760495e-05f) * y2 - 0.0013888378f) * y2 + 0.041666638f) * y2 - 0.5f) * y2 + 1.f;
-		scalarCos = sign * p;
-	}
-
-	float RandomFloat()
-	{
-		std::mt19937 random(std::random_device{}());
-		return std::generate_canonical<float, 32>(random);
-	}
-
-	float RandomRangeFloat(float min, float max)
-	{
-		std::mt19937 random(std::random_device{}());
-		std::uniform_real_distribution<float> distro(min, max);
-		return distro(random);
-	}
-
-	int32_t RandomRange(int32_t min, int32_t max)
-	{
-		return RandomRange32<int32_t>(min, max);
-	}
-
-	char RandomAlphabet(bool bIncludeUpper)
-	{
-		static std::string alphabetLower = "abcdefghijklmnopqrstuvwxyz";
-		static std::string alphabetFull = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		std::string& alphabet = (bIncludeUpper ? alphabetFull : alphabetLower);
-		return alphabet[RandomRange(0, (alphabet.length() - 1))];
-	}
-
-	char RandomAlphaNum(bool bIncludeUpper)
-	{
-		static std::string alphabetLower = "abcdefghijklmnopqrstuvwxyz0123456789";
-		static std::string alphabetFull = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		std::string& alphabet = (bIncludeUpper ? alphabetFull : alphabetLower);
-		return alphabet[RandomRange(0, (alphabet.length() - 1))];
+		char RandomAlphaNum(bool bIncludeUpper)
+		{
+			static std::string alphabetLower = "abcdefghijklmnopqrstuvwxyz0123456789";
+			static std::string alphabetFull = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			std::string& alphabet = (bIncludeUpper ? alphabetFull : alphabetLower);
+			return alphabet[RandomRange(0, (alphabet.length() - 1))];
+		}
 	}
 }
 
@@ -223,8 +226,8 @@ VectorF VectorF::GetNormalize() const
 class Rotator VectorF::GetRotator() const
 {
 	Rotator result;
-	result.Yaw = atan2(Y, X) * (180.0f / PI);
-	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.0f / PI);
+	result.Yaw = atan2(Y, X) * (180.0f / CodeRed::Math::PI);
+	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.0f / CodeRed::Math::PI);
 	result.Roll = 0.f;
 	return result;
 }
@@ -257,9 +260,9 @@ VectorF VectorF::MidpointTo(const VectorF& other) const
 
 VectorF VectorF::Rotate(const Rotator& rotation, const VectorF& location)
 {
-	double pitch = (static_cast<double>(rotation.Pitch) / RADIANS_TO_ROTATION);
-	double yaw = (static_cast<double>(rotation.Yaw) / RADIANS_TO_ROTATION);
-	double roll = (static_cast<double>(rotation.Roll) / RADIANS_TO_ROTATION);
+	double pitch = (static_cast<double>(rotation.Pitch) / CodeRed::Math::RADIANS_TO_ROTATION);
+	double yaw = (static_cast<double>(rotation.Yaw) / CodeRed::Math::RADIANS_TO_ROTATION);
+	double roll = (static_cast<double>(rotation.Roll) / CodeRed::Math::RADIANS_TO_ROTATION);
 
 	float sz = sin(pitch);
 	float cz = cos(pitch);
@@ -346,8 +349,8 @@ VectorI VectorI::GetNormalize() const
 class Rotator VectorI::GetRotator() const
 {
 	Rotator result;
-	result.Yaw = atan2(Y, X) * (180.0f / PI);
-	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.0f / PI);
+	result.Yaw = atan2(Y, X) * (180.0f / CodeRed::Math::PI);
+	result.Pitch = atan2(Z, sqrt(X * X + Y * Y)) * (180.0f / CodeRed::Math::PI);
 	result.Roll = 0;
 	return result;
 }
@@ -425,9 +428,9 @@ Rotator::~Rotator() {}
 
 struct FRotator Rotator::UnrealRotator(bool bURR) const
 {
-	float pitch = Pitch; pitch *= ROTATIONS_TO_DEGREES;
-	float yaw = Yaw; yaw *= ROTATIONS_TO_DEGREES;
-	float roll = Roll; roll *= ROTATIONS_TO_DEGREES;
+	float pitch = Pitch; pitch *= CodeRed::Math::ROTATIONS_TO_DEGREES;
+	float yaw = Yaw; yaw *= CodeRed::Math::ROTATIONS_TO_DEGREES;
+	float roll = Roll; roll *= CodeRed::Math::ROTATIONS_TO_DEGREES;
 
 	return FRotator{
 		(bURR ? lroundf(pitch) : Pitch),
@@ -438,9 +441,9 @@ struct FRotator Rotator::UnrealRotator(bool bURR) const
 
 Rotator& Rotator::FromUnrealRotator(const struct FRotator& other)
 {
-	float pitch = Pitch; pitch /= ROTATIONS_TO_DEGREES;
-	float yaw = Yaw; yaw /= ROTATIONS_TO_DEGREES;
-	float roll = Roll; roll /= ROTATIONS_TO_DEGREES;
+	float pitch = Pitch; pitch /= CodeRed::Math::ROTATIONS_TO_DEGREES;
+	float yaw = Yaw; yaw /= CodeRed::Math::ROTATIONS_TO_DEGREES;
+	float roll = Roll; roll /= CodeRed::Math::ROTATIONS_TO_DEGREES;
 
 	Pitch = lroundf(pitch);
 	Yaw = lroundf(yaw);
@@ -495,7 +498,7 @@ float Rotator::NormalizeAxis(float a)
 
 class Quat Rotator::GetQuat() const
 {
-	float DEG_TO_RAD = (PI / 180.0f);
+	float DEG_TO_RAD = (CodeRed::Math::PI / 180.0f);
 	float DIVIDE_BY_2 = (DEG_TO_RAD / 2.0f);
 
 	float SP = sin(Pitch * DIVIDE_BY_2);
@@ -527,17 +530,17 @@ VectorF Rotator::GetVector() const
 	const float YawNoWinding = fmod(Yaw, 360.0f);
 
 	float CP, SP, CY, SY;
-	Math::SinCos(SP, CP, (PitchNoWinding * (PI / 180.0f)));
-	Math::SinCos(SY, CY, (YawNoWinding * (PI / 180.0f)));
+	CodeRed::Math::SinCos(SP, CP, (PitchNoWinding * (CodeRed::Math::PI / 180.0f)));
+	CodeRed::Math::SinCos(SY, CY, (YawNoWinding * (CodeRed::Math::PI / 180.0f)));
 
 	return VectorF(CP * CY, CP * SY, SP);
 }
 
 VectorF Rotator::Rotate(VectorF other) const
 {
-	double pitch = (static_cast<double>(Pitch) / RADIANS_TO_ROTATION);
-	double yaw = (static_cast<double>(Yaw) / RADIANS_TO_ROTATION);
-	double roll = (static_cast<double>(Roll) / RADIANS_TO_ROTATION);
+	double pitch = (static_cast<double>(Pitch) / CodeRed::Math::RADIANS_TO_ROTATION);
+	double yaw = (static_cast<double>(Yaw) / CodeRed::Math::RADIANS_TO_ROTATION);
+	double roll = (static_cast<double>(Roll) / CodeRed::Math::RADIANS_TO_ROTATION);
 
 	float sz = sin(pitch);
 	float cz = cos(pitch);
@@ -679,9 +682,9 @@ bool Rotator::operator!=(const struct FRotator& other) const
 
 VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
 {
-	double pitch = (static_cast<double>(rotation.Pitch) / RADIANS_TO_ROTATION);
-	double yaw = (static_cast<double>(rotation.Yaw) / RADIANS_TO_ROTATION);
-	double roll = (static_cast<double>(rotation.Roll) / RADIANS_TO_ROTATION);
+	double pitch = (static_cast<double>(rotation.Pitch) / CodeRed::Math::RADIANS_TO_ROTATION);
+	double yaw = (static_cast<double>(rotation.Yaw) / CodeRed::Math::RADIANS_TO_ROTATION);
+	double roll = (static_cast<double>(rotation.Roll) / CodeRed::Math::RADIANS_TO_ROTATION);
 
 	float sz = sin(pitch);
 	float cz = cos(pitch);
@@ -732,7 +735,7 @@ bool Quat::IsIdentity(float tolerance) const
 
 bool Quat::IsNormalized() const
 {
-	return (abs(1.0f - SizeSquared()) < THRESH_QUAT_NORMALIZED);
+	return (abs(1.0f - SizeSquared()) < CodeRed::Math::THRESH_QUAT_NORMALIZED);
 }
 
 float Quat::Size() const
@@ -769,7 +772,7 @@ VectorF Quat::GetRotationAxis() const
 {
 	const float sqrSum = (X * X + Y * Y + Z * Z);
 
-	if (sqrSum < SMALL_NUMBER)
+	if (sqrSum < CodeRed::Math::SMALL_NUMBER)
 	{
 		return VectorF(1.0f, 0.0f, 0.0f);
 	}
@@ -823,7 +826,7 @@ Rotator Quat::GetRotator() const
 	const float YawX = (1.0f - 2.0f * (sqrt(Y) + sqrt(Z)));
 
 	const float SINGULARITY_THRESHOLD = 0.4999995f;
-	const float RAD_TO_DEG = (180.0f / PI);
+	const float RAD_TO_DEG = (180.0f / CodeRed::Math::PI);
 	Rotator RotatorFromQuat;
 
 	if (SingularityTest < -SINGULARITY_THRESHOLD)

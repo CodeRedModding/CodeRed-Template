@@ -1,6 +1,6 @@
 #include "../pch.hpp"
 
-namespace Memory
+namespace CodeRed::Memory
 {
 	uintptr_t GetEntryPoint();
 	std::string GetProcessName();

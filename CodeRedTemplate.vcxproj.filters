@@ -65,9 +65,6 @@
     <ClCompile Include="Extensions\Extensions\Memory.cpp">
       <Filter>Extensions\Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="Extensions\Extensions\UnrealMemory.cpp">
-      <Filter>Extensions\Extensions</Filter>
-    </ClCompile>
     <ClCompile Include="PlaceholderSDK\GameDefines.cpp">
       <Filter>PlaceholderSDK</Filter>
     </ClCompile>
@@ -131,9 +128,6 @@
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
     <ClInclude Include="Extensions\Extensions\Memory.hpp">
-      <Filter>Extensions\Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="Extensions\Extensions\UnrealMemory.hpp">
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
     <ClInclude Include="PlaceholderSDK\GameDefines.hpp">

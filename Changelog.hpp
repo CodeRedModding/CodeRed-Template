@@ -1,5 +1,10 @@
 #pragma once
 /*
+    Changes in v1.4.5:
+    - Wrapped all the extensions and helper classes in a new "CodeRed" namespace, this is to prevent possible naming conflicts with other libraries.
+    - Renamed the "ThreadTypes" enum values as well as moved the whole enum from "Manager.hpp" to "Module.hpp".
+    - Removed the "UnrealMemory.hpp/cpp" files from "Extensions".
+
     Changes in v1.4.4:
     - Changed the member variables and functions in "Manager.hpp" being static to just normal, I can't remember why I made them static in the first place.
     - Fixed a rare case of the "Color::FromHex" function in "Colors.cpp" not parsing a hex string properly.

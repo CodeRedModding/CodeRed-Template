@@ -1,14 +1,14 @@
 #pragma once
 #include "../pch.hpp"
 
-static constexpr uint64_t SECONDS_IN_MINUTE = 60;
-static constexpr uint64_t SECONDS_IN_HOUR = 3600;
-static constexpr uint64_t SECONDS_IN_DAY = 86400;
-static constexpr uint64_t SECONDS_IN_MONTH = 2629743;
-static constexpr uint64_t SECONDS_IN_YEAR = 31556926;
-
-namespace Time
+namespace CodeRed::Time
 {
+	static constexpr uint64_t SECONDS_IN_MINUTE = 60;
+	static constexpr uint64_t SECONDS_IN_HOUR = 3600;
+	static constexpr uint64_t SECONDS_IN_DAY = 86400;
+	static constexpr uint64_t SECONDS_IN_MONTH = 2629743;
+	static constexpr uint64_t SECONDS_IN_YEAR = 31556926;
+
 	class Time
 	{
 	public:

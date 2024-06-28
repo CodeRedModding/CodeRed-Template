@@ -3,7 +3,7 @@
 #include "Math.hpp"
 
 // Helper functions for formatting streams and strings.
-namespace Format
+namespace CodeRed::Format
 {
 	// String and Character Functions.
 

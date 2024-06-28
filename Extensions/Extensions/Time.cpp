@@ -1,7 +1,7 @@
 #include "Time.hpp"
 #include "Formatting.hpp"
 
-namespace Time
+namespace CodeRed::Time
 {
 	Time::Time() :
 		Second(0),

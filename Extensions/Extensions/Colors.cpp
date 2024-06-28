@@ -15,13 +15,13 @@ Color::Color(float r, float g, float b, float a) : R(255), G(255), B(255), A(255
 
 Color::Color(const std::string& hexColor) : R(255), G(255), B(255), A(255) { FromHex(hexColor); }
 
-Color::Color(const struct FColor& color) : R(color.R), G(color.G), B(color.B), A(color.A) {}
+Color::Color(const FColor& color) : R(color.R), G(color.G), B(color.B), A(color.A) {}
 
 Color::Color(const Color& color) : R(color.R), G(color.G), B(color.B), A(color.A) {}
 
 Color::~Color() {}
 
-struct FColor Color::UnrealColor() const
+FColor Color::UnrealColor() const
 {
 	return FColor{ B, G, R, A }; // Your game might be in a different format (RGBA), so be aware of that.
 }
@@ -33,27 +33,27 @@ class LinearColor Color::ToLinear() const
 
 uint32_t Color::ToDecimal() const
 {
-	return Format::ToDecimal(ToHex(false)); // Standard method would be "uint32_t decimalValue = (R & 0xFF) << 16) | ((G & 0xFF) << 8) | (B & 0xFF);"
+	return CodeRed::Format::ToDecimal(ToHex(false)); // Standard method would be "uint32_t decimalValue = (R & 0xFF) << 16) | ((G & 0xFF) << 8) | (B & 0xFF);"
 }
 
 uint32_t Color::ToDecimalAlpha() const
 {
-	return Format::ToDecimal(ToHexAlpha(false));
+	return CodeRed::Format::ToDecimal(ToHexAlpha(false));
 }
 
 std::string Color::ToHex(bool bNotation) const
 {
 	std::string hexStr = (bNotation ? "#" : "");
-	hexStr += Format::ToHex(static_cast<uint64_t>(R), 2, false);
-	hexStr += Format::ToHex(static_cast<uint64_t>(G), 2, false);
-	hexStr += Format::ToHex(static_cast<uint64_t>(B), 2, false);
+	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(R), 2, false);
+	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(G), 2, false);
+	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(B), 2, false);
 	return hexStr;
 }
 
 std::string Color::ToHexAlpha(bool bNotation) const
 {
 	std::string hexStr = ToHex(bNotation);
-	hexStr += Format::ToHex(static_cast<uint64_t>(A), 2, false);
+	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(A), 2, false);
 	return hexStr;
 }
 
@@ -68,14 +68,14 @@ Color& Color::FromLinear(const LinearColor& linearColor)
 
 Color& Color::FromDecimal(uint32_t decimalColor)
 {
-	return FromHex(Format::ToHex(decimalColor, ((decimalColor > 0xFFFFFF) ? 8 : 6), false));
+	return FromHex(CodeRed::Format::ToHex(decimalColor, ((decimalColor > 0xFFFFFF) ? 8 : 6), false));
 }
 
 Color& Color::FromHex(std::string hexColor)
 {
-	Format::RemoveAllCharsInline(hexColor, '#');
+	CodeRed::Format::RemoveAllCharsInline(hexColor, '#');
 
-	if (Format::IsStringHexadecimal(hexColor))
+	if (CodeRed::Format::IsStringHexadecimal(hexColor))
 	{
 		if (hexColor.length() > 8)
 		{
@@ -86,7 +86,7 @@ Color& Color::FromHex(std::string hexColor)
 
 		if (hexColor.length() == 8)
 		{
-			alpha = Format::ToDecimal(hexColor.substr(6, 2)); // Optional, if an alpha value is provided.
+			alpha = CodeRed::Format::ToDecimal(hexColor.substr(6, 2)); // Optional, if an alpha value is provided.
 		}
 
 		A = static_cast<uint8_t>(alpha);
@@ -98,17 +98,17 @@ Color& Color::FromHex(std::string hexColor)
 
 		if (hexColor.length() >= 2)
 		{
-			R = static_cast<uint8_t>(Format::ToDecimal(hexColor.substr(0, 2)));
+			R = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(0, 2)));
 		}
 
 		if (hexColor.length() >= 4)
 		{
-			G = static_cast<uint8_t>(Format::ToDecimal(hexColor.substr(2, 2)));
+			G = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(2, 2)));
 		}
 
 		if (hexColor.length() >= 6)
 		{
-			B = static_cast<uint8_t>(Format::ToDecimal(hexColor.substr(4, 2)));
+			B = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(4, 2)));
 		}
 	}
 
@@ -139,7 +139,7 @@ Color& Color::operator=(const Color& other)
 	return *this;
 }
 
-Color& Color::operator=(const struct FColor& other)
+Color& Color::operator=(const FColor& other)
 {
 	R = other.R;
 	G = other.G;
@@ -150,12 +150,12 @@ Color& Color::operator=(const struct FColor& other)
 
 bool Color::operator==(const Color& other) const
 {
-	return (R == other.R && G == other.G && B == other.B && A == other.A);
+	return ((R == other.R) && (G == other.G) && (B == other.B) && (A == other.A));
 }
 
-bool Color::operator==(const struct FColor& other) const
+bool Color::operator==(const FColor& other) const
 {
-	return (R == other.R && G == other.G && B == other.B && A == other.A);
+	return ((R == other.R) && (G == other.G) && (B == other.B) && (A == other.A));
 }
 
 bool Color::operator!=(const Color& other) const
@@ -163,7 +163,7 @@ bool Color::operator!=(const Color& other) const
 	return !(*this == other);
 }
 
-bool Color::operator!=(const struct FColor& other) const
+bool Color::operator!=(const FColor& other) const
 {
 	return !(*this == other);
 }
@@ -188,13 +188,13 @@ LinearColor::LinearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : R(1.0f), 
 
 LinearColor::LinearColor(const std::string& hexColor) : R(1.0f), G(1.0f), B(1.0f), A(1.0f) { FromHex(hexColor); }
 
-LinearColor::LinearColor(const struct FLinearColor& linearColor) : R(linearColor.R), G(linearColor.G), B(linearColor.B), A(linearColor.A) {}
+LinearColor::LinearColor(const FLinearColor& linearColor) : R(linearColor.R), G(linearColor.G), B(linearColor.B), A(linearColor.A) {}
 
 LinearColor::LinearColor(const LinearColor& linearColor) : R(linearColor.R), G(linearColor.G), B(linearColor.B), A(linearColor.A) {}
 
 LinearColor::~LinearColor() {}
 
-struct FLinearColor LinearColor::UnrealColor() const
+FLinearColor LinearColor::UnrealColor() const
 {
 	return FLinearColor{ R, G, B, A };
 }
@@ -257,7 +257,7 @@ LinearColor& LinearColor::operator=(const LinearColor& other)
 	return *this;
 }
 
-LinearColor& LinearColor::operator=(const struct FLinearColor& other)
+LinearColor& LinearColor::operator=(const FLinearColor& other)
 {
 	R = other.R;
 	G = other.G;
@@ -268,12 +268,12 @@ LinearColor& LinearColor::operator=(const struct FLinearColor& other)
 
 bool LinearColor::operator==(const LinearColor& other) const
 {
-	return (R == other.R && G == other.G && B == other.B && A == other.A);
+	return ((R == other.R) && (G == other.G) && (B == other.B) && (A == other.A));
 }
 
-bool LinearColor::operator==(const struct FLinearColor& other) const
+bool LinearColor::operator==(const FLinearColor& other) const
 {
-	return (R == other.R && G == other.G && B == other.B && A == other.A);
+	return ((R == other.R) && (G == other.G) && (B == other.B) && (A == other.A));
 }
 
 bool LinearColor::operator!=(const LinearColor& other) const
@@ -281,7 +281,7 @@ bool LinearColor::operator!=(const LinearColor& other) const
 	return !(*this == other);
 }
 
-bool LinearColor::operator!=(const struct FLinearColor& other) const
+bool LinearColor::operator!=(const FLinearColor& other) const
 {
 	return !(*this == other);
 }

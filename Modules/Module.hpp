@@ -2,6 +2,13 @@
 #include "../pch.hpp"
 #include "../Extensions/Includes.hpp"
 
+enum class ThreadTypes : uint8_t
+{
+	Main,
+	Render,
+	Other
+};
+
 // Base class for all in-game modules.
 class Module
 {
