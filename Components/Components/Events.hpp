@@ -78,6 +78,7 @@ private:
 	static inline ProcessEventType m_processEvent;
 
 private:
+	static inline std::atomic<bool> m_hookSafe;
 	static inline std::vector<uint32_t> m_blacklisted; // Blacklisted functions internal integer.
 	static inline std::map<uint32_t, std::vector<std::function<void(PreEvent&)>>> m_preHooks; // Hooked functions internal integer and bound function.
 	static inline std::map<uint32_t, std::vector<std::function<void(const PostEvent&)>>> m_postHooks; // Hooked functions internal integer and bound function.
@@ -95,15 +96,19 @@ public:
 	static void AttachDetour(const ProcessEventType& detourFunction); // Redirects the process event virtual function to our own void, for us to manually process later to the typedef.
 	static void DetachDetour(); // Called by the deconstuctor, necessary for if your DLL gets intentionally (or unintentionally) unloaded before your game exits.
 	static void ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result); // Process event gets detoured to this function, then we manually proxy it through to "ProcessEvent".
-	static bool IsEventBlacklisted(uint32_t functionIndex);
-	
+
+private:
+	static bool ProcessBefore(class UObject* caller, class UFunction* function, void* params, void* result);
+	static void ProcessAfter(class UObject* caller, class UFunction* function, void* params, void* result);
+
 public:
-	void BlacklistEvent(const std::string& functionName);
-	void WhitelistEvent(const std::string& functionName);
-	void HookEventPre(const std::string& functionName, const std::function<void(PreEvent&)>& preHook);
-	void HookEventPre(uint32_t functionIndex, const std::function<void(PreEvent&)>& preHook);
-	void HookEventPost(const std::string& functionName, const std::function<void(const PostEvent&)>& postHook);
-	void HookEventPost(uint32_t functionIndex, const std::function<void(const PostEvent&)>& postHook);
+	static bool IsEventBlacklisted(uint32_t functionIndex);
+	static void BlacklistEvent(const std::string& functionName);
+	static void WhitelistEvent(const std::string& functionName);
+	static void HookEventPre(const std::string& functionName, const std::function<void(PreEvent&)>& preHook);
+	static void HookEventPre(uint32_t functionIndex, const std::function<void(PreEvent&)>& preHook);
+	static void HookEventPost(const std::string& functionName, const std::function<void(const PostEvent&)>& postHook);
+	static void HookEventPost(uint32_t functionIndex, const std::function<void(const PostEvent&)>& postHook);
 	void Initialize(); // Initializes hooking events to functions.
 };
 

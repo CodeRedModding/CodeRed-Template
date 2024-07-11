@@ -1,5 +1,9 @@
 #pragma once
 /*
+    Changes in v1.4.6:
+    - Added two new functions "ProcessBefore" and "ProcessAfter" to "Events.hpp/cpp" to more easily process function hooks, this makes detouring multiple things such as process event and call function easier.
+    - Added a new atomic bool to "EventsComponent" to prevent a thread racing issue when hooking functions.
+
     Changes in v1.4.5:
     - Wrapped all the extensions and helper classes in a new "CodeRed" namespace, this is to prevent possible naming conflicts with other libraries.
     - Renamed the "ThreadTypes" enum values as well as moved the whole enum from "Manager.hpp" to "Module.hpp".

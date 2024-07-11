@@ -155,11 +155,13 @@ void EventsComponent::OnCreate()
 {
 	m_detoured = false;
 	m_processEvent = nullptr;
+	m_hookSafe = false;
 }
 
 void EventsComponent::OnDestroy()
 {
 	DetachDetour();
+	OnCreate(); // Reset everything to default.
 	m_blacklisted.clear();
 	m_preHooks.clear();
 	m_postHooks.clear();
@@ -180,6 +182,7 @@ void EventsComponent::AttachDetour(const ProcessEventType& detourFunction)
 		DetourAttach(&reinterpret_cast<PVOID&>(m_processEvent), reinterpret_cast<PVOID>(ProcessEventDetour));
 		DetourTransactionCommit();
 		m_detoured = true;
+		m_hookSafe = true;
 	}
 }
 
@@ -193,6 +196,7 @@ void EventsComponent::DetachDetour()
 		DetourTransactionCommit();
 		m_detoured = false;
 		m_processEvent = nullptr;
+		m_hookSafe = false;
 	}
 }
 
@@ -202,37 +206,14 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 	{
 		if (function)
 		{
-			bool shouldDetour = true;
-			PreEvent event(caller, function, params);
-			auto preIt = m_preHooks.find(function->ObjectInternalInteger);
+			bool shouldDetour = ProcessBefore(caller, function, params, result);
 
-			if (preIt != m_preHooks.end())
-			{
-				for (const auto& preEvent : preIt->second)
-				{
-					preEvent(event);
-
-					if (!event.ShouldDetour())
-					{
-						shouldDetour = false;
-					}
-				}
-			}
-
-			if (shouldDetour && !IsEventBlacklisted(function->ObjectInternalInteger))
+			if (shouldDetour)
 			{
 				m_processEvent(caller, function, params, result);
 			}
 
-			auto postIt = m_postHooks.find(function->ObjectInternalInteger);
-
-			if (postIt != m_postHooks.end())
-			{
-				for (const auto& postEvent : postIt->second)
-				{
-					postEvent(PostEvent(caller, function, params, result));
-				}
-			}
+			ProcessAfter(caller, function, params, result);
 		}
 		else
 		{
@@ -241,9 +222,63 @@ void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction*
 	}
 }
 
+bool EventsComponent::ProcessBefore(class UObject* caller, class UFunction* function, void* params, void* result)
+{
+	if (function)
+	{
+		bool shouldDetour = true;
+
+		if (m_hookSafe && m_preHooks.contains(function->ObjectInternalInteger))
+		{
+			PreEvent preEvent(caller, function, params);
+
+			for (const auto& preHook : m_preHooks[function->ObjectInternalInteger])
+			{
+				preHook(preEvent);
+
+				if (!preEvent.ShouldDetour())
+				{
+					shouldDetour = false;
+				}
+			}
+		}
+
+		if (shouldDetour)
+		{
+			if (m_hookSafe && IsEventBlacklisted(function->ObjectInternalInteger))
+			{
+				return false;
+			}
+		}
+
+		return shouldDetour;
+	}
+
+	return true;
+}
+
+void EventsComponent::ProcessAfter(class UObject* caller, class UFunction* function, void* params, void* result)
+{
+	if (function)
+	{
+		if (m_hookSafe && m_postHooks.contains(function->ObjectInternalInteger))
+		{
+			PostEvent postEvent(caller, function, params, result);
+
+			for (const auto& postHook : m_postHooks[function->ObjectInternalInteger])
+			{
+				postHook(postEvent);
+			}
+		}
+	}
+}
+
 bool EventsComponent::IsEventBlacklisted(uint32_t functionIndex)
 {
-	return (std::find(m_blacklisted.begin(), m_blacklisted.end(), functionIndex) != m_blacklisted.end());
+	m_hookSafe = false;
+	bool blacklisted = (std::find(m_blacklisted.begin(), m_blacklisted.end(), functionIndex) != m_blacklisted.end());
+	m_hookSafe = true;
+	return blacklisted;
 }
 
 void EventsComponent::BlacklistEvent(const std::string& function)
@@ -252,15 +287,19 @@ void EventsComponent::BlacklistEvent(const std::string& function)
 
 	if (foundFunction)
 	{
+		m_hookSafe = false;
+
 		if (!IsEventBlacklisted(foundFunction->ObjectInternalInteger))
 		{
 			m_blacklisted.push_back(foundFunction->ObjectInternalInteger);
 			std::sort(m_blacklisted.begin(), m_blacklisted.end());
 		}
+
+		m_hookSafe = true;
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to blacklist function \"" + function + "\"!");
+		Console.Warning("Warning: Failed to blacklist function \"" + function + "\"!");
 	}
 }
 
@@ -270,6 +309,7 @@ void EventsComponent::WhitelistEvent(const std::string& functionName)
 
 	if (foundFunction)
 	{
+		m_hookSafe = false;
 		auto blackIt = std::find(m_blacklisted.begin(), m_blacklisted.end(), foundFunction->ObjectInternalInteger);
 
 		if (blackIt != m_blacklisted.end())
@@ -277,10 +317,12 @@ void EventsComponent::WhitelistEvent(const std::string& functionName)
 			m_blacklisted.erase(blackIt);
 			std::sort(m_blacklisted.begin(), m_blacklisted.end());
 		}
+
+		m_hookSafe = true;
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to whitelist function \"" + functionName + "\"!");
+		Console.Warning("Warning: Failed to whitelist function \"" + functionName + "\"!");
 	}
 }
 
@@ -294,7 +336,7 @@ void EventsComponent::HookEventPre(const std::string& functionName, const std::f
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + functionName + "\"!");
+		Console.Warning("Warning: Failed to hook function \"" + functionName + "\"!");
 	}
 }
 
@@ -304,6 +346,8 @@ void EventsComponent::HookEventPre(uint32_t functionIndex, const std::function<v
 
 	if (foundFunction && foundFunction->IsA<UFunction>())
 	{
+		m_hookSafe = false;
+
 		if (m_preHooks.contains(functionIndex))
 		{
 			m_preHooks[functionIndex].push_back(preHook);
@@ -312,10 +356,12 @@ void EventsComponent::HookEventPre(uint32_t functionIndex, const std::function<v
 		{
 			m_preHooks[functionIndex] = std::vector<std::function<void(PreEvent&)>>{ preHook };
 		}
+
+		m_hookSafe = true;
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
+		Console.Warning("Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 	}
 }
 
@@ -329,7 +375,7 @@ void EventsComponent::HookEventPost(const std::string& functionName, const std::
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function \"" + functionName + "\"!");
+		Console.Warning("Warning: Failed to hook function \"" + functionName + "\"!");
 	}
 }
 
@@ -339,6 +385,8 @@ void EventsComponent::HookEventPost(uint32_t functionIndex, const std::function<
 
 	if (foundFunction && foundFunction->IsA<UFunction>())
 	{
+		m_hookSafe = false;
+
 		if (m_postHooks.contains(functionIndex))
 		{
 			m_postHooks[functionIndex].push_back(postHook);
@@ -347,10 +395,12 @@ void EventsComponent::HookEventPost(uint32_t functionIndex, const std::function<
 		{
 			m_postHooks[functionIndex] = std::vector<std::function<void(const PostEvent&)>>{ postHook };
 		}
+
+		m_hookSafe = true;
 	}
 	else
 	{
-		Console.Warning(GetNameFormatted() + "Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
+		Console.Warning("Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 	}
 }
 
