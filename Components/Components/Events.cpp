@@ -342,26 +342,29 @@ void EventsComponent::HookEventPre(const std::string& functionName, const std::f
 
 void EventsComponent::HookEventPre(uint32_t functionIndex, const std::function<void(PreEvent&)>& preHook)
 {
-	UObject* foundFunction = UObject::GObjObjects()->at(functionIndex);
-
-	if (foundFunction && foundFunction->IsA<UFunction>())
+	if (UObject::GObjObjects())
 	{
-		m_hookSafe = false;
+		UObject* foundFunction = UObject::GObjObjects()->at(functionIndex);
 
-		if (m_preHooks.contains(functionIndex))
+		if (foundFunction && foundFunction->IsA<UFunction>())
 		{
-			m_preHooks[functionIndex].push_back(preHook);
+			m_hookSafe = false;
+
+			if (m_preHooks.contains(functionIndex))
+			{
+				m_preHooks[functionIndex].push_back(preHook);
+			}
+			else
+			{
+				m_preHooks[functionIndex] = std::vector<std::function<void(PreEvent&)>>{ preHook };
+			}
+
+			m_hookSafe = true;
 		}
 		else
 		{
-			m_preHooks[functionIndex] = std::vector<std::function<void(PreEvent&)>>{ preHook };
+			Console.Warning("Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 		}
-
-		m_hookSafe = true;
-	}
-	else
-	{
-		Console.Warning("Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 	}
 }
 
@@ -381,26 +384,29 @@ void EventsComponent::HookEventPost(const std::string& functionName, const std::
 
 void EventsComponent::HookEventPost(uint32_t functionIndex, const std::function<void(const PostEvent&)>& postHook)
 {
-	UObject* foundFunction = UObject::GObjObjects()->at(functionIndex);
-
-	if (foundFunction && foundFunction->IsA<UFunction>())
+	if (UObject::GObjObjects())
 	{
-		m_hookSafe = false;
+		UObject* foundFunction = UObject::GObjObjects()->at(functionIndex);
 
-		if (m_postHooks.contains(functionIndex))
+		if (foundFunction && foundFunction->IsA<UFunction>())
 		{
-			m_postHooks[functionIndex].push_back(postHook);
+			m_hookSafe = false;
+
+			if (m_postHooks.contains(functionIndex))
+			{
+				m_postHooks[functionIndex].push_back(postHook);
+			}
+			else
+			{
+				m_postHooks[functionIndex] = std::vector<std::function<void(const PostEvent&)>>{ postHook };
+			}
+
+			m_hookSafe = true;
 		}
 		else
 		{
-			m_postHooks[functionIndex] = std::vector<std::function<void(const PostEvent&)>>{ postHook };
+			Console.Warning("Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 		}
-
-		m_hookSafe = true;
-	}
-	else
-	{
-		Console.Warning("Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 	}
 }
 

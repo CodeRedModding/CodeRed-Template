@@ -13,25 +13,11 @@ void InstancesComponent::OnCreate()
 	I_APlayerController = nullptr;
 }
 
-void InstancesComponent::OnDestroy()
-{
-	m_staticClasses.clear();
-	m_staticFunctions.clear();
-
-	for (UObject* uObject : m_createdObjects)
-	{
-		if (uObject)
-		{
-			MarkForDestroy(uObject);
-		}
-	}
-
-	m_createdObjects.clear();
-}
+void InstancesComponent::OnDestroy() {}
 
 class UClass* InstancesComponent::FindStaticClass(const std::string& className)
 {
-	if (m_staticClasses.empty())
+	if (m_staticClasses.empty() && UObject::GObjObjects())
 	{
 		for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 		{
@@ -57,7 +43,7 @@ class UClass* InstancesComponent::FindStaticClass(const std::string& className)
 
 class UFunction* InstancesComponent::FindStaticFunction(const std::string& className)
 {
-	if (m_staticFunctions.empty())
+	if (m_staticFunctions.empty() && UObject::GObjObjects())
 	{
 		for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 		{

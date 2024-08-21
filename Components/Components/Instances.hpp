@@ -27,7 +27,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	// Get the default constructor of a class type. Example: UGameData_TA* gameData = GetDefaultInstanceOf<UGameData_TA>();
 	template<typename T> T* GetDefaultInstanceOf()
 	{
-		if (std::is_base_of<UObject, T>::value)
+		if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 		{
 			for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 			{
@@ -49,7 +49,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	// Get the most current/active instance of a class. Example: UEngine* engine = GetInstanceOf<UEngine>();
 	template<typename T> T* GetInstanceOf()
 	{
-		if (std::is_base_of<UObject, T>::value)
+		if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 		{
 			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
@@ -71,7 +71,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	// Get the most current/active instance of a class, if one isn't found it creates a new instance. Example: UEngine* engine = GetInstanceOf<UEngine>();
 	template<typename T> T* GetOrCreateInstance()
 	{
-		if (std::is_base_of<UObject, T>::value)
+		if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 		{
 			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
@@ -97,7 +97,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		std::vector<T*> objectInstances;
 
-		if (std::is_base_of<UObject, T>::value)
+		if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 		{
 			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
@@ -121,7 +121,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		std::vector<T*> objectInstances;
 
-		if (std::is_base_of<UObject, T>::value)
+		if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 		{
 			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
@@ -143,7 +143,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	// Get an object instance by it's name and class type. Example: UTexture2D* texture = FindObject<UTexture2D>("WhiteSquare");
 	template<typename T> T* FindObject(const std::string& objectName, bool bStrictFind = false)
 	{
-		if (std::is_base_of<UObject, T>::value)
+		if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 		{
 			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
@@ -176,7 +176,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		std::vector<T*> objectInstances;
 
-		if (std::is_base_of<UObject, T>::value)
+		if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 		{
 			for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 			{
@@ -206,7 +206,7 @@ public: // Helper functions for class instance grabbing/manipulation.
 	{
 		T* returnObject = nullptr;
 
-		if (std::is_base_of<UObject, T>::value)
+		if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 		{
 			T* defaultObject = GetDefaultInstanceOf<T>();
 			UClass* staticClass = T::StaticClass();

@@ -1,5 +1,9 @@
 #pragma once
 /*
+	Changes in v1.4.7:
+	- Added extra null checking and safety checks for both "Instances.hpp/cpp" and "Events.cpp".
+	- Removed the "MarkForDestroy" loop in "Instances.cpp" in the deconstructor, if they were already deleted by the game then this would be accessing random memory addresses (which is bad).
+
     Changes in v1.4.6:
     - Added two new functions "ProcessBefore" and "ProcessAfter" to "Events.hpp/cpp" to more easily process function hooks, this makes detouring multiple things such as process event and call function easier.
     - Added a new atomic bool to "EventsComponent" to prevent a thread racing issue when hooking functions.
