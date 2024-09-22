@@ -85,25 +85,44 @@ bool Setting::InRange(const std::string& sValue) const
 {
 	if (HasRange())
 	{
-		if (GetType() == SettingTypes::TYPE_BOOL)
+		if (GetType() == SettingTypes::Bool)
 		{
 			return (sValue == "0" || sValue == "false" || sValue == "1" || sValue == "true");
 		}
-		else if (GetType() == SettingTypes::TYPE_INT)
+		else if (GetType() == SettingTypes::Int32)
 		{
 			int32_t formattedMin = std::stoi(m_range.first);
 			int32_t formattedMax = std::stoi(m_range.second);
-			int32_t formattedValue = std::stoi(sValue);
-			return (formattedValue >= formattedMin && formattedValue <= formattedMax);
+
+			if (CodeRed::Format::IsStringDecimal(sValue))
+			{
+				int32_t formattedValue = std::stoi(sValue);
+				return ((formattedValue >= formattedMin) && (formattedValue <= formattedMax));
+			}
 		}
-		else if (GetType() == SettingTypes::TYPE_FLOAT)
+		else if (GetType() == SettingTypes::Int64)
+		{
+			int64_t formattedMin = std::stoll(m_range.first);
+			int64_t formattedMax = std::stoll(m_range.second);
+
+			if (CodeRed::Format::IsStringDecimal(sValue))
+			{
+				int64_t formattedValue = std::stoll(sValue);
+				return ((formattedValue >= formattedMin) && (formattedValue <= formattedMax));
+			}
+		}
+		else if (GetType() == SettingTypes::Float)
 		{
 			float formattedMin = std::stof(m_range.first);
 			float formattedMax = std::stof(m_range.second);
-			float formattedValue = std::stof(sValue);
-			return ((formattedValue >= formattedMin) && (formattedValue <= formattedMax));
+
+			if (CodeRed::Format::IsStringFloat(sValue))
+			{
+				float formattedValue = std::stof(sValue);
+				return ((formattedValue >= formattedMin) && (formattedValue <= formattedMax));
+			}
 		}
-		else if (GetType() == SettingTypes::TYPE_ROTATOR)
+		else if (GetType() == SettingTypes::Rotator)
 		{
 			Rotator value = CodeRed::Format::ToRotator(sValue);
 			Rotator rangeMin = CodeRed::Format::ToRotator(m_range.first);
@@ -116,7 +135,7 @@ bool Setting::InRange(const std::string& sValue) const
 				return false;
 			}
 		}
-		else if (GetType() == SettingTypes::TYPE_VECTOR_3D)
+		else if (GetType() == SettingTypes::Vector3D)
 		{
 			VectorF value = CodeRed::Format::ToVectorF(sValue);
 			VectorF rangeMin = CodeRed::Format::ToVectorF(m_range.first);
@@ -129,7 +148,7 @@ bool Setting::InRange(const std::string& sValue) const
 				return false;
 			}
 		}
-		else if (GetType() == SettingTypes::TYPE_VECTOR_2D)
+		else if (GetType() == SettingTypes::Vector2D)
 		{
 			Vector2DF value = CodeRed::Format::ToVector2DF(sValue);
 			Vector2DF rangeMin = CodeRed::Format::ToVector2DF(m_range.first);
@@ -148,7 +167,7 @@ bool Setting::InRange(const std::string& sValue) const
 
 bool Setting::IsValueValid(const std::string& sValue) const
 {
-	if (GetType() == SettingTypes::TYPE_BOOL)
+	if (GetType() == SettingTypes::Bool)
 	{
 		if (!(sValue == "1" || sValue == "true" || sValue == "0" || sValue == "false"))
 		{
@@ -156,7 +175,7 @@ bool Setting::IsValueValid(const std::string& sValue) const
 			return false;
 		}
 	}
-	if (GetType() == SettingTypes::TYPE_INT)
+	if (GetType() == SettingTypes::Int32)
 	{
 		if (!CodeRed::Format::IsStringFloat(sValue))
 		{
@@ -164,7 +183,7 @@ bool Setting::IsValueValid(const std::string& sValue) const
 			return false;
 		}
 	}
-	else if (GetType() == SettingTypes::TYPE_FLOAT)
+	else if (GetType() == SettingTypes::Float)
 	{
 		if (!CodeRed::Format::IsStringFloat(sValue))
 		{
@@ -172,7 +191,7 @@ bool Setting::IsValueValid(const std::string& sValue) const
 			return false;
 		}
 	}
-	else if (GetType() == SettingTypes::TYPE_COLOR)
+	else if (GetType() == SettingTypes::Color)
 	{
 		std::string cValue = CodeRed::Format::RemoveAllChars(sValue, '#');
 
@@ -189,7 +208,7 @@ bool Setting::IsValueValid(const std::string& sValue) const
 		Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports RGBA hexadecimal values (alpha value optional).");
 		return false;
 	}
-	else if (GetType() == SettingTypes::TYPE_ROTATOR)
+	else if (GetType() == SettingTypes::Rotator)
 	{
 		std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
 
@@ -204,22 +223,7 @@ bool Setting::IsValueValid(const std::string& sValue) const
 		Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports three 32 bit integer values.");
 		return false;
 	}
-	else if (GetType() == SettingTypes::TYPE_VECTOR_3D)
-	{
-		std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
-
-		if (values.size() >= 3)
-		{
-			if (CodeRed::Format::IsStringFloat(values[0]) && CodeRed::Format::IsStringFloat(values[1]) && CodeRed::Format::IsStringFloat(values[2]))
-			{
-				return true;
-			}
-		}
-
-		Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports three floating point numbers or optionally 32 bit integer values.");
-		return false;
-	}
-	else if (GetType() == SettingTypes::TYPE_VECTOR_2D)
+	else if (GetType() == SettingTypes::Vector2D)
 	{
 		std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
 
@@ -232,6 +236,21 @@ bool Setting::IsValueValid(const std::string& sValue) const
 		}
 
 		Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports two floating point numbers or optionally 32 bit integer values.");
+		return false;
+	}
+	else if (GetType() == SettingTypes::Vector3D)
+	{
+		std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
+
+		if (values.size() >= 3)
+		{
+			if (CodeRed::Format::IsStringFloat(values[0]) && CodeRed::Format::IsStringFloat(values[1]) && CodeRed::Format::IsStringFloat(values[2]))
+			{
+				return true;
+			}
+		}
+
+		Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports three floating point numbers or optionally 32 bit integer values.");
 		return false;
 	}
 
@@ -263,11 +282,38 @@ const std::string& Setting::GetStringValue() const
 	return m_currentValue;
 }
 
-int32_t Setting::GetIntValue() const
+int32_t Setting::GetInt32Value() const
 {
-	if (GetType() == SettingTypes::TYPE_INT)
+	if (GetType() == SettingTypes::Int32)
 	{
 		return std::stoi(GetStringValue());
+	}
+	else if (GetType() == SettingTypes::Int64)
+	{
+		int64_t value = std::stoll(GetStringValue());
+
+		if (value <= INT32_MAX)
+		{
+			return static_cast<int32_t>(value);
+		}
+	}
+	else if (GetType() == SettingTypes::Float)
+	{
+		return static_cast<int32_t>(GetFloatValue());
+	}
+
+	return 0;
+}
+
+int64_t Setting::GetInt64Value() const
+{
+	if ((GetType() == SettingTypes::Int32) || (GetType() == SettingTypes::Int64))
+	{
+		return std::stoll(GetStringValue());
+	}
+	else if (GetType() == SettingTypes::Float)
+	{
+		return static_cast<int64_t>(GetFloatValue());
 	}
 
 	return 0;
@@ -275,7 +321,7 @@ int32_t Setting::GetIntValue() const
 
 bool Setting::GetBoolValue() const
 {
-	if (GetType() == SettingTypes::TYPE_BOOL)
+	if (GetType() == SettingTypes::Bool)
 	{
 		if ((GetStringValue() == "true") || (GetStringValue() == "1"))
 		{
@@ -288,7 +334,7 @@ bool Setting::GetBoolValue() const
 
 float Setting::GetFloatValue() const
 {
-	if (GetType() == SettingTypes::TYPE_FLOAT)
+	if (GetType() == SettingTypes::Float)
 	{
 		return std::stof(GetStringValue());
 	}
@@ -298,7 +344,7 @@ float Setting::GetFloatValue() const
 
 Color Setting::GetColorValue() const
 {
-	if (GetType() == SettingTypes::TYPE_COLOR)
+	if (GetType() == SettingTypes::Color)
 	{
 		return Color(GetStringValue());
 	}
@@ -308,7 +354,7 @@ Color Setting::GetColorValue() const
 
 LinearColor Setting::GetLinearValue() const
 {
-	if (GetType() == SettingTypes::TYPE_COLOR)
+	if (GetType() == SettingTypes::Color)
 	{
 		return LinearColor(GetStringValue());
 	}
@@ -318,7 +364,7 @@ LinearColor Setting::GetLinearValue() const
 
 Rotator Setting::GetRotatorValue() const
 {
-	if (GetType() == SettingTypes::TYPE_ROTATOR)
+	if (GetType() == SettingTypes::Rotator)
 	{
 		return CodeRed::Format::ToRotator(GetStringValue());
 	}
@@ -328,7 +374,7 @@ Rotator Setting::GetRotatorValue() const
 
 VectorF Setting::GetVector3DFValue() const
 {
-	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
+	if ((GetType() == SettingTypes::Vector3D) || (GetType() == SettingTypes::Vector2D))
 	{
 		return CodeRed::Format::ToVectorF(GetStringValue());
 	}
@@ -338,7 +384,7 @@ VectorF Setting::GetVector3DFValue() const
 
 VectorI Setting::GetVector3DIValue() const
 {
-	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
+	if ((GetType() == SettingTypes::Vector3D) || (GetType() == SettingTypes::Vector2D))
 	{
 		return CodeRed::Format::ToVectorI(GetStringValue());
 	}
@@ -348,7 +394,7 @@ VectorI Setting::GetVector3DIValue() const
 
 Vector2DF Setting::GetVector2DFValue() const
 {
-	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
+	if ((GetType() == SettingTypes::Vector3D) || (GetType() == SettingTypes::Vector2D))
 	{
 		return CodeRed::Format::ToVector2DF(GetStringValue());
 	}
@@ -358,7 +404,7 @@ Vector2DF Setting::GetVector2DFValue() const
 
 Vector2DI Setting::GetVector2DIValue() const
 {
-	if ((GetType() == SettingTypes::TYPE_VECTOR_3D) || (GetType() == SettingTypes::TYPE_VECTOR_2D))
+	if ((GetType() == SettingTypes::Vector3D) || (GetType() == SettingTypes::Vector2D))
 	{
 		return CodeRed::Format::ToVector2DI(GetStringValue());
 	}
@@ -382,7 +428,7 @@ Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 	{
 		if (InRange(sValue))
 		{
-			if (GetType() == SettingTypes::TYPE_BOOL)
+			if (GetType() == SettingTypes::Bool)
 			{
 				if ((sValue == "1") || (sValue == "true"))
 				{
@@ -409,7 +455,13 @@ Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 	return this;
 }
 
-Setting* Setting::SetIntValue(int32_t iValue, ThreadTypes thread)
+Setting* Setting::SetInt32Value(int32_t iValue, ThreadTypes thread)
+{
+	SetStringValue(std::to_string(iValue), thread);
+	return this;
+}
+
+Setting* Setting::SetInt64Value(int64_t iValue, ThreadTypes thread)
 {
 	SetStringValue(std::to_string(iValue), thread);
 	return this;
@@ -482,7 +534,13 @@ Setting* Setting::SetStringRange(const std::string& minValue, const std::string&
 	return this;
 }
 
-Setting* Setting::SetIntRange(int32_t minValue, int32_t maxValue)
+Setting* Setting::SetInt32Range(int32_t minValue, int32_t maxValue)
+{
+	SetStringRange(std::to_string(minValue), std::to_string(maxValue));
+	return this;
+}
+
+Setting* Setting::SetInt64Range(int64_t minValue, int64_t maxValue)
 {
 	SetStringRange(std::to_string(minValue), std::to_string(maxValue));
 	return this;
@@ -524,10 +582,36 @@ Setting* Setting::SetVector2DIRange(const Vector2DI& minValue, const Vector2DI& 
 	return this;
 }
 
-std::pair<int32_t, int32_t> Setting::GetIntRange() const
+std::pair<int32_t, int32_t> Setting::GetInt32Range() const
 {
-	std::pair<float, float> floatRange = GetFloatRange();
-	return { static_cast<int32_t>(floatRange.first), static_cast<int32_t>(floatRange.second) };
+	std::pair<int32_t, int32_t> returnRange;
+
+	if (HasRange())
+	{
+		if (CodeRed::Format::IsStringDecimal(m_range.first) && CodeRed::Format::IsStringDecimal(m_range.second))
+		{
+			returnRange.first = std::stoi(m_range.first);
+			returnRange.second = std::stoi(m_range.second);
+		}
+	}
+
+	return returnRange;
+}
+
+std::pair<int64_t, int64_t> Setting::GetInt64Range() const
+{
+	std::pair<int64_t, int64_t> returnRange;
+
+	if (HasRange())
+	{
+		if (CodeRed::Format::IsStringDecimal(m_range.first) && CodeRed::Format::IsStringDecimal(m_range.second))
+		{
+			returnRange.first = std::stoll(m_range.first);
+			returnRange.second = std::stoll(m_range.second);
+		}
+	}
+
+	return returnRange;
 }
 
 std::pair<float, float> Setting::GetFloatRange() const
@@ -761,37 +845,38 @@ Command& Command::operator=(const Command& command)
 	return *this;
 }
 
-QueueData::QueueData() : Delay(0), Delta(0), Internal(false), Expired(false) {}
-
-QueueData::QueueData(const std::string& command, const std::string& arguments, bool bInternal) :
+QueueData::QueueData(const std::string& command, const std::string& arguments, bool bInternal, bool bSkipSave) :
+	Thread(ThreadTypes::Main),
 	Command(command),
 	Arguments(arguments),
 	Delay(0),
 	Delta(0),
 	Internal(bInternal),
-	Expired(false)
+	Completed(false)
 {
-
+	
 }
 
-QueueData::QueueData(const std::string& command, const std::string& arguments, bool bInternal, uint64_t delay, uint32_t multiplier) :
+QueueData::QueueData(const std::string& command, const std::string& arguments, bool bInternal, uint64_t delay, uint32_t multiplier, bool bSkipSave) :
+	Thread(ThreadTypes::Main),
 	Command(command),
 	Arguments(arguments),
 	Delay(delay* multiplier),
 	Delta(0),
 	Internal(bInternal),
-	Expired(false)
+	Completed(false)
 {
-
+	
 }
 
 QueueData::QueueData(const QueueData& queueData) :
+	Thread(queueData.Thread),
 	Command(queueData.Command),
 	Arguments(queueData.Arguments),
 	Delay(queueData.Delay),
 	Delta(queueData.Delta),
 	Internal(queueData.Internal),
-	Expired(queueData.Expired)
+	Completed(queueData.Completed)
 {
 
 }
@@ -821,12 +906,13 @@ bool QueueData::OnTick()
 
 QueueData& QueueData::operator=(const QueueData& queueData)
 {
+	Thread = queueData.Thread;
 	Command = queueData.Command;
 	Arguments = queueData.Arguments;
 	Delay = queueData.Delay;
 	Delta = queueData.Delta;
 	Internal = queueData.Internal;
-	Expired = queueData.Expired;
+	Completed = queueData.Completed;
 	return *this;
 }
 
@@ -837,6 +923,7 @@ ManagerComponent::~ManagerComponent() { OnDestroy(); }
 void ManagerComponent::OnCreate()
 {
 	PlaceholderMod = nullptr;
+	m_queueLocked = false;
 }
 
 void ManagerComponent::OnDestroy()
@@ -848,47 +935,163 @@ void ManagerComponent::OnDestroy()
 	PlaceholderMod = nullptr;
 }
 
-void ManagerComponent::UnrealCommand(const std::string& unrealCommand, bool bLogToConsole)
+void ManagerComponent::OnTick()
 {
-	static AActor* defaultActor = nullptr;
+	GRainbowColor::OnTick();
 
-	if (!defaultActor)
+	if (!m_queueLocked)
 	{
-		defaultActor = Instances.GetDefaultInstanceOf<AActor>();
-	}
-
-	if (defaultActor)
-	{
-		if (unrealCommand.find("unreal_command") == 0)
+		if (!m_threadQueue.empty())
 		{
-			std::string formattedCommand = unrealCommand;
-			formattedCommand.erase(0, 15);
-
-			if (bLogToConsole)
+			for (QueueData& data : m_threadQueue)
 			{
-				Console.Write(GetNameFormatted() + "Executing unreal command \"" + formattedCommand + "\".");
+				m_queue.push_back(data);
 			}
 
-			defaultActor->ConsoleCommand(formattedCommand);
+			m_threadQueue.clear();
 		}
-		else
+
+		if (!m_queue.empty())
 		{
-			if (bLogToConsole)
+			bool safeToClear = true;
+
+			for (QueueData& data : m_queue)
 			{
-				Console.Write(GetNameFormatted() + "Executing unreal command \"" + unrealCommand + "\".");
+				if (!data.Completed)
+				{
+					safeToClear = false;
+
+					if (data.IsAsync())
+					{
+						if (data.OnTick())
+						{
+							data.Delay = 0;
+						}
+						else
+						{
+							continue;
+						}
+					}
+
+					data.Completed = true;
+
+					if ((data.Thread == ThreadTypes::Main) || (data.Thread == ThreadTypes::Render))
+					{
+						if (data.Internal)
+						{
+							InternalCommand(data.Command, data.Arguments, ThreadTypes::Main);
+						}
+						else
+						{
+							ConsoleCommand(data.Command, data.Arguments, ThreadTypes::Main);
+						}
+					}
+					else
+					{
+						return;
+					}
+				}
 			}
 
-			defaultActor->ConsoleCommand(unrealCommand);
+			if (safeToClear)
+			{
+				m_queue.clear();
+			}
 		}
 	}
 }
 
-std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const QueueData& queueData, ThreadTypes thread)
+void ManagerComponent::QueueCommand(const QueueData& queueData, ThreadTypes thread)
+{
+	if (!queueData.Command.empty())
+	{
+		QueueData queueCopy = queueData;
+		queueCopy.Thread = thread;
+
+		if (m_queueLocked)
+		{
+			std::thread queueThread([this, queueCopy]() {
+				while (m_queueLocked)
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				}
+
+				m_queueLocked = true;
+				m_threadQueue.push_back(queueCopy);
+				m_queueLocked = false;
+			});
+
+			queueThread.detach();
+		}
+		else
+		{
+			m_queueLocked = true;
+			m_threadQueue.push_back(queueCopy);
+			m_queueLocked = false;
+		}
+	}
+}
+
+void ManagerComponent::ProcessCommand(const QueueData& queueData, ThreadTypes thread)
+{
+	if (thread != ThreadTypes::Main)
+	{
+		if (!queueData.Command.empty())
+		{
+			QueueCommand(queueData, thread);
+		}
+	}
+	else
+	{
+		std::pair<CommandTypes, std::string> returnType = ProcessCommandInternal(queueData, thread);
+
+		if (returnType.first != CommandTypes::None)
+		{
+			if (returnType.first == CommandTypes::Unrecognized)
+			{
+				Console.Error(GetNameFormatted() + "Unrecognized command or setting: \"" + queueData.Command + "\".");
+			}
+			else if (returnType.first == CommandTypes::EmptyArguments)
+			{
+				Console.Error(GetNameFormatted() + "Invalid arguments provided for: \"" + queueData.Command + "\".");
+			}
+			else if (returnType.first == CommandTypes::InvalidArguments)
+			{
+				Console.Error(GetNameFormatted() + "Arguments are not supported for: \"" + queueData.Command + "\".");
+			}
+			else if (returnType.first == CommandTypes::ModifySetting)
+			{
+				std::shared_ptr<Setting> consoleSetting = GetSetting(queueData.Command);
+
+				if (consoleSetting)
+				{
+					Console.Notify(GetNameFormatted() + consoleSetting->GetName() + ": " + returnType.second + " -> " + consoleSetting->GetStringValue());
+				}
+			}
+			else if (returnType.first == CommandTypes::PrintSetting)
+			{
+				std::shared_ptr<Setting> consoleSetting = GetSetting(queueData.Command);
+
+				if (consoleSetting)
+				{
+					Console.Notify(GetNameFormatted() + "Name: " + consoleSetting->GetName());
+					Console.Notify(GetNameFormatted() + "Description: " + consoleSetting->GetDescription());
+					Console.Notify(GetNameFormatted() + "Current Value: " + consoleSetting->GetStringValue());
+				}
+			}
+		}
+	}
+}
+
+std::pair<CommandTypes, std::string> ManagerComponent::ProcessCommandInternal(const QueueData& queueData, ThreadTypes thread)
 {
 	if ((thread != ThreadTypes::Main) || (queueData.IsAsync()))
 	{
-		m_queue.push_back(queueData);
-		return { CommandTypes::TYPE_QUEUED, "" };
+		if (!queueData.Command.empty())
+		{
+			QueueCommand(queueData, thread);
+			return { CommandTypes::Queued, "" };
+		}
 	}
 	else
 	{
@@ -908,12 +1111,12 @@ std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const Que
 				}
 				else
 				{
-					return { CommandTypes::TYPE_EMPTY_ARGUMENTS, "" };
+					return { CommandTypes::EmptyArguments, "" };
 				}
 			}
 			else
 			{
-				return { CommandTypes::TYPE_INVALID_ARGUMENTS, "" };
+				return { CommandTypes::InvalidArguments, "" };
 			}
 		}
 		else
@@ -926,26 +1129,22 @@ std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const Que
 				{
 					std::string oldValue = consoleSetting->GetStringValue();
 					consoleSetting->SetStringValue(queueData.Arguments);
-					return { CommandTypes::TYPE_MODIFY_SETTING, oldValue };
+					return { CommandTypes::ModifySetting, oldValue };
 				}
-				else
-				{
-					return { CommandTypes::TYPE_PRINT_SETTING, "" };
-				}
+				
+				return { CommandTypes::PrintSetting, "" };
 			}
-			else
-			{
-				return { CommandTypes::TYPE_UNRECOGNIZED, "" };
-			}
+			
+			return { CommandTypes::Unrecognized, "" };
 		}
 	}
 
-	return { CommandTypes::TYPE_NONE, "" };
+	return { CommandTypes::None, "" };
 }
 
 std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const std::string& command, const std::string& arguments, ThreadTypes thread)
 {
-	return InternalCommand(QueueData(command, arguments, true), thread);
+	return ProcessCommandInternal(QueueData(command, arguments, true), thread);
 }
 
 std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const std::string& command, ThreadTypes thread)
@@ -953,57 +1152,9 @@ std::pair<CommandTypes, std::string> ManagerComponent::InternalCommand(const std
 	return InternalCommand(command, "", thread);
 }
 
-void ManagerComponent::ConsoleCommand(const QueueData& queueData, ThreadTypes thread)
-{
-	if (thread != ThreadTypes::Main)
-	{
-		m_queue.push_back(queueData);
-	}
-	else
-	{
-		std::pair<CommandTypes, std::string> returnType = InternalCommand(queueData, thread);
-
-		if (returnType.first != CommandTypes::TYPE_NONE)
-		{
-			if (returnType.first == CommandTypes::TYPE_UNRECOGNIZED)
-			{
-				Console.Error(GetNameFormatted() + "Unrecognized command or setting: \"" + queueData.Command + "\".");
-			}
-			else if (returnType.first == CommandTypes::TYPE_EMPTY_ARGUMENTS)
-			{
-				Console.Error(GetNameFormatted() + "Invalid arguments provided for: \"" + queueData.Command + "\".");
-			}
-			else if (returnType.first == CommandTypes::TYPE_INVALID_ARGUMENTS)
-			{
-				Console.Error(GetNameFormatted() + "Arguments are not supported for: \"" + queueData.Command + "\".");
-			}
-			else if (returnType.first == CommandTypes::TYPE_MODIFY_SETTING)
-			{
-				std::shared_ptr<Setting> consoleSetting = GetSetting(queueData.Command);
-
-				if (consoleSetting)
-				{
-					Console.Notify(GetNameFormatted() + consoleSetting->GetName() + ": " + returnType.second + " -> " + consoleSetting->GetStringValue());
-				}
-			}
-			else if (returnType.first == CommandTypes::TYPE_PRINT_SETTING)
-			{
-				std::shared_ptr<Setting> consoleSetting = GetSetting(queueData.Command);
-
-				if (consoleSetting)
-				{
-					Console.Notify(GetNameFormatted() + consoleSetting->GetName());
-					Console.Notify(GetNameFormatted() + "Description: " + consoleSetting->GetDescription());
-					Console.Notify(GetNameFormatted() + "Current Value: " + consoleSetting->GetStringValue());
-				}
-			}
-		}
-	}
-}
-
 void ManagerComponent::ConsoleCommand(const std::string& command, const std::string& arguments, ThreadTypes thread)
 {
-	ConsoleCommand(QueueData(command, arguments, false), thread);
+	ProcessCommand(QueueData(command, arguments, false), thread);
 }
 
 void ManagerComponent::ConsoleCommand(const std::string& command, ThreadTypes thread)
@@ -1013,59 +1164,37 @@ void ManagerComponent::ConsoleCommand(const std::string& command, ThreadTypes th
 
 void ManagerComponent::AsyncCommand(const std::string& command, const std::string& arguments, uint64_t delay, ThreadTypes thread)
 {
-	ConsoleCommand(QueueData(command, arguments, false, delay), thread);
+	ProcessCommand(QueueData(command, arguments, false, delay), thread);
 }
 
 void ManagerComponent::AsyncCommand(const std::string& command, uint64_t delay, ThreadTypes thread)
 {
-	ConsoleCommand(QueueData(command, "", false, delay), thread);
+	ProcessCommand(QueueData(command, "", false, delay), thread);
 }
 
-void ManagerComponent::OnTick()
+void ManagerComponent::UnrealCommand(std::string unrealCommand, bool bPrintToConsole)
 {
-	if (!m_queue.empty())
+	static AActor* defaultActor = nullptr;
+
+	if (!defaultActor)
 	{
-		bool safeToClear = !m_queue.empty();
-
-		for (QueueData& data : m_queue)
-		{
-			if (!data.Expired)
-			{
-				if (data.IsAsync())
-				{
-					if (data.OnTick())
-					{
-						data.Delay = 0;
-					}
-					else
-					{
-						safeToClear = false;
-						continue;
-					}
-				}
-
-				if (data.Internal)
-				{
-					safeToClear = false;
-					data.Expired = true;
-					InternalCommand(data.Command, data.Arguments, ThreadTypes::Main);
-				}
-				else
-				{
-					safeToClear = false;
-					data.Expired = true;
-					ConsoleCommand(data.Command, data.Arguments, ThreadTypes::Main);
-				}
-			}
-		}
-
-		if (safeToClear)
-		{
-			m_queue.clear();
-		}
+		defaultActor = Instances.GetDefaultInstanceOf<AActor>();
 	}
 
-	GRainbowColor::OnTick();
+	if (defaultActor)
+	{
+		if (unrealCommand.find("unreal_command") == 0)
+		{
+			unrealCommand = unrealCommand.erase(0, 15);
+		}
+
+		if (bPrintToConsole)
+		{
+			Console.Write(GetNameFormatted() + "Executing unreal command \"" + unrealCommand + "\".");
+		}
+
+		defaultActor->ConsoleCommand(unrealCommand); // May need your own function to convert std::string to FString if your game uses wchar_t.
+	}
 }
 
 void ManagerComponent::ResetSetting(const std::string& settingName, bool bLogToConsole)
@@ -1259,10 +1388,10 @@ void ManagerComponent::Initialize()
 		CreateCommand(new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
 		
 		// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
-		CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::TYPE_BOOL, "Enable/disable the placeholder module.", "false", true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+		CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::Bool, "Enable/disable the placeholder module.", "false", true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
 		
 		// Integer setting that has a minimum value of "0" and a maximum value of "100".
-		CreateSetting(new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::TYPE_INT, "Some random integer value with a custom range.", "0", true))->SetIntRange(0, 100)->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+		CreateSetting(new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::Int32, "Some random integer value with a custom range.", "0", true))->SetInt32Range(0, 100)->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
 
 		PlaceholderMod->UpdateSettings();
 	}

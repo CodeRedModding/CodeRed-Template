@@ -91,7 +91,7 @@ public:
 	static Color GetByte();
 	static LinearColor GetLinear();
 	static void Reset();
-	static void OnTick();
+	static void OnTick(); // Managed by the "ManagerComponent::OnTick" function.
 };
 
 // Taken directly from Unreal Engine source code and converted to BGRA format instead of RGBA.

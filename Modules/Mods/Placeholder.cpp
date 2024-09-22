@@ -13,7 +13,7 @@ void PlaceholderModule::UpdateSettings()
 {
 	SetInitialized(false);
 	m_placeholder = Manager.GetSetting(VariableIds::PLACEHOLDER_ENABLED)->GetBoolValue();
-	m_someValue = Manager.GetSetting(VariableIds::PLACEHOLDER_SOME_VALUE)->GetIntValue();
+	m_someValue = Manager.GetSetting(VariableIds::PLACEHOLDER_SOME_VALUE)->GetInt32Value();
 	SetInitialized(true);
 }
 
