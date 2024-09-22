@@ -2,7 +2,7 @@
 /*
     Changes in v1.4.8:
     - Added a new internal queue system in "Manager.hpp/cpp" which allows console commands to be safely called from any thread.
-    - Added extra safety checkign for the "Setting::InRange" function in "Manager.cpp".
+    - Added extra safety checking for the "Setting::InRange" function in "Manager.cpp".
     - Changed the "ManagerComponent::UnrealCommand" in "Manager.cpp" to be more efficient.
     - BREAKING: Renamed all the "SettingTypes" enum values in "Manager.hpp", also added support for Int64's.
     - BREAKING: Renamed all the "CommandTypes" enum values in "Manager.hpp".
