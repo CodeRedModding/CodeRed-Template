@@ -1,5 +1,15 @@
 #pragma once
 /*
+    Changes in v1.4.9:
+    - Added two new settings for commands called "IsLocked" and "NeedsArgs", locked prevents the command from being called, and needs args states that the command requires some sort of argument to be passed through. Setting this false means arguments are optional for the command.
+    - Added a new "Variable" class which both the "Setting" and "Command" class now inherit from, this stores the variable and internal flags / permissions for said variable.
+    - Added two new internal constants, "VARIABLE_NAME_LENGTH" and "VARIABLE_VALUE_LENGTH", in Manager.cpp" which let you set the max length for variable values and names.
+    - BREAKING: Made the "ManagerComponent::CreateVariable" functon private, as a result the "CreateCommand" and "CreateSetting" now require an additional argument for creating them for their names.
+    - BREAKING: Got rid of all the optional constructors for the "Setting" class in "Manager.hpp/cpp", you should now call the setter functions to bind specific callbacks or set permissions.
+    - BREAKING: Renamed the "IsSearchable" function for the command and setting classes to to "IsHidden" in "Manager.hpp/cpp".
+    - BREAKING: Renamed the "Command::BindCallback" function to "Command::BindStringCallback" in "Manager.hpp/cpp".
+    - BREAKING: Renamed the "Setting::IsModifiable" function and member fields to "IsLocked", which is now set by flags in the new "Variable" base class.
+
     Changes in v1.4.8:
     - Added a new internal queue system in "Manager.hpp/cpp" which allows console commands to be safely called from any thread.
     - Added extra safety checking for the "Setting::InRange" function in "Manager.cpp".

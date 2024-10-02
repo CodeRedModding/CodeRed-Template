@@ -1,79 +1,82 @@
 #include "Manager.hpp"
 #include "../Includes.hpp"
 
-Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable) :
-	m_variable(variable),
-	m_type(settingType),
-	m_description(description),
-	m_defaultValue(defaultValue),
-	m_currentValue(defaultValue),
-	m_modifiable(bModifiable),
-	m_callback(nullptr),
-	m_argumentCallback(nullptr)
-{
+static constexpr uint32_t VARIABLE_NAME_LENGTH = 256; // Max length of a variable name in character length.
+static constexpr uint32_t VARIABLE_VALUE_LENGTH = 5120; // Max length of a value a variable can store in character length.
 
+Variable::Variable(VariableIds id, uint32_t flags) : m_id(id), m_flags(flags) {}
+
+Variable::Variable(const Variable& variable) : m_id(variable.m_id), m_flags(variable.m_flags) {}
+
+Variable::~Variable() {}
+
+VariableIds Variable::GetId() const
+{
+	return m_id;
 }
 
-Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, const std::function<void()>& callback) :
-	m_variable(variable),
-	m_type(settingType),
-	m_description(description),
-	m_defaultValue(defaultValue),
-	m_currentValue(defaultValue),
-	m_modifiable(bModifiable),
-	m_callback(callback),
-	m_argumentCallback(nullptr)
+std::string Variable::GetName() const
 {
-
+	return Manager.GetVariableName(GetId());
 }
 
-Setting::Setting(VariableIds variable, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bModifiable, const std::function<void(std::string)>& callback) :
-	m_variable(variable),
+uint32_t Variable::GetFlags() const
+{
+	return m_flags;
+}
+
+Variable& Variable::operator=(const Variable& variable)
+{
+	m_id = variable.m_id;
+	m_flags = variable.m_flags;
+	return *this;
+}
+
+Setting::Setting(VariableIds id, SettingTypes settingType, const std::string& description, const std::string& defaultValue, bool bHidden) :
+	Variable(id, SettingFlags::SETTING_None),
 	m_type(settingType),
 	m_description(description),
 	m_defaultValue(defaultValue),
 	m_currentValue(defaultValue),
-	m_modifiable(bModifiable),
 	m_callback(nullptr),
-	m_argumentCallback(callback)
+	m_settingCallback(nullptr),
+	m_toggleCallback(nullptr),
+	m_stringCallback(nullptr)
 {
-
+	SetHidden(bHidden);
 }
 
 Setting::Setting(const Setting& setting) :
-	m_variable(setting.m_variable),
+	Variable(setting),
 	m_type(setting.m_type),
 	m_description(setting.m_description),
 	m_defaultValue(setting.m_defaultValue),
 	m_currentValue(setting.m_currentValue),
 	m_range(setting.m_range),
-	m_modifiable(setting.m_modifiable),
+	m_sharedSettings(setting.m_sharedSettings),
 	m_callback(setting.m_callback),
-	m_argumentCallback(setting.m_argumentCallback)
+	m_settingCallback(setting.m_settingCallback),
+	m_toggleCallback(setting.m_toggleCallback),
+	m_stringCallback(setting.m_stringCallback)
 {
 
 }
 
 Setting::~Setting() {}
 
-VariableIds Setting::GetId() const
-{
-	return m_variable;
-}
-
 SettingTypes Setting::GetType() const
 {
 	return m_type;
 }
 
-std::string Setting::GetName() const
-{
-	return Manager.GetVariableName(GetId());
-}
-
 const std::string& Setting::GetDescription() const
 {
 	return m_description;
+}
+
+bool Setting::HasValue() const
+{
+	return !m_currentValue.empty();
 }
 
 bool Setting::HasRange() const
@@ -257,9 +260,20 @@ bool Setting::IsValueValid(const std::string& sValue) const
 	return true;
 }
 
-bool Setting::IsModifiable() const
+bool Setting::IsHidden(bool bSkipDev) const
 {
-	return m_modifiable;
+#ifdef DEV_BUILD
+	if (!bSkipDev)
+	{
+		return false;
+	}
+#endif
+	return (GetFlags() & SettingFlags::SETTING_Hidden);
+}
+
+bool Setting::IsLocked() const
+{
+	return (GetFlags() & SettingFlags::SETTING_Locked);
 }
 
 bool Setting::HasCallback() const
@@ -267,9 +281,19 @@ bool Setting::HasCallback() const
 	return !!m_callback;
 }
 
+bool Setting::HasSettingCallback() const
+{
+	return !!m_settingCallback;
+}
+
+bool Setting::HasToggleCallback() const
+{
+	return !!m_toggleCallback;
+}
+
 bool Setting::HasArgumentCallback() const
 {
-	return !!m_argumentCallback;
+	return !!m_stringCallback;
 }
 
 const std::string& Setting::GetDefaultValue() const
@@ -424,7 +448,7 @@ Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 	{
 		Manager.InternalCommand(GetName(), sValue, thread);
 	}
-	else if (IsValueValid(sValue))
+	else if (IsValueValid(sValue) && !IsLocked())
 	{
 		if (InRange(sValue))
 		{
@@ -442,6 +466,11 @@ Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 			else
 			{
 				m_currentValue = sValue;
+			}
+
+			if (m_currentValue.length() > VARIABLE_VALUE_LENGTH)
+			{
+				m_currentValue = m_currentValue.substr(0, VARIABLE_VALUE_LENGTH);
 			}
 
 			TriggerCallbacks();
@@ -695,10 +724,52 @@ std::pair<Vector2DI, Vector2DI> Setting::GetVector2DIRange() const
 	return returnRange;
 }
 
+Setting* Setting::SetHidden(bool bHidden)
+{
+	if (bHidden)
+	{
+		m_flags |= SettingFlags::SETTING_Hidden;
+	}
+	else
+	{
+		m_flags &= ~SettingFlags::SETTING_Hidden;
+	}
+
+	return this;
+}
+
+Setting* Setting::SetLocked(bool bLocked)
+{
+	if (bLocked)
+	{
+		m_flags |= SettingFlags::SETTING_Locked;
+	}
+	else
+	{
+		m_flags &= ~SettingFlags::SETTING_Locked;
+	}
+
+	return this;
+}
+
+Setting* Setting::LockWithValue(const std::string& sValue)
+{
+	if (IsValueValid(sValue) && InRange(sValue))
+	{
+		SetLocked(false);
+		SetStringValue(sValue);
+		SetLocked(true);
+	}
+
+	return this;
+}
+
 Setting* Setting::UnbindCallbacks()
 {
 	m_callback = nullptr;
-	m_argumentCallback = nullptr;
+	m_settingCallback = nullptr;
+	m_toggleCallback = nullptr;
+	m_stringCallback = nullptr;
 	return this;
 }
 
@@ -708,78 +779,100 @@ Setting* Setting::BindCallback(const std::function<void()>& callback)
 	return this;
 }
 
-Setting* Setting::BindCallback(const std::function<void(std::string)>& callback)
+Setting* Setting::BindSettingCallback(const std::function<void(class Setting*)>& callback)
 {
-	m_argumentCallback = callback;
+	m_settingCallback = callback;
 	return this;
 }
 
-void Setting::TriggerCallbacks() const
+Setting* Setting::BindBoolCallback(const std::function<void(bool)>& callback)
+{
+	m_toggleCallback = callback;
+	return this;
+}
+
+Setting* Setting::BindStringCallback(const std::function<void(std::string)>& callback)
+{
+	m_stringCallback = callback;
+	return this;
+}
+
+void Setting::TriggerCallbacks()
 {
 	if (HasCallback())
 	{
 		m_callback();
 	}
+	else if (HasToggleCallback())
+	{
+		m_toggleCallback(GetBoolValue());
+	}
+	else if (HasSettingCallback())
+	{
+		m_settingCallback(this);
+	}
 	else if (HasArgumentCallback())
 	{
-		m_argumentCallback(GetStringValue());
+		m_stringCallback(GetStringValue());
 	}
 }
 
 Setting& Setting::operator=(const Setting& setting)
 {
-	m_variable = setting.m_variable;
+	m_id = setting.m_id;
+	m_flags = setting.m_flags;
 	m_type = setting.m_type;
 	m_description = setting.m_description;
 	m_defaultValue = setting.m_defaultValue;
 	m_currentValue = setting.m_currentValue;
 	m_range = setting.m_range;
-	m_modifiable = setting.m_modifiable;
+	m_sharedSettings = setting.m_sharedSettings;
 	m_callback = setting.m_callback;
-	m_argumentCallback = setting.m_argumentCallback;
+	m_settingCallback = setting.m_settingCallback;
+	m_toggleCallback = setting.m_toggleCallback;
+	m_stringCallback = setting.m_stringCallback;
 	return *this;
 }
 
-Command::Command(VariableIds variable, const std::string& description, bool bSearchable) :
-	m_variable(variable),
+Command::Command(VariableIds id, const std::string& description, bool bHidden) :
+	Variable(id, CommandFlags::COMMAND_None),
 	m_description(description),
-	m_searchable(bSearchable),
 	m_callback(nullptr),
-	m_argumentCallback(nullptr)
+	m_stringCallback(nullptr)
 {
-
+	SetHidden(bHidden);
+	SetNeedsArgs(true);
 }
 
 Command::Command(const Command& command) :
-	m_variable(command.m_variable),
+	Variable(command),
 	m_description(command.m_description),
-	m_searchable(command.m_searchable),
 	m_callback(command.m_callback),
-	m_argumentCallback(command.m_argumentCallback)
+	m_stringCallback(command.m_stringCallback)
 {
 
 }
 
 Command::~Command() {}
 
-VariableIds Command::GetId() const
-{
-	return m_variable;
-}
-
-std::string Command::GetName() const
-{
-	return Manager.GetVariableName(GetId());
-}
-
 const std::string& Command::GetDescription() const
 {
 	return m_description;
 }
 
-bool Command::IsSearchable() const
+bool Command::IsHidden() const
 {
-	return m_searchable;
+	return (GetFlags() & CommandFlags::COMMAND_Hidden);
+}
+
+bool Command::IsLocked() const
+{
+	return (GetFlags() & CommandFlags::COMMAND_Locked);
+}
+
+bool Command::NeedsArgs() const
+{
+	return (GetFlags() & CommandFlags::COMMAND_NeedsArgs);
 }
 
 bool Command::HasCallback() const
@@ -789,33 +882,17 @@ bool Command::HasCallback() const
 
 bool Command::HasArgumentCallback() const
 {
-	return !!m_argumentCallback;
-}
-
-Command* Command::UnbindCallbacks()
-{
-	m_callback = nullptr;
-	m_argumentCallback = nullptr;
-	return this;
-}
-
-Command* Command::BindCallback(const std::function<void()>& callback)
-{
-	m_callback = callback;
-	return this;
-}
-
-Command* Command::BindCallback(const std::function<void(std::string)>& callback)
-{
-	m_argumentCallback = callback;
-	return this;
+	return !!m_stringCallback;
 }
 
 void Command::TriggerCallback() const
 {
 	if (HasCallback())
 	{
-		m_callback();
+		if (!IsLocked())
+		{
+			m_callback();
+		}
 	}
 	else
 	{
@@ -827,7 +904,10 @@ void Command::TriggerCallback(const std::string& arguments) const
 {
 	if (HasArgumentCallback())
 	{
-		m_argumentCallback(arguments);
+		if (!IsLocked())
+		{
+			m_stringCallback(arguments);
+		}
 	}
 	else
 	{
@@ -835,13 +915,74 @@ void Command::TriggerCallback(const std::string& arguments) const
 	}
 }
 
+Command* Command::SetHidden(bool bHidden)
+{
+	if (bHidden)
+	{
+		m_flags |= CommandFlags::COMMAND_Hidden;
+	}
+	else
+	{
+		m_flags &= ~CommandFlags::COMMAND_Hidden;
+	}
+
+	return this;
+}
+
+Command* Command::SetLocked(bool bLocked)
+{
+	if (bLocked)
+	{
+		m_flags |= CommandFlags::COMMAND_Locked;
+	}
+	else
+	{
+		m_flags &= ~CommandFlags::COMMAND_Locked;
+	}
+
+	return this;
+}
+
+Command* Command::SetNeedsArgs(bool bNeedsArgs)
+{
+	if (bNeedsArgs)
+	{
+		m_flags |= CommandFlags::COMMAND_NeedsArgs;
+	}
+	else
+	{
+		m_flags &= ~CommandFlags::COMMAND_NeedsArgs;
+	}
+
+	return this;
+}
+
+Command* Command::BindCallback(const std::function<void()>& callback)
+{
+	m_callback = callback;
+	return this;
+}
+
+Command* Command::BindStringCallback(const std::function<void(std::string)>& callback)
+{
+	m_stringCallback = callback;
+	return this;
+}
+
+Command* Command::UnbindCallbacks()
+{
+	m_callback = nullptr;
+	m_stringCallback = nullptr;
+	return this;
+}
+
 Command& Command::operator=(const Command& command)
 {
-	m_variable = command.m_variable;
+	m_id = command.m_id;
+	m_flags = command.m_flags;
 	m_description = command.m_description;
-	m_searchable = command.m_searchable;
 	m_callback = command.m_callback;
-	m_argumentCallback = command.m_argumentCallback;
+	m_stringCallback = command.m_stringCallback;
 	return *this;
 }
 
@@ -1001,6 +1142,45 @@ void ManagerComponent::OnTick()
 	}
 }
 
+bool ManagerComponent::CreateVariable(std::string name, VariableIds variable)
+{
+	if (!name.empty())
+	{
+		CodeRed::Format::ToLowerInline(name);
+
+		if (name.length() > VARIABLE_NAME_LENGTH)
+		{
+			Console.Warning("(CreateVariable) Warning: Variable name exceeds maximum length for \"" + name + "\"!");
+			name = name.substr(0, VARIABLE_NAME_LENGTH);
+		}
+
+		for (const auto& variablePair : m_variables)
+		{
+			if (variablePair.second == name)
+			{
+				Console.Warning("[Manager Component] Warning: Duplicate variable name detected for \"" + name + "\"!");
+				return false;
+			}
+		}
+
+		if (!m_variables.contains(variable))
+		{
+			m_variables[variable] = name;
+			return true;
+		}
+		else
+		{
+			Console.Warning("[Manager Component] Warning: Duplicate variable id detected for \"" + std::to_string(static_cast<int32_t>(variable)) + "\"!");
+		}
+	}
+	else
+	{
+		Console.Warning("[Manager Component] Warning: Invalid variable name detected for \"" + std::to_string(static_cast<int32_t>(variable)) + "\"!");
+	}
+
+	return false;
+}
+
 void ManagerComponent::QueueCommand(const QueueData& queueData, ThreadTypes thread)
 {
 	if (!queueData.Command.empty())
@@ -1105,7 +1285,7 @@ std::pair<CommandTypes, std::string> ManagerComponent::ProcessCommandInternal(co
 			}
 			else if (consoleCommand->HasArgumentCallback())
 			{
-				if (queueData.HasArguments())
+				if (queueData.HasArguments() || !consoleCommand->NeedsArgs())
 				{
 					consoleCommand->TriggerCallback(queueData.Arguments);
 				}
@@ -1123,7 +1303,7 @@ std::pair<CommandTypes, std::string> ManagerComponent::ProcessCommandInternal(co
 		{
 			std::shared_ptr<Setting> consoleSetting = GetSetting(queueData.Command);
 
-			if (consoleSetting && consoleSetting->IsModifiable())
+			if (consoleSetting && !consoleSetting->IsLocked())
 			{
 				if (queueData.HasArguments())
 				{
@@ -1232,36 +1412,6 @@ std::string ManagerComponent::GetVariableName(VariableIds variable)
 	return "UnknownVariable";
 }
 
-void ManagerComponent::CreateVariable(std::string name, VariableIds variable)
-{
-	if (!name.empty())
-	{
-		CodeRed::Format::ToLowerInline(name);
-
-		for (const auto& variablePair : m_variables)
-		{
-			if (variablePair.second == name)
-			{
-				Console.Warning("[Manager Component] Warning: Duplicate variable name detected for \"" + name + "\"!");
-				return;
-			}
-		}
-
-		if (!m_variables.contains(variable))
-		{
-			m_variables[variable] = name;
-		}
-		else
-		{
-			Console.Warning("[Manager Component] Warning: Duplicate variable id detected for \"" + std::to_string(static_cast<int32_t>(variable)) + "\"!");
-		}
-	}
-	else
-	{
-		Console.Warning("[Manager Component] Warning: Invalid variable name detected for \"" + std::to_string(static_cast<int32_t>(variable)) + "\"!");
-	}
-}
-
 template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind)
 {
 	if (mod)
@@ -1288,25 +1438,27 @@ template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* 
 	return nullptr;
 }
 
-std::shared_ptr<Command> ManagerComponent::CreateCommand(Command* command)
+std::shared_ptr<Command> ManagerComponent::CreateCommand(const std::string& commandName, Command* command)
 {
 	if (command)
 	{
-		std::string commandName = command->GetName();
+		if (CreateVariable(commandName, command->GetId()))
+		{
+			if (!m_commands.contains(commandName))
+			{
+				if (!command->IsHidden())
+				{
+					Console.Notify("(CreateCommand) Created command \"" + commandName + "\".");
+				}
 
-		if (!m_commands.contains(commandName))
-		{
-			m_commands[commandName] = std::shared_ptr<Command>(command);
-			return m_commands[commandName];
+				m_commands[commandName] = std::shared_ptr<Command>(command);
+				return m_commands[commandName];
+			}
+			else
+			{
+				Console.Warning("(CreateCommand) Warning: Duplicate command name detected for \"" + commandName + "\"!");
+			}
 		}
-		else
-		{
-			Console.Warning("[Manager Component] Warning: Duplicate command name detected for \"" + commandName + "\"!");
-		}
-	}
-	else
-	{
-		Console.Error("[Manager Component] Error: Failed to create command, given pointer is invalid!");
 	}
 
 	return nullptr;
@@ -1327,25 +1479,27 @@ std::shared_ptr<Command> ManagerComponent::GetCommand(VariableIds variable)
 	return GetCommand(GetVariableName(variable));
 }
 
-std::shared_ptr<Setting> ManagerComponent::CreateSetting(Setting* setting)
+std::shared_ptr<Setting> ManagerComponent::CreateSetting(const std::string& settingName, Setting* setting)
 {
 	if (setting)
 	{
-		std::string settingName = setting->GetName();
+		if (CreateVariable(settingName, setting->GetId()))
+		{
+			if (!m_settings.contains(settingName))
+			{
+				if (!setting->IsHidden())
+				{
+					Console.Notify("(CreateSetting) Created setting \"" + settingName + "\".");
+				}
 
-		if (!m_settings.contains(settingName))
-		{
-			m_settings[settingName] = std::shared_ptr<Setting>(setting);
-			return m_settings[settingName];
+				m_settings[settingName] = std::shared_ptr<Setting>(setting);
+				return m_settings[settingName];
+			}
+			else
+			{
+				Console.Warning("(CreateSetting) Warning: Duplicate setting name detected for \"" + settingName + "\"!");
+			}
 		}
-		else
-		{
-			Console.Warning("[Manager Component] Warning: Duplicate setting name detected for \"" + settingName + "\"!");
-		}
-	}
-	else
-	{
-		Console.Error("[Manager Component] Error: Failed to create setting, given pointer is invalid!");
 	}
 
 	return nullptr;
@@ -1368,30 +1522,22 @@ std::shared_ptr<Setting> ManagerComponent::GetSetting(VariableIds variable)
 
 void ManagerComponent::Initialize()
 {
-	// Here where we are mapping commands/settings to their internal "VariableId", this is done on runtime.
-	CreateVariable("reset_setting", VariableIds::MANAGER_RESET_SETTING);
-	CreateVariable("unreal_command", VariableIds::MANAGER_UNREAL_COMMAND);
-
-	CreateVariable("placeholder_do_thing", VariableIds::PLACEHOLDER_DO_THING);
-	CreateVariable("placeholder_can_do_thing", VariableIds::PLACEHOLDER_ENABLED);
-	CreateVariable("placeholder_some_value", VariableIds::PLACEHOLDER_SOME_VALUE);
-
 	// Assigning the "STATES_CasualMatch" and "STATES_RankedMatch" flags, so this module will only be able to be used in casual or ranked games.
 	CreateModule<PlaceholderModule>(new PlaceholderModule("Paceholder", "An example module.", States::STATES_CasualMatch | States::STATES_RankedMatch), PlaceholderMod);
 	
-	CreateCommand(new Command(VariableIds::MANAGER_RESET_SETTING, "Reset a setting to its default/original value."))->BindCallback([&](const std::string& arguments) { ResetSetting(arguments); });
-	CreateCommand(new Command(VariableIds::MANAGER_UNREAL_COMMAND, "Execute a Unreal Engine 3 command with the given arguments."))->BindCallback([&](const std::string& arguments) { UnrealCommand(arguments); });
+	CreateCommand("reset_setting", new Command(VariableIds::MANAGER_RESET_SETTING, "Reset a setting to its default/original value."))->BindStringCallback([&](const std::string& arguments) { ResetSetting(arguments); });
+	CreateCommand("unreal_command", new Command(VariableIds::MANAGER_UNREAL_COMMAND, "Execute a Unreal Engine 3 command with the given arguments."))->BindStringCallback([&](const std::string& arguments) { UnrealCommand(arguments); });
 
 	if (PlaceholderMod)
 	{
 		// When someone uses the command "placeholder_do_thing", this will trigger the function "DoAThing" in "PlaceholderModule".
-		CreateCommand(new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&](){ PlaceholderMod->DoAThing(); });
+		CreateCommand("placeholder_do_thing", new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&]() { PlaceholderMod->DoAThing(); });
 		
 		// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
-		CreateSetting(new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::Bool, "Enable/disable the placeholder module.", "false", true))->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+		CreateSetting("placeholder_can_do_thing", new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::Bool, "Enable/disable the placeholder module.", "false", true))->BindCallback([&]() { PlaceholderMod->UpdateSettings(); });
 		
 		// Integer setting that has a minimum value of "0" and a maximum value of "100".
-		CreateSetting(new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::Int32, "Some random integer value with a custom range.", "0", true))->SetInt32Range(0, 100)->BindCallback([&](){ PlaceholderMod->UpdateSettings(); });
+		CreateSetting("placeholder_some_value", new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::Int32, "Some random integer value with a custom range.", "0", true))->SetInt32Range(0, 100)->BindCallback([&]() { PlaceholderMod->UpdateSettings(); });
 
 		PlaceholderMod->UpdateSettings();
 	}
