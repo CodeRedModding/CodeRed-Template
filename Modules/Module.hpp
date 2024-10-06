@@ -33,5 +33,10 @@ public:
 	void SetInitialized(bool bInitialized);
 
 public:
+	virtual void OnCreateVariables(); // Create settings and commands with the manager component here.
+	virtual void OnSettingChanged(); // Update internal settings here when they are changed by the user.
+	virtual void OnCanvasDraw(class UCanvas* unrealCanvas); // Called from the games main thread on the CPU, 60 times every second.
+
+public:
 	Module& operator=(const Module& module);
 };

@@ -1142,6 +1142,22 @@ void ManagerComponent::OnTick()
 	}
 }
 
+void ManagerComponent::OnCanvasDraw(class UCanvas* unrealCanvas)
+{
+	OnTick();
+
+	if (unrealCanvas)
+	{
+		for (auto& modulePair : m_modules)
+		{
+			if (modulePair.second)
+			{
+				modulePair.second->OnCanvasDraw(unrealCanvas);
+			}
+		}
+	}
+}
+
 bool ManagerComponent::CreateVariable(std::string name, VariableIds variable)
 {
 	if (!name.empty())
@@ -1423,6 +1439,7 @@ template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* 
 		{
 			m_modules[moduleName] = std::shared_ptr<Module>(mod);
 			moduleToBind = std::static_pointer_cast<T>(m_modules[moduleName]);
+			moduleToBind->OnCreateVariables();
 			return moduleToBind;
 		}
 		else
@@ -1528,22 +1545,12 @@ void ManagerComponent::Initialize()
 	CreateCommand("reset_setting", new Command(VariableIds::MANAGER_RESET_SETTING, "Reset a setting to its default/original value."))->BindStringCallback([&](const std::string& arguments) { ResetSetting(arguments); });
 	CreateCommand("unreal_command", new Command(VariableIds::MANAGER_UNREAL_COMMAND, "Execute a Unreal Engine 3 command with the given arguments."))->BindStringCallback([&](const std::string& arguments) { UnrealCommand(arguments); });
 
-	if (PlaceholderMod)
+	for (auto& modulePair : m_modules)
 	{
-		// When someone uses the command "placeholder_do_thing", this will trigger the function "DoAThing" in "PlaceholderModule".
-		CreateCommand("placeholder_do_thing", new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in \"PlaceholderMod\"."))->BindCallback([&]() { PlaceholderMod->DoAThing(); });
-		
-		// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
-		CreateSetting("placeholder_can_do_thing", new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::Bool, "Enable/disable the placeholder module.", "false", true))->BindCallback([&]() { PlaceholderMod->UpdateSettings(); });
-		
-		// Integer setting that has a minimum value of "0" and a maximum value of "100".
-		CreateSetting("placeholder_some_value", new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::Int32, "Some random integer value with a custom range.", "0", true))->SetInt32Range(0, 100)->BindCallback([&]() { PlaceholderMod->UpdateSettings(); });
-
-		PlaceholderMod->UpdateSettings();
-	}
-	else
-	{
-		Console.Error(GetNameFormatted() + "Error: Failed to initialize \"Paceholder\"!");
+		if (modulePair.second)
+		{
+			modulePair.second->OnSettingChanged(); // Load all your variables with their default values you assigned when creating their setting/
+		}
 	}
 
 	Console.Write(GetNameFormatted() + std::to_string(m_commands.size()) + " Command(s) Initialized!");

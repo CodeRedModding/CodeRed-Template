@@ -42,6 +42,29 @@ void Module::SetInitialized(bool bInitialized)
 	m_initialized = bInitialized;
 }
 
+void Module::OnCreateVariables()
+{
+	SetInitialized(false);
+	// Update internal settings here.
+	SetInitialized(true);
+}
+
+void Module::OnSettingChanged()
+{
+	// Create your module specific variables here.
+}
+
+void Module::OnCanvasDraw(class UCanvas* unrealCanvas)
+{
+	if (IsInitialized() && IsAllowed())
+	{
+		if (unrealCanvas)
+		{
+
+		}
+	}
+}
+
 Module& Module::operator=(const Module& module)
 {
 	m_name = module.m_name;

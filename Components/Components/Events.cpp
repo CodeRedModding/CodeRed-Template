@@ -110,7 +110,13 @@ void HooksComponent::HUDPostRender(PreEvent& event)
 {
 	if (event.Caller())
 	{
-		Instances.SetHUD(event.GetCaller<AHUD>());
+		AHUD* hud = event.GetCaller<AHUD>();
+		Instances.SetHUD(hud);
+
+		if (hud->Canvas)
+		{
+			Manager.OnCanvasDraw(hud->Canvas);
+		}
 	}
 }
 

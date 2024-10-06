@@ -1,6 +1,13 @@
 #pragma once
 /*
-    Changes in v1.4.9:
+    Changes in v1.5.0:
+    - Added a new "ManagerComponent::OnCanvasDraw" function to control all the individual canvas drawing functions for each module, this should be called by your hud render function.
+    - Added a new virtual void "Module::OnCreateVariables" for modules where you can create module specific settings or commands instead of putting them all in the "ManagerComponent::Initialize()" function. This is called by the "ManagerComponent::CreateModule" function in "Manager.cpp".
+    - Changed the "UpdateSettings" function from the placeholdder mod to be a virtual void and renamed it to "OnSettingChanged", this should be called by your function when its value has changed.
+    - Added a new virtual void "Module::OnCanvasDraw" for modules, this is called by the new "ManagerComponent::OnCanvasDraw" function in "Manager.cpp".
+    - The "ManagerComponent::OnTick" function is now called by the new "ManagerComponent::OnCanvasDraw" function in "Manager.cpp".
+
+     Changes in v1.4.9:
     - Added two new settings for commands called "IsLocked" and "NeedsArgs", locked prevents the command from being called, and needs args states that the command requires some sort of argument to be passed through. Setting this false means arguments are optional for the command.
     - Added a new "Variable" class which both the "Setting" and "Command" class now inherit from, this stores the variable and internal flags / permissions for said variable.
     - Added two new internal constants, "VARIABLE_NAME_LENGTH" and "VARIABLE_VALUE_LENGTH", in Manager.cpp" which let you set the max length for variable values and names.

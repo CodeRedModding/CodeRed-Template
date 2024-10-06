@@ -259,6 +259,7 @@ public:
 	void OnCreate() override;
 	void OnDestroy() override;
 	void OnTick(); // Checks the queue to see if there are any commands or settings that need to be processed.
+	void OnCanvasDraw(class UCanvas* unrealCanvas); // Calls all canvas drawing functions in each module, called 60 times every second on the games main thread.
 
 private:
 	bool CreateVariable(std::string name, VariableIds variable);
