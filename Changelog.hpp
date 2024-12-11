@@ -1,7 +1,7 @@
 #pragma once
 /*
     Changes in v1.5.2:
-    - Adde a new "Time::FromEpoch" function in "Time.hpp/cpp" which converts a epoch timestamp into the "Time" class.
+    - Added a new "Time::FromEpoch" function in "Time.hpp/cpp" which converts a epoch timestamp into the "Time" class.
     - Fixed the rotate functions in "Math.hpp/cpp" using "RADIANS_TO_ROTATION" instead of "DEGREES_TO_RADIANS" for applying rotation, also remade them to be more clear of what they do.
 
     Changes in v1.5.1:
