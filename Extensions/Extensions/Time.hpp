@@ -12,23 +12,25 @@ namespace CodeRed::Time
 	class Time
 	{
 	public:
-		uint32_t Second;		// Seconds after the minute - [0, 60] including leap second
-		uint32_t Minute;		// Minutes after the hour - [0, 59]
-		uint32_t Hour;			// Hours since midnight - [0, 23]
-		uint32_t Day;			// Day of the month - [1, 31]
-		uint32_t Month;			// Months since January - [0, 11]
-		uint32_t Year;			// Years since 1900
-		uint32_t WeekDay;		// Days since Sunday - [0, 6]
-		uint32_t YearDay;		// Days since January 1 - [0, 365]
+		uint32_t Second;		// Seconds after the minute, including leap second (0-60).
+		uint32_t Minute;		// Minutes after the hour (0-59).
+		uint32_t Hour;			// Hours since midnight (0-23).
+		uint32_t Day;			// Day of the month (1-31).
+		uint32_t Month;			// Months since January (0-11).
+		uint32_t Year;			// Years since 1900.
+		uint32_t WeekDay;		// Days since Sunday (0-6).
+		uint32_t YearDay;		// Days since January 1st (0-365).
 		bool bDaylightSavings;
 
 	public:
 		Time();
-		Time(const std::tm& tm);
+		explicit Time(uint64_t epochTimestamp);
+		explicit Time(const std::tm& tm);
 		Time(const Time& time);
 		~Time();
 
 	public:
+		Time& FromEpoch(uint64_t epochTimestamp);
 		Time& FromTM(const std::tm& tm);
 		Time& Create();
 
@@ -39,6 +41,10 @@ namespace CodeRed::Time
 
 	class Timestamp
 	{
+	private:
+		static std::vector<std::string> m_days;
+		static std::vector<std::string> m_months;
+
 	public:
 		Time tTime;
 		bool b24Hours;
@@ -51,8 +57,10 @@ namespace CodeRed::Time
 
 	public:
 		static Timestamp Create(bool bIs24Hours);
-		std::string FormatStandard(bool bBrackets, bool bSkipSeconds);
-		std::string FormatISO8601(bool bBrackets);
+		std::string FormatClock(bool bBrackets, bool bSkipSeconds) const; // 4:31:42 PM
+		std::string FormatISO8601() const; // 2024-10-29T22:41:46+00:00
+		std::string FormatUTCSimple() const; // 10/29/2024 10:41pm
+		std::string FormatUTCExtended() const; // Tue Oct 29 22:46:59 2024 UTC
 
 	public:
 		Timestamp& operator=(const Timestamp& timestamp);

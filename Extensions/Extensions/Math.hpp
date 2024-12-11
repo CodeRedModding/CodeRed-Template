@@ -45,16 +45,14 @@ namespace CodeRed::Math
 	static constexpr int32_t ROTATION_360 =					65535;
 	static constexpr int32_t ROTATION_180 =					32768;
 	static constexpr double ROTATION_TO_RADIANS =			(PI / ROTATION_180);
-	static constexpr double DEGREES_TO_RADIANS =			(PI / 180.0);
-	static constexpr float ROTATIONS_TO_DEGREES =			(ROTATION_360 / 360.0f);
-	static constexpr double RADIANS_TO_DEGREES =			(180.0 / PI);
+	static constexpr double DEGREES_TO_RADIANS =			(PI / 180.0f);
+	static constexpr double ROTATIONS_TO_DEGREES =			(ROTATION_360 / 360.0f);
+	static constexpr double RADIANS_TO_DEGREES =			(180.0f / PI);
 	static constexpr double RADIANS_TO_ROTATION =			(ROTATION_180 * PI);
 
 	static constexpr float UU_CENTIMETER =					1.0f;										// One Unreal Unit is equal to one centimeter.
 	static constexpr float UU_METER =						100.0f;										// One hundred centimeters are in a meter.
 	static constexpr float UU_PIXEL =						6.25f;										// Four pixels are equal to twenty five unreal units.
-
-	// Credit to @FrancesElMute/Aberinkula/Megasplat for the rotate function.
 
 	void SinCos(float& scalarSin, float& scalarCos, float value);
 	float RandomFloat(); // Returns a random float range between 0.0 and 1.0
@@ -269,7 +267,7 @@ public:
 	VectorF Cross(const VectorF& other) const;
 	VectorF Lerp(const VectorF& other, float percentage) const;
 	VectorF MidpointTo(const VectorF& other) const;
-	VectorF Rotate(const Rotator& rotation, const VectorF& location);
+	VectorF Rotate(const Rotator& rotation, const VectorF& location, bool bURR);
 	float DistanceTo(const VectorF& other, float scaling = 1.0f) const;
 
 public:
@@ -355,7 +353,7 @@ public:
 	class Quat GetQuat() const;
 	Rotator GetNormalize() const;
 	VectorF GetVector() const;
-	VectorF Rotate(VectorF other) const; // Credit to @FrancesElMute/Aberinkula/Megasplat for this rotate function.
+	VectorF Rotate(const VectorF& point, bool bURR) const;
 	bool IsValid() const;
 
 public:
@@ -384,7 +382,7 @@ inline Rotator operator+(const Rotator& a, int32_t b) { return Rotator(a.Pitch +
 inline Rotator operator-(const Rotator& a, int32_t b) { return Rotator(a.Pitch - b, a.Yaw - b, a.Roll - b); }
 inline Rotator operator*(const Rotator& a, int32_t b) { return Rotator(a.Pitch * b, a.Yaw * b, a.Roll * b); }
 inline Rotator operator/(const Rotator& a, int32_t b) { return Rotator(a.Pitch / b, a.Yaw / b, a.Roll / b); }
-inline extern VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location); // Credit to @FrancesElMute/Aberinkula/Megasplat for this rotate function.
+extern VectorF RotatePoint(VectorF point, const Rotator& rotation, const VectorF& location, bool bURR);
 
 class Quat : public TVector4D<float>
 {
@@ -420,7 +418,7 @@ public:
 	void Normalize(float tolerance = CodeRed::Math::SMALL_NUMBER);
 	Quat GetNormalize(float tolerance = CodeRed::Math::SMALL_NUMBER) const;
 	Rotator GetRotator() const;
-	VectorF Rotate(const VectorF& other) const; // Credit to @FrancesElMute/Aberinkula/Megasplat for this rotate function.
+	VectorF Rotate(const VectorF& other) const;
 
 public:
 	Quat& operator+=(const Quat& other);

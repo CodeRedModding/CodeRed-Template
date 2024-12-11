@@ -1,5 +1,15 @@
 #pragma once
 /*
+    Changes in v1.5.2:
+    - Adde a new "Time::FromEpoch" function in "Time.hpp/cpp" which converts a epoch timestamp into the "Time" class.
+    - Fixed the rotate functions in "Math.hpp/cpp" using "RADIANS_TO_ROTATION" instead of "DEGREES_TO_RADIANS" for applying rotation, also remade them to be more clear of what they do.
+
+    Changes in v1.5.1:
+    - BREAKING: Renamed the "Timestamp::FormatStandard" function to "Timestamp::FormatClock" in "Time.hpp/cpp".
+    - Added a new "Time::FromEpoch" function for the time class that parses an epoch timestamp in "Time.hpp/cpp".
+    - Added two new timestamp format functions "Timestamp::FormatUTCSimple" and "Timestamp::FormatUTCExtended" in "Time.hpp/cpp".
+    - Added two new helper functions "ConsoleComponent::CreateTimestampUTCSimple" and "ConsoleComponent::CreateTimestampUTCExtended" in "Console.hpp/cpp".
+
     Changes in v1.5.0:
     - Added a new "ManagerComponent::OnCanvasDraw" function to control all the individual canvas drawing functions for each module, this should be called by your hud render function.
     - Added a new virtual void "Module::OnCreateVariables" for modules where you can create module specific settings or commands instead of putting them all in the "ManagerComponent::Initialize()" function. This is called by the "ManagerComponent::CreateModule" function in "Manager.cpp".

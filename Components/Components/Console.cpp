@@ -41,14 +41,24 @@ void ConsoleComponent::SetClockStyle(bool bIs24Hours)
 	m_24hourClock = bIs24Hours;
 }
 
-std::string ConsoleComponent::CreateTimestamp(bool bBrackets)
+std::string ConsoleComponent::CreateTimestamp(bool bBrackets) const
 {
-	return CodeRed::Time::Timestamp::Create(m_24hourClock).FormatStandard(bBrackets, false);
+	return CodeRed::Time::Timestamp::Create(m_24hourClock).FormatClock(bBrackets, false);
 }
 
-std::string ConsoleComponent::CreateTimestampISO8601(bool bBrackets)
+std::string ConsoleComponent::CreateTimestampISO8601() const
 {
-	return CodeRed::Time::Timestamp::Create(m_24hourClock).FormatISO8601(bBrackets);
+	return CodeRed::Time::Timestamp::Create(m_24hourClock).FormatISO8601();
+}
+
+std::string ConsoleComponent::CreateTimestampUTCSimple() const
+{
+	return CodeRed::Time::Timestamp::Create(m_24hourClock).FormatUTCSimple();
+}
+
+std::string ConsoleComponent::CreateTimestampUTCExtended() const
+{
+	return CodeRed::Time::Timestamp::Create(m_24hourClock).FormatUTCExtended();
 }
 
 void ConsoleComponent::ColorConsole(TextColors textColor)

@@ -17,6 +17,11 @@ namespace CodeRed::Time
 	
 	}
 
+	Time::Time(uint64_t epochTimestamp)
+	{
+		FromEpoch(epochTimestamp);
+	}
+
 	Time::Time(const std::tm& tm)
 	{
 		FromTM(tm);
@@ -37,6 +42,15 @@ namespace CodeRed::Time
 	}
 
 	Time::~Time() {}
+
+	Time& Time::FromEpoch(uint64_t epochTimestamp)
+	{
+		std::tm tm;
+		ZeroMemory(&tm, sizeof(tm));
+		localtime_s(&tm, reinterpret_cast<std::time_t*>(&epochTimestamp));
+		return FromTM(tm);
+	}
+
 
 	Time& Time::FromTM(const std::tm& tm)
 	{
@@ -80,6 +94,31 @@ namespace CodeRed::Time
 		return *this;
 	}
 
+	std::vector<std::string> Timestamp::m_days = {
+		"Mon",
+		"Tue",
+		"Wed",
+		"Thu",
+		"Fri",
+		"Sat",
+		"Sun"
+	};
+
+	std::vector<std::string> Timestamp::m_months = {
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec"
+	};
+
 	Timestamp::Timestamp() : b24Hours(false) {}
 
 	Timestamp::Timestamp(const Time& time, bool bIs24Hours) : tTime(time), b24Hours(bIs24Hours) {}
@@ -93,19 +132,18 @@ namespace CodeRed::Time
 		return Timestamp(Time().Create(), bIs24Hours);
 	}
 
-	std::string Timestamp::FormatStandard(bool bBrackets, bool bSkipSeconds)
+	std::string Timestamp::FormatClock(bool bBrackets, bool bSkipSeconds) const
 	{
+		// 4:31:42 PM
 		std::ostringstream timeStream;
+		if (bBrackets) { timeStream << "["; }
 
-		if (bBrackets) { timeStream <<  "["; }
-		if (!tTime.Year) { tTime.Create(); }
-		bool isAM = (tTime.Hour < 12);
+		uint32_t hours = tTime.Hour;
+		bool isAM = (hours < 12);
 
-		if (!b24Hours && !isAM) { tTime.Hour -= 12; }
+		if (!b24Hours && !isAM) { hours -= 12; }
 		if (b24Hours) { Format::FillRight(timeStream, '0', 2); }
-
-		timeStream << tTime.Hour << ":";
-		tTime.Hour += 12;
+		timeStream << hours << ":";
 
 		Format::FillRight(timeStream, '0', 2);
 		timeStream << tTime.Minute;
@@ -122,12 +160,10 @@ namespace CodeRed::Time
 		return timeStream.str();
 	}
 
-	std::string Timestamp::FormatISO8601(bool bBrackets)
+	std::string Timestamp::FormatISO8601() const
 	{
+		// 2024-10-29T22:41:46+00:00
 		std::ostringstream timeStream;
-
-		if (bBrackets) { timeStream << "["; }
-		if (!tTime.Year) { tTime.Create(); }
 		timeStream << (tTime.Year + 1900) << "-";
 
 		Format::FillRight(timeStream, '0', 2);
@@ -153,7 +189,52 @@ namespace CodeRed::Time
 		if (offset < 10) { timeStream << "0"; }
 		timeStream << std::to_string(offset);
 
-		if (bBrackets) { timeStream << "]"; }
+		return timeStream.str();
+	}
+
+	std::string Timestamp::FormatUTCSimple() const
+	{
+		// 10/29/2024 10:41pm
+		std::ostringstream timeStream;
+		uint32_t hours = tTime.Hour;
+		uint32_t year = (tTime.Year > 100 ? (tTime.Year - 100) : tTime.Year);
+		bool isAM = (hours < 12);
+
+		Format::FillRight(timeStream, '0', 2);
+		timeStream << (tTime.Month + 1) << "/";
+
+		Format::FillRight(timeStream, '0', 2);
+		timeStream << tTime.Day << "/";
+		timeStream << year << " ";
+
+		if (!isAM) { hours -= 12; }
+		Format::FillRight(timeStream, '0', 2);
+		timeStream << hours << ":";
+
+		Format::FillRight(timeStream, '0', 2);
+		timeStream << tTime.Minute << (isAM ? "am" : "pm");
+
+		return timeStream.str();
+	}
+
+	std::string Timestamp::FormatUTCExtended() const
+	{
+		// Tue Oct 29 22:46:59 2024 UTC
+		std::ostringstream timeStream;
+
+		timeStream << m_days[(tTime.Day < m_days.size()) ? tTime.Day : 0] << " ";
+		timeStream << m_months[(tTime.Month < m_months.size()) ? tTime.Month : 0] << " ";
+
+		Format::FillRight(timeStream, '0', 2);
+		timeStream << tTime.Hour << ":";
+
+		Format::FillRight(timeStream, '0', 2);
+		timeStream << tTime.Minute << ":";
+
+		Format::FillRight(timeStream, '0', 2);
+		timeStream << tTime.Second << " ";
+		timeStream << (tTime.Year + 1900) << " UTC";
+
 		return timeStream.str();
 	}
 

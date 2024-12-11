@@ -258,30 +258,9 @@ VectorF VectorF::MidpointTo(const VectorF& other) const
 	return midpoint;
 }
 
-VectorF VectorF::Rotate(const Rotator& rotation, const VectorF& location)
+VectorF VectorF::Rotate(const Rotator& rotation, const VectorF& location, bool bURR)
 {
-	double pitch = (static_cast<double>(rotation.Pitch) / CodeRed::Math::RADIANS_TO_ROTATION);
-	double yaw = (static_cast<double>(rotation.Yaw) / CodeRed::Math::RADIANS_TO_ROTATION);
-	double roll = (static_cast<double>(rotation.Roll) / CodeRed::Math::RADIANS_TO_ROTATION);
-
-	float sz = sin(pitch);
-	float cz = cos(pitch);
-	float sy = sin(-yaw);
-	float cy = cos(-yaw);
-	float sx = sin(roll);
-	float cx = cos(roll);
-
-	VectorF point = Copy();
-	point = VectorF(point.X, point.Y * cx - point.Z * sx, point.Y * sx + point.Z * cx); // Roll
-	point = VectorF(point.X * cz - point.Y * sz, point.X * sz + point.Y * cz, point.Z); // Pitch
-	point = VectorF(point.X * cy + point.Z * sy, point.Y, -point.X * sy + point.Z * cy); // Yaw
-
-	float tmp = point.Z;
-	point.Z = point.Y;
-	point.Y = tmp;
-
-	point += location;
-	return point;
+	return RotatePoint(Copy(), rotation, location, bURR);
 }
 
 float VectorF::DistanceTo(const VectorF& other, float scaling) const
@@ -498,8 +477,7 @@ float Rotator::NormalizeAxis(float a)
 
 class Quat Rotator::GetQuat() const
 {
-	float DEG_TO_RAD = (CodeRed::Math::PI / 180.0f);
-	float DIVIDE_BY_2 = (DEG_TO_RAD / 2.0f);
+	float DIVIDE_BY_2 = (CodeRed::Math::DEGREES_TO_RADIANS / 2.0f);
 
 	float SP = sin(Pitch * DIVIDE_BY_2);
 	float CP = cos(Pitch * DIVIDE_BY_2);
@@ -536,27 +514,9 @@ VectorF Rotator::GetVector() const
 	return VectorF(CP * CY, CP * SY, SP);
 }
 
-VectorF Rotator::Rotate(VectorF other) const
+VectorF Rotator::Rotate(const VectorF& point, bool bURR) const
 {
-	double pitch = (static_cast<double>(Pitch) / CodeRed::Math::RADIANS_TO_ROTATION);
-	double yaw = (static_cast<double>(Yaw) / CodeRed::Math::RADIANS_TO_ROTATION);
-	double roll = (static_cast<double>(Roll) / CodeRed::Math::RADIANS_TO_ROTATION);
-
-	float sz = sin(pitch);
-	float cz = cos(pitch);
-	float sy = sin(-yaw);
-	float cy = cos(-yaw);
-	float sx = sin(roll);
-	float cx = cos(roll);
-
-	other = VectorF(other.X, other.Y * cx - other.Z * sx, other.Y * sx + other.Z * cx); // Roll
-	other = VectorF(other.X * cz - other.Y * sz, other.X * sz + other.Y * cz, other.Z); // Pitch
-	other = VectorF(other.X * cy + other.Z * sy, other.Y, -other.X * sy + other.Z * cy); // Yaw
-
-	float tmp = other.Z;
-	other.Z = other.Y;
-	other.Y = tmp;
-	return other;
+	return RotatePoint(point, Copy(), VectorF(), bURR);
 }
 
 bool Rotator::IsValid() const
@@ -680,26 +640,43 @@ bool Rotator::operator!=(const struct FRotator& other) const
 	return (Pitch != other.Pitch || Yaw != other.Yaw || Roll != other.Roll);
 }
 
-VectorF Rotate(VectorF point, const Rotator& rotation, const VectorF& location)
+VectorF RotatePoint(VectorF point, const Rotator& rotation, const VectorF& location, bool bURR)
 {
-	double pitch = (static_cast<double>(rotation.Pitch) / CodeRed::Math::RADIANS_TO_ROTATION);
-	double yaw = (static_cast<double>(rotation.Yaw) / CodeRed::Math::RADIANS_TO_ROTATION);
-	double roll = (static_cast<double>(rotation.Roll) / CodeRed::Math::RADIANS_TO_ROTATION);
+	double pitch = static_cast<double>(rotation.Pitch);
+	double yaw = static_cast<double>(rotation.Yaw);
+	double roll = static_cast<double>(rotation.Roll);
 
-	float sz = sin(pitch);
-	float cz = cos(pitch);
-	float sy = sin(-yaw);
-	float cy = cos(-yaw);
-	float sx = sin(roll);
-	float cx = cos(roll);
+	if (bURR)
+	{
+		pitch /= CodeRed::Math::ROTATIONS_TO_DEGREES;
+		yaw /= CodeRed::Math::ROTATIONS_TO_DEGREES;
+		roll /= CodeRed::Math::ROTATIONS_TO_DEGREES;
+	}
 
-	point = VectorF(point.X, point.Y * cx - point.Z * sx, point.Y * sx + point.Z * cx); // Roll
-	point = VectorF(point.X * cz - point.Y * sz, point.X * sz + point.Y * cz, point.Z); // Pitch
-	point = VectorF(point.X * cy + point.Z * sy, point.Y, -point.X * sy + point.Z * cy); // Yaw
+	pitch *= CodeRed::Math::DEGREES_TO_RADIANS;
+	yaw *= CodeRed::Math::DEGREES_TO_RADIANS;
+	roll *= CodeRed::Math::DEGREES_TO_RADIANS;
 
-	float tmp = point.Z;
-	point.Z = point.Y;
-	point.Y = tmp;
+	double pitchSin = sin(pitch); // Z
+	double pitchCos = cos(pitch); // Z
+	double yawSin = sin(-yaw); // Y
+	double yawCos = cos(-yaw); // Y
+	double rollSin = sin(roll); // X
+	double rollCos = cos(roll); // X
+
+	// Apply roll.
+	double y1 = ((point.Y * rollCos) - (point.Z * rollSin));
+	double z1 = ((point.Y * rollSin) + (point.Z * rollCos));
+
+	// Apply pitch.
+	double x2 = ((point.X * pitchCos) - (y1 * pitchSin));
+	double y2 = ((point.X * pitchSin) + (y1 * pitchCos));
+
+	// Apply yaw.
+	double x3 = ((x2 * yawCos) + (z1 * yawSin));
+	double z3 = ((-x2 * yawSin) + (z1 * yawCos));
+
+	point = VectorF(x3, z3, y2); // Z and Y values swapped.
 	point += location;
 	return point;
 }

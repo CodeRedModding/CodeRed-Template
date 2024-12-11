@@ -41,8 +41,10 @@ public:
 
 public: // Utils
 	void SetClockStyle(bool bIs24Hours);
-	std::string CreateTimestamp(bool bBrackets = true);
-	std::string CreateTimestampISO8601(bool bBrackets = true);
+	std::string CreateTimestamp(bool bBrackets = true) const; // 4:31:42 PM
+	std::string CreateTimestampISO8601() const; // 2024-10-29T22:41:46+00:00
+	std::string CreateTimestampUTCSimple() const; // 10/29/2024 10:41pm
+	std::string CreateTimestampUTCExtended() const; // Tue Oct 29 22:46:59 2024 UTC
 
 public:
 	void ColorConsole(TextColors textColor);
