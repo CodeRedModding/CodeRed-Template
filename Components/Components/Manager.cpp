@@ -438,8 +438,7 @@ Vector2DI Setting::GetVector2DIValue() const
 
 Setting* Setting::ResetToDefault(ThreadTypes thread)
 {
-	SetStringValue(GetDefaultValue(), thread);
-	return this;
+	return SetStringValue(GetDefaultValue(), thread);
 }
 
 Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
@@ -486,68 +485,57 @@ Setting* Setting::SetStringValue(const std::string& sValue, ThreadTypes thread)
 
 Setting* Setting::SetInt32Value(int32_t iValue, ThreadTypes thread)
 {
-	SetStringValue(std::to_string(iValue), thread);
-	return this;
+	return SetStringValue(std::to_string(iValue), thread);
 }
 
 Setting* Setting::SetInt64Value(int64_t iValue, ThreadTypes thread)
 {
-	SetStringValue(std::to_string(iValue), thread);
-	return this;
+	return SetStringValue(std::to_string(iValue), thread);
 }
 
 Setting* Setting::SetBoolValue(bool bValue, ThreadTypes thread)
 {
-	SetStringValue((bValue ? "true" : "false"), thread);
-	return this;
+	return SetStringValue((bValue ? "true" : "false"), thread);
 }
 
 Setting* Setting::SetFloatValue(float fValue, ThreadTypes thread)
 {
-	SetStringValue(std::to_string(fValue), thread);
-	return this;
+	return SetStringValue(std::to_string(fValue), thread);
 }
 
 Setting* Setting::SetColorValue(const Color& cValue, ThreadTypes thread)
 {
-	SetStringValue(cValue.ToHexAlpha(), thread);
-	return this;
+	return SetStringValue(cValue.ToHexAlpha(), thread);
 }
 
 Setting* Setting::SetLinearValue(const LinearColor& lValue, ThreadTypes thread)
 {
-	SetStringValue(lValue.ToHexAlpha(), thread);
-	return this;
+	return SetStringValue(lValue.ToHexAlpha(), thread);
 }
 
 Setting* Setting::SetRotatorValue(const Rotator& rValue, ThreadTypes thread)
 {
-	SetStringValue(std::to_string(rValue.Pitch) + " " + std::to_string(rValue.Yaw) + " " + std::to_string(rValue.Roll), thread);
-	return this;
+	return SetStringValue(std::to_string(rValue.Pitch) + " " + std::to_string(rValue.Yaw) + " " + std::to_string(rValue.Roll), thread);
 }
 
 Setting* Setting::SetVectorFValue(const VectorF& vfValue, ThreadTypes thread)
 {
-	SetStringValue(std::to_string(vfValue.X) + " " + std::to_string(vfValue.Y) + " " + std::to_string(vfValue.Z), thread);
-	return this;
+	return SetStringValue(std::to_string(vfValue.X) + " " + std::to_string(vfValue.Y) + " " + std::to_string(vfValue.Z), thread);
 }
 
 Setting* Setting::SetVectorIValue(const VectorI& viValue, ThreadTypes thread)
 {
-	SetStringValue(std::to_string(viValue.X) + " " + std::to_string(viValue.Y) + " " + std::to_string(viValue.Z), thread);
-	return this;
+	return SetStringValue(std::to_string(viValue.X) + " " + std::to_string(viValue.Y) + " " + std::to_string(viValue.Z), thread);
 }
 
 Setting* Setting::SetVector2DFValue(const Vector2DF& vfValue, ThreadTypes thread)
 {
-	SetStringValue(std::to_string(vfValue.X) + " " + std::to_string(vfValue.Y), thread);
-	return this;
+	return SetStringValue(std::to_string(vfValue.X) + " " + std::to_string(vfValue.Y), thread);
 }
 
 Setting* Setting::SetVector2DIValue(const Vector2DI& viValue, ThreadTypes thread)
 {
-	SetStringValue(std::to_string(viValue.X) + " " + std::to_string(viValue.Y), thread);
-	return this;
+	return SetStringValue(std::to_string(viValue.X) + " " + std::to_string(viValue.Y), thread);
 }
 
 Setting* Setting::RemoveRange()
@@ -565,50 +553,42 @@ Setting* Setting::SetStringRange(const std::string& minValue, const std::string&
 
 Setting* Setting::SetInt32Range(int32_t minValue, int32_t maxValue)
 {
-	SetStringRange(std::to_string(minValue), std::to_string(maxValue));
-	return this;
+	return SetStringRange(std::to_string(minValue), std::to_string(maxValue));
 }
 
 Setting* Setting::SetInt64Range(int64_t minValue, int64_t maxValue)
 {
-	SetStringRange(std::to_string(minValue), std::to_string(maxValue));
-	return this;
+	return SetStringRange(std::to_string(minValue), std::to_string(maxValue));
 }
 
 Setting* Setting::SetFloatRange(float minValue, float maxValue)
 {
-	SetStringRange(std::to_string(minValue), std::to_string(maxValue));
-	return this;
+	return SetStringRange(std::to_string(minValue), std::to_string(maxValue));
 }
 
 Setting* Setting::SetRotatorRange(const Rotator& minValue, const Rotator& maxValue)
 {
-	SetStringRange(std::to_string(minValue.Pitch) + " " + std::to_string(minValue.Yaw) + " " + std::to_string(minValue.Roll), std::to_string(maxValue.Pitch) + " " + std::to_string(maxValue.Yaw) + " " + std::to_string(maxValue.Roll));
-	return this;
+	return SetStringRange(std::to_string(minValue.Pitch) + " " + std::to_string(minValue.Yaw) + " " + std::to_string(minValue.Roll), std::to_string(maxValue.Pitch) + " " + std::to_string(maxValue.Yaw) + " " + std::to_string(maxValue.Roll));
 }
 
 Setting* Setting::SetVectorFRange(const VectorF& minValue, const VectorF& maxValue)
 {
-	SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y) + " " + std::to_string(minValue.Z), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y) + " " + std::to_string(maxValue.Z));
-	return this;
+	return SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y) + " " + std::to_string(minValue.Z), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y) + " " + std::to_string(maxValue.Z));
 }
 
 Setting* Setting::SetVectorIRange(const VectorI& minValue, const VectorI& maxValue)
 {
-	SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y) + " " + std::to_string(minValue.Z), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y) + " " + std::to_string(maxValue.Z));
-	return this;
+	return SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y) + " " + std::to_string(minValue.Z), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y) + " " + std::to_string(maxValue.Z));
 }
 
 Setting* Setting::SetVector2DFRange(const Vector2DF& minValue, const Vector2DF& maxValue)
 {
-	SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y));
-	return this;
+	return SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y));
 }
 
 Setting* Setting::SetVector2DIRange(const Vector2DI& minValue, const Vector2DI& maxValue)
 {
-	SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y));
-	return this;
+	return SetStringRange(std::to_string(minValue.X) + " " + std::to_string(minValue.Y), std::to_string(maxValue.X) + " " + std::to_string(maxValue.Y));
 }
 
 std::pair<int32_t, int32_t> Setting::GetInt32Range() const
