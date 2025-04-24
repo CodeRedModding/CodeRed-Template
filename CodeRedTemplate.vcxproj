@@ -165,7 +165,7 @@
     <ClCompile Include="Extensions\Extensions\Math.cpp" />
     <ClCompile Include="Extensions\Extensions\Memory.cpp" />
     <ClCompile Include="Extensions\Extensions\Time.cpp" />
-    <ClCompile Include="Modules\Mods\Placeholder.cpp" />
+    <ClCompile Include="Modules\Modules\Placeholder.cpp" />
     <ClCompile Include="Modules\Module.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PlaceholderSDK\GameDefines.cpp" />
@@ -189,11 +189,12 @@
     <ClInclude Include="Extensions\Extensions\Time.hpp" />
     <ClInclude Include="Extensions\Includes.hpp" />
     <ClInclude Include="Modules\Includes.hpp" />
-    <ClInclude Include="Modules\Mods\Placeholder.hpp" />
+    <ClInclude Include="Modules\Modules\Placeholder.hpp" />
     <ClInclude Include="Modules\Module.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="PlaceholderSDK\GameDefines.hpp" />
     <ClInclude Include="PlaceholderSDK\SdkHeaders.hpp" />
+    <ClInclude Include="Types.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Detours\detours.lib" />

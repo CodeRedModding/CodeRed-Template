@@ -4,11 +4,6 @@
 
 namespace CodeRed::Memory
 {
-    uintptr_t GetEntryPoint()
-    {
-        return reinterpret_cast<uintptr_t>(GetModuleHandleW(NULL));
-    }
-
     std::string GetProcessName()
     {
         char fileName[MAX_PATH];
@@ -23,35 +18,62 @@ namespace CodeRed::Memory
         return "";
     }
 
-    uintptr_t FindPattern(HMODULE module, const unsigned char* pattern, const char* mask)
+    uintptr_t GetEntryPoint()
     {
-        MODULEINFO info = { };
-        GetModuleInformation(GetCurrentProcess(), module, &info, sizeof(MODULEINFO));
+        return reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr));
+    }
 
-        uintptr_t start = reinterpret_cast<uintptr_t>(module);
-        size_t length = info.SizeOfImage;
+    uintptr_t GetOffsetFromEntry(uintptr_t address)
+    {
+        uintptr_t entryPoint = GetEntryPoint();
 
-        size_t pos = 0;
-        size_t maskLength = (std::strlen(mask) - 1);
-
-        for (uintptr_t retAddress = start; retAddress < start + length; retAddress++)
+        if (address > entryPoint)
         {
-            if (*reinterpret_cast<unsigned char*>(retAddress) == pattern[pos] || mask[pos] == '?')
-            {
-                if (pos == maskLength)
-                {
-                    return (retAddress - maskLength);
-                }
-
-                pos++;
-            }
-            else
-            {
-                retAddress -= pos;
-                pos = 0;
-            }
+            return (address - entryPoint);
         }
 
         return NULL;
+    }
+
+    uintptr_t FindPattern(HMODULE hModule, const uint8_t* bytePattern, const std::string& mask, size_t offset)
+    {
+        if (hModule && bytePattern && !mask.empty())
+        {
+            MODULEINFO moduleInfo;
+            ZeroMemory(&moduleInfo, sizeof(moduleInfo));
+
+            if (K32GetModuleInformation(GetCurrentProcess(), hModule, &moduleInfo, sizeof(moduleInfo)) != 0)
+            {
+                uintptr_t base = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
+                uintptr_t start = (base + offset);
+                uintptr_t end = ((base + moduleInfo.SizeOfImage) - mask.length());
+
+                for (uintptr_t address = start; address < end; address++)
+                {
+                    bool found = true;
+
+                    for (size_t i = 0; i < mask.length(); i++)
+                    {
+                        if ((*reinterpret_cast<uint8_t*>(address + i) != bytePattern[i]) && (static_cast<int32_t>(mask[i]) != '?'))
+                        {
+                            found = false;
+                            break;
+                        }
+                    }
+
+                    if (found)
+                    {
+                        return address;
+                    }
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    uintptr_t FindPattern(const uint8_t* bytePattern, const std::string& maskStr, size_t offset)
+    {
+        return FindPattern(GetModuleHandleW(nullptr), bytePattern, maskStr, offset);
     }
 }

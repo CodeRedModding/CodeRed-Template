@@ -1,5 +1,16 @@
 #pragma once
 /*
+    Changes in v1.5.5:
+    - BREAKING: Wrapped everything that's custom or unique to this project in the "CodeRed" namespace.
+    - Added a new "Types.hpp" file, and moved the several enums such as "ThreadTypes" and "TextColors" to "Types.hpp" instead.
+    - Added a new function "Setting::IsType" for the "Setting" class in "Manager.hpp/cpp".
+    - Added extra range and safety checks for the setting functions in "Manager.cpp".
+    - Added extra formatting checks for the "Setting::SetStringValue" function in "Manager.cpp".
+    - Changed the "FindPattern" function in "Memory.cpp" and added an offset parameter with a default value of "0".
+    - Changed the "INSTANCES_INTERATE_OFFSET" value from 100 to 10 in "Instances.hpp", I've since found anything above 1 works fine so 10 is just for safety.
+    - Removed the default constructor for both the "Component" and "Module" classes itself, they should not be used.
+    - Various code organizations and refactoring throughout the project.
+
     Changes in v1.5.4:
     - Added the "EObjectFlags::RF_RootSet" flag and removed "EObjectFlags::RF_Transient" for the "MarkInvincible/MarkForDestroy" fucntions in "Instances.hpp/cpp".
 

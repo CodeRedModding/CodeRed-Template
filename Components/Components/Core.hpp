@@ -1,28 +1,31 @@
 #pragma once
 #include "../Component.hpp"
 
-// Manages global objects and names, along with initializing a new thread for the mod to run on.
-class CoreComponent : public Component
+namespace CodeRed
 {
-private:
-	HANDLE m_mainThread;
+	// Manages global objects and names, along with initializing a new thread for the mod to run on.
+	class CoreComponent : public Component
+	{
+	private:
+		HANDLE m_mainThread;
 
-public:
-	CoreComponent();
-	~CoreComponent() override;
+	public:
+		CoreComponent();
+		~CoreComponent() override;
 
-public:
-	void OnCreate() override;
-	void OnDestroy() override;
+	public:
+		void OnCreate() override;
+		void OnDestroy() override;
 
-public:
-	void InitializeThread();
-	static void InitializeGlobals(HMODULE hModule);
+	public:
+		void InitializeThread();
+		static void InitializeGlobals(HMODULE hModule);
 
-private:
-	static bool AreGlobalsValid();
-	static bool AreGObjectsValid();
-	static bool AreGNamesValid();
-};
+	private:
+		static bool AreGlobalsValid();
+		static bool AreGObjectsValid();
+		static bool AreGNamesValid();
+	};
 
-extern class CoreComponent Core;
+	extern class CoreComponent Core;
+}

@@ -30,7 +30,7 @@
     <Filter Include="Modules">
       <UniqueIdentifier>{241bcd9e-dd37-48d9-a598-cae1f11a842b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Modules\Mods">
+    <Filter Include="Modules\Modules">
       <UniqueIdentifier>{a25fc3f1-953b-4e4a-a31b-976562030599}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -74,8 +74,8 @@
     <ClCompile Include="Modules\Module.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\Mods\Placeholder.cpp">
-      <Filter>Modules\Mods</Filter>
+    <ClCompile Include="Modules\Modules\Placeholder.cpp">
+      <Filter>Modules\Modules</Filter>
     </ClCompile>
     <ClCompile Include="Extensions\Extensions\Math.cpp">
       <Filter>Extensions\Extensions</Filter>
@@ -145,8 +145,8 @@
     <ClInclude Include="Modules\Module.hpp">
       <Filter>Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Modules\Mods\Placeholder.hpp">
-      <Filter>Modules\Mods</Filter>
+    <ClInclude Include="Modules\Modules\Placeholder.hpp">
+      <Filter>Modules\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Extensions\Extensions\Math.hpp">
       <Filter>Extensions\Extensions</Filter>
@@ -156,6 +156,9 @@
     </ClInclude>
     <ClInclude Include="Extensions\Extensions\Time.hpp">
       <Filter>Extensions\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.hpp">
+      <Filter>CodeRed</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
