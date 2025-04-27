@@ -15,7 +15,7 @@ namespace CodeRed
 	{
 		if (m_mainThread)
 		{
-			CloseHandle(m_thread);
+			CloseHandle(m_mainThread);
 			m_mainThread = nullptr;
 		}
 	}
