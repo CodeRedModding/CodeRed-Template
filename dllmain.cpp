@@ -5,6 +5,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        DisableThreadLibraryCalls(hModule);
         CodeRed::Core.InitializeThread();
         break;
     case DLL_THREAD_ATTACH:

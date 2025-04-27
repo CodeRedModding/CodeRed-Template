@@ -7,7 +7,7 @@ namespace CodeRed
 	class CoreComponent : public Component
 	{
 	private:
-		HANDLE m_mainThread;
+		static std::atomic<HANDLE> m_mainThread;
 
 	public:
 		CoreComponent();
@@ -18,8 +18,8 @@ namespace CodeRed
 		void OnDestroy() override;
 
 	public:
-		void InitializeThread();
-		static void InitializeGlobals(HMODULE hModule);
+		void InitializeThread(); // Call from the "DLL_PROCESS_ATTACH" parameter, creates a new thread to avoid "loader lock".
+		static DWORD WINAPI OnThreadCreated(LPVOID lpParam);
 
 	private:
 		static bool AreGlobalsValid();

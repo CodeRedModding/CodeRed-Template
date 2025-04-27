@@ -1,5 +1,10 @@
 #pragma once
 /*
+    Changes in v1.5.6:
+    - BREAKING: Moved the "DisableThreadLibraryCalls" function call from "Core.cpp" to "dllmain.cpp".
+    - BREAKING: Renamed the function "CoreComponent::InitializeGlobals" to "CoreComponent::OnThreadCreated" in "Core.hpp/cpp", and added comments for better explainnation for why this is needed.
+    - Made the "m_mainThread" property from "CoreComponent" to be both static and atomic, in "Core.hpp".
+
     Changes in v1.5.5:
     - BREAKING: Wrapped everything that's custom or unique to this project in the "CodeRed" namespace.
     - Added a new "Types.hpp" file, and moved the several enums such as "ThreadTypes" and "TextColors" to "Types.hpp" instead.

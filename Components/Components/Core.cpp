@@ -3,39 +3,38 @@
 
 namespace CodeRed
 {
+	std::atomic<HANDLE> CoreComponent::m_mainThread = nullptr;
+
 	CoreComponent::CoreComponent() : Component("Core", "Initializes globals, components, and modules.") { OnCreate(); }
 
 	CoreComponent::~CoreComponent() { OnDestroy(); }
 
-	void CoreComponent::OnCreate()
-	{
-		m_mainThread = nullptr;
-	}
+	void CoreComponent::OnCreate() {}
 
 	void CoreComponent::OnDestroy() {}
 
 	void CoreComponent::InitializeThread()
 	{
-		m_mainThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(InitializeGlobals), nullptr, 0, nullptr);
+		if (!m_mainThread)
+		{
+			m_mainThread = CreateThread(nullptr, 0, CoreComponent::OnThreadCreated, nullptr, 0, nullptr);
+		}
 	}
 
-	void CoreComponent::InitializeGlobals(HMODULE hModule)
+	DWORD WINAPI CoreComponent::OnThreadCreated(LPVOID lpParam)
 	{
-		// Disables the DLL_THREAD_ATTACH and DLL_THREAD_DETACH notifications.
-		DisableThreadLibraryCalls(hModule);
-
 		// Initialize the console file which also opens the standard out stream.
 		Console.Initialize(std::filesystem::current_path(), "CodeRed.log");
 
 #ifdef WALKTHROUGH
-		Console.Notify("\"Components\\Components\\Core.cpp -> CoreComponent::InitializeGlobals\". Looks like you forgot to check this file, this is important for initializing your sdk, components, and modules!");
-		return;
+		Console.Notify("\"Components\\Components\\Core.cpp -> CoreComponent::OnThreadCreated\". Looks like you forgot to check this file, this is important for initializing your sdk, components, and modules!");
+		return 0;
 #endif
 
 		// Populate the GObject and GName addresses, remember to replace "PlaceholderGame" with your game.
 		uintptr_t entryPoint = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL));
-		GObjects = reinterpret_cast<TArray<UObject*>*>(CodeRed::Memory::FindPattern(GetModuleHandleW(NULL), GObjects_Pattern, GObjects_Mask));
-		GNames = reinterpret_cast<TArray<FNameEntry*>*>(CodeRed::Memory::FindPattern(GetModuleHandleW(NULL), GNames_Pattern, GNames_Mask));
+		GObjects = reinterpret_cast<TArray<UObject*>*>(CodeRed::Memory::FindPattern(GObjects_Pattern, GObjects_Mask));
+		GNames = reinterpret_cast<TArray<FNameEntry*>*>(CodeRed::Memory::FindPattern(GNames_Pattern, GNames_Mask));
 
 		// Verifies the global addresses are correct before continuing.
 		if (AreGlobalsValid())
@@ -43,7 +42,7 @@ namespace CodeRed
 			// You can use either a pattern for Process Event or its place in the VfTable index (not both).
 			void** unrealVTable = reinterpret_cast<void**>(UObject::StaticClass()->VfTableObject.Dummy);
 			//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Index method.
-			//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(GetModuleHandleW(NULL), ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
+			//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
 
 			Console.Notify("[Core Module] Entry Point " + CodeRed::Format::ToHex(reinterpret_cast<void*>(entryPoint)));
 			Console.Notify("[Core Module] Global Objects: " + CodeRed::Format::ToHex(UObject::GObjObjects()));
@@ -58,6 +57,8 @@ namespace CodeRed
 		{
 			Console.Error("[Core Module] GObject and GNames are not valid, wrong address detected!");
 		}
+
+		return 0;
 	}
 
 	bool CoreComponent::AreGlobalsValid()
