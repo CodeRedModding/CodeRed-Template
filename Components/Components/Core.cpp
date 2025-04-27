@@ -11,7 +11,14 @@ namespace CodeRed
 
 	void CoreComponent::OnCreate() {}
 
-	void CoreComponent::OnDestroy() {}
+	void CoreComponent::OnDestroy()
+	{
+		if (m_mainThread)
+		{
+			CloseHandle(m_thread);
+			m_mainThread = nullptr;
+		}
+	}
 
 	void CoreComponent::InitializeThread()
 	{
