@@ -106,6 +106,17 @@ namespace CodeRed
 
 	void HooksComponent::OnDestroy() {}
 
+	bool HooksComponent::Initialize()
+	{
+		if (!IsInitialized())
+		{
+			Console.Success(GetNameFormatted() + "Initialized!");
+			SetInitialized(true);
+		}
+
+		return IsInitialized();
+	}
+
 	// Pre Hooks
 
 	void HooksComponent::HUDPostRender(PreEvent& event)
@@ -169,10 +180,50 @@ namespace CodeRed
 	void EventsComponent::OnDestroy()
 	{
 		DetachDetour();
-		OnCreate(); // Reset everything to default.
+		OnCreate();
 		m_blacklisted.clear();
 		m_preHooks.clear();
 		m_postHooks.clear();
+	}
+
+	bool EventsComponent::Initialize()
+	{
+		if (!IsInitialized())
+		{
+#ifdef WALKTHROUGH
+			Console.Notify("\"Components\\Components\\Events.cpp -> EventsComponent::Initialize()\". Looks like you forgot to check this file, the only thing here are demo functions hooks!");
+			return false;
+#endif
+			// You can use either a pattern for Process Event or its place in the VfTable index (not both).
+
+			//void** unrealVTable = reinterpret_cast<void**>(UObject::StaticClass()->VfTableObject.Dummy);
+			//AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Index method.
+			//AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
+
+			if (IsDetoured())
+			{
+				// Example functions only, you will need to function scan in your game for your own to hook!
+				BlacklistEvent("Function Engine.Tracker.UploadData");
+
+				// Pre Hooks
+
+				HookEventPre("Function Engine.HUD.PostRender", [&](PreEvent& event) { Hooks.HUDPostRender(event); });
+				HookEventPre("Function Engine.GameViewportClient.PostRender", [&](PreEvent& event) { Hooks.GameViewPortPostRender(event); });
+				HookEventPre("Function Engine.PlayerController.PlayerTick", [&](PreEvent& event) { Hooks.PlayerControllerTick(event); });
+
+				// Post Hooks
+
+				HookEventPost("Function Engine.GameViewportClient.HandleKeyPress", [&](const PostEvent& event) { Hooks.GameViewPortKeyPress(event); });
+
+				Console.Write(GetNameFormatted() + std::to_string(m_blacklisted.size()) + " Backlisted Event(s)!");
+				Console.Write(GetNameFormatted() + std::to_string(m_preHooks.size()) + " Pre-Hook(s) Initialized!");
+				Console.Write(GetNameFormatted() + std::to_string(m_postHooks.size()) + " Post-Hook(s) Initialized!");
+				Console.Success(GetNameFormatted() + "Initialized!");
+				SetInitialized(true);
+			}
+		}
+
+		return IsInitialized();
 	}
 
 	bool EventsComponent::IsDetoured()
@@ -416,31 +467,6 @@ namespace CodeRed
 				Console.Warning("Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 			}
 		}
-	}
-
-	void EventsComponent::Initialize()
-	{
-#ifdef WALKTHROUGH
-		Console.Notify("\"Components\\Components\\Events.cpp -> EventsComponent::Initialize()\". Looks like you forgot to check this file, the only thing here are demo functions hooks!");
-		return;
-#endif
-
-		// Example functions only, you will need to function scan in your game for your own to hook!
-		BlacklistEvent("Function Engine.Tracker.UploadData");
-
-		// Pre Hooks
-
-		HookEventPre("Function Engine.HUD.PostRender", [&](PreEvent& event) { Hooks.HUDPostRender(event); });
-		HookEventPre("Function Engine.GameViewportClient.PostRender", [&](PreEvent& event) { Hooks.GameViewPortPostRender(event); });
-		HookEventPre("Function Engine.PlayerController.PlayerTick", [&](PreEvent& event) { Hooks.PlayerControllerTick(event); });
-
-		// Post Hooks
-
-		HookEventPost("Function Engine.GameViewportClient.HandleKeyPress", [&](const PostEvent& event) { Hooks.GameViewPortKeyPress(event); });
-
-		Console.Write(GetNameFormatted() + std::to_string(m_blacklisted.size()) + " Backlisted Event(s)!");
-		Console.Write(GetNameFormatted() + std::to_string(m_preHooks.size()) + " Pre-Hook(s) Initialized!");
-		Console.Write(GetNameFormatted() + std::to_string(m_postHooks.size()) + " Post-Hook(s) Initialized!");
 	}
 
 	class EventsComponent Events;

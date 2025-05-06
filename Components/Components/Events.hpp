@@ -60,6 +60,7 @@ namespace CodeRed
 	public:
 		void OnCreate() override;
 		void OnDestroy() override;
+		bool Initialize() override;
 
 	public: // Pre Hooks
 		void HUDPostRender(PreEvent& event);
@@ -92,6 +93,7 @@ namespace CodeRed
 	public:
 		void OnCreate() override;
 		void OnDestroy() override;
+		bool Initialize() override;
 
 	public:
 		static bool IsDetoured();
@@ -111,7 +113,6 @@ namespace CodeRed
 		static void HookEventPre(uint32_t functionIndex, const std::function<void(PreEvent&)>& preHook);
 		static void HookEventPost(const std::string& functionName, const std::function<void(const PostEvent&)>& postHook);
 		static void HookEventPost(uint32_t functionIndex, const std::function<void(const PostEvent&)>& postHook);
-		void Initialize(); // Initializes hooking events to functions.
 	};
 
 	extern class EventsComponent Events;

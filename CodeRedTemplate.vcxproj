@@ -159,6 +159,7 @@
     <ClCompile Include="Components\Components\GameState.cpp" />
     <ClCompile Include="Components\Components\Instances.cpp" />
     <ClCompile Include="Components\Components\Manager.cpp" />
+    <ClCompile Include="Components\Components\Variables.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Extensions\Extensions\Colors.cpp" />
     <ClCompile Include="Extensions\Extensions\Formatting.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="Components\Components\GameState.hpp" />
     <ClInclude Include="Components\Components\Instances.hpp" />
     <ClInclude Include="Components\Components\Manager.hpp" />
+    <ClInclude Include="Components\Components\Variables.hpp" />
     <ClInclude Include="Components\Includes.hpp" />
     <ClInclude Include="Detours\detours.h" />
     <ClInclude Include="Detours\detver.h" />

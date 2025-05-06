@@ -16,12 +16,14 @@ namespace CodeRed
 	public:
 		void OnCreate() override;
 		void OnDestroy() override;
+		bool Initialize() override;
 
 	public:
 		void InitializeThread(); // Call from the "DLL_PROCESS_ATTACH" parameter, creates a new thread to avoid "loader lock".
 		static DWORD WINAPI OnThreadCreated(LPVOID lpParam);
 
 	private:
+		static bool FindGlobals();
 		static bool AreGlobalsValid();
 		static bool AreGObjectsValid();
 		static bool AreGNamesValid();

@@ -43,6 +43,19 @@ namespace CodeRed
 		return nullptr;
 	}
 
+	bool InstancesComponent::Initialize()
+	{
+		if (!IsInitialized())
+		{
+			// Initialize classes that can't be grabbed from function hooks here.
+
+			Console.Success(GetNameFormatted() + "Initialized!");
+			SetInitialized(true);
+		}
+
+		return IsInitialized();
+	}
+
 	class UFunction* InstancesComponent::FindStaticFunction(const std::string& className)
 	{
 		if (m_staticFunctions.empty() && UObject::GObjObjects())
@@ -175,11 +188,6 @@ namespace CodeRed
 		{
 			I_APlayerController = playerController;
 		}
-	}
-
-	void InstancesComponent::Initialize()
-	{
-		Console.Write(GetNameFormatted() + "Initialized!");
 	}
 
 	class InstancesComponent Instances;

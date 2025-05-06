@@ -3,6 +3,8 @@
 
 namespace CodeRed
 {
+	static constexpr int32_t INSTANCES_INTERATE_OFFSET = 10;
+
 	enum class ThreadTypes : uint8_t
 	{
 		Main,

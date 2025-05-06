@@ -14,20 +14,20 @@ namespace CodeRed
 	void PlaceholderModule::OnCreateVariables()
 	{
 		// When someone uses the command "placeholder_do_thing", this will trigger the function "DoAThing" in "PlaceholderModule".
-		Manager.CreateCommand("placeholder_do_thing", new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in the placeholder module."))->BindCallback([&]() { Manager.PlaceholderMod->OnSettingChanged(); });
+		Variables.CreateCommand("placeholder_do_thing", new Command(VariableIds::PLACEHOLDER_DO_THING, "Calls the \"DoAThing\" function in the placeholder module."))->BindCallback([&]() { Manager.PlaceholderMod->OnSettingChanged(); });
 
 		// When changes the setting "placeholder_can_do_thing true", we automatically callback to "PlaceholderModule" and tell it to update its settings stored in that class.
-		Manager.CreateSetting("placeholder_can_do_thing", new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::Bool, "Enable disable a boolean in the placeholder module.", "false", true))->BindCallback([&]() { Manager.PlaceholderMod->OnSettingChanged(); });
+		Variables.CreateSetting("placeholder_can_do_thing", new Setting(VariableIds::PLACEHOLDER_ENABLED, SettingTypes::Bool, "Enable disable a boolean in the placeholder module.", "false", true))->BindCallback([&]() { Manager.PlaceholderMod->OnSettingChanged(); });
 
 		// Integer setting that has a minimum value of "0" and a maximum value of "100".
-		Manager.CreateSetting("placeholder_some_value", new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::Int32, "Some random integer value with a custom range.", "0", true))->SetInt32Range(0, 100)->BindCallback([&]() { Manager.PlaceholderMod->OnSettingChanged(); });
+		Variables.CreateSetting("placeholder_some_value", new Setting(VariableIds::PLACEHOLDER_SOME_VALUE, SettingTypes::Int32, "Some random integer value with a custom range.", "0", true))->SetInt32Range(0, 100)->BindCallback([&]() { Manager.PlaceholderMod->OnSettingChanged(); });
 	}
 
 	void PlaceholderModule::OnSettingChanged()
 	{
 		SetInitialized(false);
-		m_placeholder = Manager.GetSetting(VariableIds::PLACEHOLDER_ENABLED)->GetBoolValue();
-		m_someValue = Manager.GetSetting(VariableIds::PLACEHOLDER_SOME_VALUE)->GetInt32Value();
+		m_placeholder = Variables.GetSetting(VariableIds::PLACEHOLDER_ENABLED)->GetBoolValue();
+		m_someValue = Variables.GetSetting(VariableIds::PLACEHOLDER_SOME_VALUE)->GetInt32Value();
 		SetInitialized(true);
 	}
 

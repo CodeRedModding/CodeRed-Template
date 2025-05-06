@@ -3,8 +3,6 @@
 
 namespace CodeRed
 {
-	static constexpr int32_t INSTANCES_INTERATE_OFFSET = 10;
-
 	// THIS COMPONENT IS LARGELY DEPENDENT ON YOUR GAME
 	// Automatically stores active class instances that can be retrieved at any time.
 	class InstancesComponent : public Component
@@ -16,6 +14,7 @@ namespace CodeRed
 	public:
 		void OnCreate() override;
 		void OnDestroy() override;
+		bool Initialize() override;
 
 	private:
 		std::map<std::string, class UClass*> m_staticClasses;
@@ -256,7 +255,6 @@ namespace CodeRed
 		void SetHUD(class AHUD* hud);
 		void SetGameViewportClient(class UGameViewportClient* viewportClient);
 		void SetPlayerController(class APlayerController* playerController);
-		void Initialize(); // Initialize classes that can't be grabbed from function hooks.
 	};
 
 	extern class InstancesComponent Instances;

@@ -23,6 +23,17 @@ namespace CodeRed
 
 	void GameStateComponent::OnDestroy() {}
 
+	bool GameStateComponent::Initialize()
+	{
+		if (!IsInitialized())
+		{
+			Console.Success(GetNameFormatted() + "Initialized!");
+			SetInitialized(true);
+		}
+
+		return IsInitialized();
+	}
+
 	States GameStateComponent::GetState() const
 	{
 		return static_cast<States>(GetRawState());

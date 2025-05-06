@@ -38,6 +38,38 @@ namespace CodeRed
 #endif
 	}
 
+	bool ConsoleComponent::Initialize()
+	{
+		if (!IsInitialized())
+		{
+#ifdef CONSOLE_WINDOW
+			AllocConsole();
+			freopen_s(&m_outputFile, "CONOUT$", "w", stdout);
+			ShowWindow(GetConsoleWindow(), SW_SHOW);
+			m_outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+#endif
+
+#ifdef WRITE_TO_FILE
+			std::filesystem::path directory = std::filesystem::current_path();
+
+			if (std::filesystem::exists(directory))
+			{
+				m_logFile.open(directory / "CodeRed.log");
+			}
+			else
+			{
+				Error(GetNameFormatted() + "Directory does not exist, cannot create log file!");
+				return false;
+			}
+#endif
+
+			Success(GetNameFormatted() + "Initialized!");
+			SetInitialized(true);
+		}
+
+		return IsInitialized();
+	}
+
 	void ConsoleComponent::SetClockStyle(bool bIs24Hours)
 	{
 		m_24hourClock = bIs24Hours;
@@ -117,25 +149,6 @@ namespace CodeRed
 		{
 			Write("The Quick Brown Fox Jumps Over The Lazy Dog `~1234567890!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?", static_cast<TextColors>(i));
 		}
-	}
-
-	void ConsoleComponent::Initialize(const std::filesystem::path& directory, const std::string& fileName)
-	{
-#ifdef CONSOLE_WINDOW
-		AllocConsole();
-		freopen_s(&m_outputFile, "CONOUT$", "w", stdout);
-		ShowWindow(GetConsoleWindow(), SW_SHOW);
-		m_outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-#endif
-
-#ifdef WRITE_TO_FILE
-		if (std::filesystem::exists(directory))
-		{
-			m_logFile.open(directory / fileName);
-		}
-#endif
-
-		Write(GetNameFormatted() + "Initialized!");
 	}
 
 	class ConsoleComponent Console;

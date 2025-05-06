@@ -19,6 +19,7 @@ namespace CodeRed
 	public:
 		void OnCreate() override;
 		void OnDestroy() override;
+		bool Initialize() override;
 
 	public: // Utils
 		void SetClockStyle(bool bIs24Hours);
@@ -35,9 +36,6 @@ namespace CodeRed
 		void Success(const std::string& text);
 		void Notify(const std::string& text);
 		void WriteDemo();
-
-	public:
-		void Initialize(const std::filesystem::path& directory, const std::string& fileName);
 	};
 
 	extern class ConsoleComponent Console;

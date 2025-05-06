@@ -3,11 +3,26 @@
 
 namespace CodeRed::Time
 {
+	// Epoch Values
 	static constexpr uint64_t SECONDS_IN_MINUTE = 60;
 	static constexpr uint64_t SECONDS_IN_HOUR = 3600;
 	static constexpr uint64_t SECONDS_IN_DAY = 86400;
 	static constexpr uint64_t SECONDS_IN_MONTH = 2629743;
 	static constexpr uint64_t SECONDS_IN_YEAR = 31556926;
+
+	// Time Class Values
+	static constexpr uint32_t MONTH_JANUARY = 0;
+	static constexpr uint32_t MONTH_FEBRUARY = 1;
+	static constexpr uint32_t MONTH_MARCH = 2;
+	static constexpr uint32_t MONTH_APRIL = 3;
+	static constexpr uint32_t MONTH_MAY = 4;
+	static constexpr uint32_t MONTH_JUNE = 5;
+	static constexpr uint32_t MONTH_JULY = 6;
+	static constexpr uint32_t MONTH_AUGUST = 7;
+	static constexpr uint32_t MONTH_SEPTEMBER = 8;
+	static constexpr uint32_t MONTH_OCTOBER = 9;
+	static constexpr uint32_t MONTH_NOVEMBER = 10;
+	static constexpr uint32_t MONTH_DECEMBER = 11;
 
 	class Time
 	{

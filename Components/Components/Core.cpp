@@ -20,6 +20,44 @@ namespace CodeRed
 		}
 	}
 
+	bool CoreComponent::Initialize()
+	{
+		if (!IsInitialized())
+		{
+			if (Console.Initialize()) // Initialize the console file which also opens the standard out stream.
+			{
+				if (FindGlobals())
+				{
+					Console.Notify(GetNameFormatted() + "Entry Point " + CodeRed::Format::ToHex(reinterpret_cast<void*>(GetModuleHandleW(nullptr))));
+					Console.Notify(GetNameFormatted() + "Global Objects: " + CodeRed::Format::ToHex(UObject::GObjObjects()));
+					Console.Notify(GetNameFormatted() + "Global Names: " + CodeRed::Format::ToHex(FName::Names()));
+
+					GameState.Initialize();			// Unimplemented.
+					Instances.Initialize();			// Initialize class instances that aren't automatically set by function hooks.
+					Variables.Initialize();			// Initialize any misc settings or commands here.
+					Manager.Initialize();			// Initialize modules and their variables.
+					Variables.SetupVariables();		// Load in any variables that have been previously saved.
+					Manager.UpdateAllSettings();	// Update all loaded in variables for each module if any are found.
+					Hooks.Initialize();				// Unimplemented.
+					Events.Initialize();			// Initialize hooking functions from process event to your own.
+
+					Console.Success(GetNameFormatted() + "Initialized!");
+					SetInitialized(true);
+				}
+				else
+				{
+					Console.Error(GetNameFormatted() + "Failed to find globals!");
+				}
+			}
+			else
+			{
+				MessageBoxA(NULL, "Failed to initialize console, cannot continue!", "CodeRed", (IDOK | MB_ICONHAND));
+			}
+		}
+
+		return IsInitialized();
+	}
+
 	void CoreComponent::InitializeThread()
 	{
 		if (!m_mainThread)
@@ -30,42 +68,25 @@ namespace CodeRed
 
 	DWORD WINAPI CoreComponent::OnThreadCreated(LPVOID lpParam)
 	{
-		// Initialize the console file which also opens the standard out stream.
-		Console.Initialize(std::filesystem::current_path(), "CodeRed.log");
-
-#ifdef WALKTHROUGH
-		Console.Notify("\"Components\\Components\\Core.cpp -> CoreComponent::OnThreadCreated\". Looks like you forgot to check this file, this is important for initializing your sdk, components, and modules!");
+		Core.Initialize();
 		return 0;
+	}
+
+	bool CoreComponent::FindGlobals()
+	{
+#ifdef WALKTHROUGH
+		Console.Notify("\"Components\\Components\\Core.cpp -> CoreComponent::FindGlobals\". Looks like you forgot to check this file, this is important for initializing your sdk!");
+		return false;
 #endif
 
-		// Populate the GObject and GName addresses, remember to replace "PlaceholderGame" with your game.
-		uintptr_t entryPoint = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL));
-		GObjects = reinterpret_cast<TArray<UObject*>*>(CodeRed::Memory::FindPattern(GObjects_Pattern, GObjects_Mask));
-		GNames = reinterpret_cast<TArray<FNameEntry*>*>(CodeRed::Memory::FindPattern(GNames_Pattern, GNames_Mask));
-
-		// Verifies the global addresses are correct before continuing.
-		if (AreGlobalsValid())
+		if (!UObject::GObjObjects() && !FName::Names())
 		{
-			// You can use either a pattern for Process Event or its place in the VfTable index (not both).
-			void** unrealVTable = reinterpret_cast<void**>(UObject::StaticClass()->VfTableObject.Dummy);
-			//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Index method.
-			//EventsComponent::AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
-
-			Console.Notify("[Core Module] Entry Point " + CodeRed::Format::ToHex(reinterpret_cast<void*>(entryPoint)));
-			Console.Notify("[Core Module] Global Objects: " + CodeRed::Format::ToHex(UObject::GObjObjects()));
-			Console.Notify("[Core Module] Global Names: " + CodeRed::Format::ToHex(FName::Names()));
-			Console.Write("[Core Module] Initialized!");
-
-			Instances.Initialize(); // Initialize class instances that aren't automatically set by function hooks.
-			Manager.Initialize(); // Initialize settings, commands, and mods.
-			Events.Initialize(); // Initialize hooking function events to voids.
-		}
-		else
-		{
-			Console.Error("[Core Module] GObject and GNames are not valid, wrong address detected!");
+			// Populate the GObject and GName addresses, remember to replace "PlaceholderSDK" with your own.
+			GObjects = reinterpret_cast<TArray<UObject*>*>(CodeRed::Memory::FindPattern(GObjects_Pattern, GObjects_Mask));
+			GNames = reinterpret_cast<TArray<FNameEntry*>*>(CodeRed::Memory::FindPattern(GNames_Pattern, GNames_Mask));
 		}
 
-		return 0;
+		return AreGlobalsValid();
 	}
 
 	bool CoreComponent::AreGlobalsValid()

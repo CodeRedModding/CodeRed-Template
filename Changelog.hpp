@@ -1,5 +1,17 @@
 #pragma once
 /*
+    Changes in v1.5.7:
+    - BREAKING: Added a new "VariableComponent" and moved all command and setting related functions from "ManagerComponent" to this new class.
+    - BREAKING: Changed all the "Initialize" functions return a bool value, as well as making them a virtual function for the "Component" class in "Component.hpp/cpp".
+    - BREAKING: Renamed the toggle argument functions in the "Setting" class to string callback in "Variables.hpp/cpp".
+    - BREAKING: Renamed the "CommandTypes" enum in "Manager.hpp" to "CommandResults".
+    - Moved the "INSTANCES_INTERATE_OFFSET" constant from "Instances.hpp" to "Types.hpp".
+    - Added a new system for saving and loading user settings, check out the "VariableComponent" class for all the new features.
+    - Added new month constants in the "Time.hpp" file to be used with the "Time" class.
+    - Added a new "Byte" setting type for the "Setting" class in "Manager.hpp/cpp".
+    - Changed the underlying type of the "VariableIds" enum from "int32_t" to "uint32_t".
+    - Reorganized a lot of the functions and variables for all the components.
+
     Changes in v1.5.6:
     - BREAKING: Moved the "DisableThreadLibraryCalls" function call from "Core.cpp" to "dllmain.cpp".
     - BREAKING: Renamed the function "CoreComponent::InitializeGlobals" to "CoreComponent::OnThreadCreated" in "Core.hpp/cpp", and added comments for better explainnation for why this is needed.

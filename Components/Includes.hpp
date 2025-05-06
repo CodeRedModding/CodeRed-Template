@@ -5,3 +5,4 @@
 #include "Components/Instances.hpp"
 #include "Components/GameState.hpp"
 #include "Components/Manager.hpp"
+#include "Components/Variables.hpp"

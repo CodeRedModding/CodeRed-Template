@@ -8,12 +8,12 @@ namespace CodeRed
 
 	enum States : uint32_t
 	{
-		STATES_Unknown = 0U,
-		STATES_MainMenu = 1U << 0U,
-		STATES_OfflineMatch = 1U << 1U,
-		STATES_CasualMatch = 1U << 2U,
-		STATES_RankedMatch = 1U << 3U,
-		STATES_All = 1U << 4U
+		STATES_Unknown = 0UL,
+		STATES_MainMenu = 1UL << 0UL,
+		STATES_OfflineMatch = 1UL << 1UL,
+		STATES_CasualMatch = 1UL << 2UL,
+		STATES_RankedMatch = 1UL << 3UL,
+		STATES_All = 1UL << 4UL
 	};
 
 	// THIS COMPONENT IS LARGELY DEPENDENT ON YOUR GAME
@@ -31,6 +31,7 @@ namespace CodeRed
 	public:
 		void OnCreate() override;
 		void OnDestroy() override;
+		bool Initialize() override;
 
 	public:
 		States GetState() const;
