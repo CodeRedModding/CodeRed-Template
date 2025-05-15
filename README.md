@@ -1,6 +1,6 @@
 ## CodeRed Template v1.5.8
 
-A custom framework to get your started in Unreal Engine modding that can be used in any game.
+A custom framework to get you started in Unreal Engine modding that can be used in any game.
 
 To configure for your own game all that you have to do is replace "PlaceholderSDK" with your own and make sure it's included in `pch.hpp`, the included "PlaceholderSDK" is just an example and has basic structs/classes so the project can compile. Please read the comments in the `Core.cpp` file regaurding Process Event as well.
 
