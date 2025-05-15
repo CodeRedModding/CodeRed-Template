@@ -5,17 +5,17 @@ namespace CodeRed
 {
 	enum SettingFlags : uint32_t
 	{
-		SETTING_None = 0UL,
-		SETTING_Hidden = 1UL << 0UL,		// Marks the setting as hidden, has no current use but it can be used to hide certain variables from ImGui windows.
-		SETTING_Locked = 1UL << 1UL			// Prevents the user from setting a new value and will use the last set value until unlocked.
+		SETTING_None =			0UL,		// Default flags.
+		SETTING_Hidden =		1UL << 0UL,	// Marks the setting as hidden, has no current use but it can be used to hide certain variables from ImGui windows.
+		SETTING_Locked =		1UL << 1UL	// Prevents the user from setting a new value and will use the last set value until unlocked.
 	};
 
 	enum CommandFlags : uint32_t
 	{
-		COMMAND_None = 0UL,
-		COMMAND_Hidden = 1UL << 0UL,		// Marks the command as hidden, has no current use but it can be used to hide certain variables from ImGui windows.
-		COMMAND_Locked = 1UL << 1UL,		// Prevents the command from triggering its callbacks by the user.
-		COMMAND_NeedsArgs = 1UL << 2UL		// Command does not have optional arguments and requires input from the user, this is set to true by default.
+		COMMAND_None =			0UL,		// Default flags.
+		COMMAND_Hidden =		1UL << 0UL,	// Marks the command as hidden, has no current use but it can be used to hide certain variables from ImGui windows.
+		COMMAND_Locked =		1UL << 1UL,	// Prevents the command from triggering its callbacks by the user.
+		COMMAND_NeedsArgs =		1UL << 2UL	// Command does not have optional arguments and requires input from the user, this is set to true by default.
 	};
 
 	enum class SettingTypes : uint8_t
@@ -230,7 +230,7 @@ namespace CodeRed
 		std::string GetVariableName(VariableIds variableId) const;
 
 	public: // Commands and settings.
-		std::shared_ptr<Command> CreateCommand(std::string commandName, Command* command);
+		std::shared_ptr<Command> CreateCommand(const std::string& commandName, Command* command);
 		std::shared_ptr<Command> GetCommand(const std::string& commandName);
 		std::shared_ptr<Command> GetCommand(VariableIds variableId);
 		std::shared_ptr<Setting> CreateSetting(const std::string& settingName, Setting* setting);

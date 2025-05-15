@@ -3,13 +3,20 @@
 
 namespace CodeRed
 {
-	PlaceholderModule::PlaceholderModule(const std::string& name, const std::string& description, uint32_t states) : Module(name, description, states)
+	PlaceholderModule::PlaceholderModule(const std::string& name, const std::string& description, uint32_t states) : Module(name, description, states) { OnCreate(); }
+
+	PlaceholderModule::~PlaceholderModule() { OnDestroy(); }
+
+	void PlaceholderModule::OnCreate()
 	{
 		m_placeholder = false;
 		m_someValue = 0;
 	}
 
-	PlaceholderModule::~PlaceholderModule() {}
+	void PlaceholderModule::OnDestroy()
+	{
+		SetInitialized(false);
+	}
 
 	void PlaceholderModule::OnCreateVariables()
 	{

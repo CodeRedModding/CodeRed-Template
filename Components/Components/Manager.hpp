@@ -16,7 +16,7 @@ namespace CodeRed
 		PrintSetting
 	};
 
-	class QueueData
+	class ManagerQueue
 	{
 	public:
 		ThreadTypes Thread;
@@ -29,11 +29,11 @@ namespace CodeRed
 		bool Completed;
 
 	public:
-		QueueData() = delete;
-		QueueData(const std::string& command, const std::string& arguments, bool bInternal, bool bSkipSave = false);
-		QueueData(const std::string& command, const std::string& arguments, bool bInternal, uint64_t delay, uint32_t multiplier = 60, bool bSkipSave = false);
-		QueueData(const QueueData& queueData);
-		~QueueData();
+		ManagerQueue() = delete;
+		ManagerQueue(const std::string& command, const std::string& arguments, bool bInternal, bool bSkipSave = false);
+		ManagerQueue(const std::string& command, const std::string& arguments, bool bInternal, uint64_t delay, uint32_t multiplier = 60, bool bSkipSave = false);
+		ManagerQueue(const ManagerQueue& managerQueue);
+		~ManagerQueue();
 
 	public:
 		bool HasArguments() const;
@@ -41,7 +41,7 @@ namespace CodeRed
 		bool OnTick();
 
 	public:
-		QueueData& operator=(const QueueData& queueData);
+		ManagerQueue& operator=(const ManagerQueue& managerQueue);
 	};
 
 	// Manages variables, commands, settings, and modules.
@@ -49,8 +49,8 @@ namespace CodeRed
 	{
 	private:
 		std::map<std::string, std::shared_ptr<Module>> m_modules;
-		std::vector<QueueData> m_threadQueue;
-		std::vector<QueueData> m_queue;
+		std::vector<ManagerQueue> m_threadQueue;
+		std::vector<ManagerQueue> m_queue;
 		std::atomic<bool> m_queueLocked; // Used for preventing a thread racing issue when calling commands from different threads.
 
 	public:
@@ -92,9 +92,9 @@ namespace CodeRed
 		void UpdateAllSettings();
 
 	private:
-		void QueueCommand(const QueueData& queueData, ThreadTypes thread);
-		void ProcessCommand(const QueueData& queueData, ThreadTypes thread = ThreadTypes::Main);
-		std::pair<CommandResults, std::string> ProcessCommandInternal(const QueueData& queueData, ThreadTypes thread = ThreadTypes::Main);
+		void QueueCommand(const ManagerQueue& managerQueue, ThreadTypes thread);
+		void ProcessCommand(const ManagerQueue& managerQueue, ThreadTypes thread = ThreadTypes::Main);
+		std::pair<CommandResults, std::string> ProcessCommandInternal(const ManagerQueue& managerQueue, ThreadTypes thread = ThreadTypes::Main);
 	};
 
 	extern class ManagerComponent Manager;

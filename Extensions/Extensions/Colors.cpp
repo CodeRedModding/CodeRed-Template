@@ -44,16 +44,16 @@ uint32_t Color::ToDecimalAlpha() const
 std::string Color::ToHex(bool bNotation) const
 {
 	std::string hexStr = (bNotation ? "#" : "");
-	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(R), 2, false);
-	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(G), 2, false);
-	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(B), 2, false);
+	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(R), 2, "");
+	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(G), 2, "");
+	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(B), 2, "");
 	return hexStr;
 }
 
 std::string Color::ToHexAlpha(bool bNotation) const
 {
 	std::string hexStr = ToHex(bNotation);
-	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(A), 2, false);
+	hexStr += CodeRed::Format::ToHex(static_cast<uint64_t>(A), 2, "");
 	return hexStr;
 }
 
@@ -68,7 +68,7 @@ Color& Color::FromLinear(const LinearColor& linearColor)
 
 Color& Color::FromDecimal(uint32_t decimalColor)
 {
-	return FromHex(CodeRed::Format::ToHex(decimalColor, ((decimalColor > 0xFFFFFF) ? 8 : 6), false));
+	return FromHex(CodeRed::Format::ToHex(decimalColor, ((decimalColor > 0xFFFFFF) ? 8 : 6), ""));
 }
 
 Color& Color::FromHex(std::string hexColor)

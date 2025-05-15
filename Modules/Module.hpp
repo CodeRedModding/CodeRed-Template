@@ -20,6 +20,13 @@ namespace CodeRed
 		virtual ~Module();
 
 	public:
+		virtual void OnCreate(); // Initialize the default values for class members here.
+		virtual void OnDestroy(); // Do class cleanup here, such as destroy created pointers.
+		virtual void OnCreateVariables(); // Create settings and commands with the manager component here.
+		virtual void OnSettingChanged(); // Update internal settings here when they are changed by the user.
+		virtual void OnCanvasDraw(class UCanvas* unrealCanvas); // Called from the games main thread on the CPU, 60 times every second.
+
+	public:
 		std::string GetName() const;
 		std::string GetNameFormatted() const;
 		std::string GetDescription() const;
@@ -27,11 +34,6 @@ namespace CodeRed
 		bool IsAllowed() const;
 		bool IsInitialized() const;
 		void SetInitialized(bool bInitialized);
-
-	public:
-		virtual void OnCreateVariables(); // Create settings and commands with the manager component here.
-		virtual void OnSettingChanged(); // Update internal settings here when they are changed by the user.
-		virtual void OnCanvasDraw(class UCanvas* unrealCanvas); // Called from the games main thread on the CPU, 60 times every second.
 
 	public:
 		Module& operator=(const Module& module);

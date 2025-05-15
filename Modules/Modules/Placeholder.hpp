@@ -16,6 +16,8 @@ namespace CodeRed
 		~PlaceholderModule() override;
 
 	public:
+		void OnCreate() override;
+		void OnDestroy() override;
 		void OnCreateVariables() override;
 		void OnSettingChanged() override;
 		void OnCanvasDraw(class UCanvas* unrealCanvas) override;

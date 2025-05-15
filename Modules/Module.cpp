@@ -3,11 +3,41 @@
 
 namespace CodeRed
 {
-	Module::Module(const std::string& name, const std::string& description, uint32_t states) : m_name(name), m_description(description), m_allowedStates(states), m_initialized(false) {}
+	Module::Module(const std::string& name, const std::string& description, uint32_t states) : m_name(name), m_description(description), m_allowedStates(states), m_initialized(false) { OnCreate(); }
 
 	Module::Module(const Module& module) : m_name(module.m_name), m_description(module.m_description), m_allowedStates(module.m_allowedStates), m_initialized(module.m_initialized) {}
 
-	Module::~Module() {}
+	Module::~Module() { OnDestroy(); }
+
+	void Module::OnCreate() {}
+
+	void Module::OnDestroy()
+	{
+		SetInitialized(false);
+	}
+
+	void Module::OnCreateVariables()
+	{
+		SetInitialized(false);
+		// Update internal settings here.
+		SetInitialized(true);
+	}
+
+	void Module::OnSettingChanged()
+	{
+		// Create your module specific variables here.
+	}
+
+	void Module::OnCanvasDraw(class UCanvas* unrealCanvas)
+	{
+		if (IsInitialized() && IsAllowed())
+		{
+			if (unrealCanvas)
+			{
+
+			}
+		}
+	}
 
 	std::string Module::GetName() const
 	{
@@ -42,29 +72,6 @@ namespace CodeRed
 	void Module::SetInitialized(bool bInitialized)
 	{
 		m_initialized = bInitialized;
-	}
-
-	void Module::OnCreateVariables()
-	{
-		SetInitialized(false);
-		// Update internal settings here.
-		SetInitialized(true);
-	}
-
-	void Module::OnSettingChanged()
-	{
-		// Create your module specific variables here.
-	}
-
-	void Module::OnCanvasDraw(class UCanvas* unrealCanvas)
-	{
-		if (IsInitialized() && IsAllowed())
-		{
-			if (unrealCanvas)
-			{
-
-			}
-		}
 	}
 
 	Module& Module::operator=(const Module& module)

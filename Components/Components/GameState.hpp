@@ -8,12 +8,12 @@ namespace CodeRed
 
 	enum States : uint32_t
 	{
-		STATES_Unknown = 0UL,
-		STATES_MainMenu = 1UL << 0UL,
-		STATES_OfflineMatch = 1UL << 1UL,
-		STATES_CasualMatch = 1UL << 2UL,
-		STATES_RankedMatch = 1UL << 3UL,
-		STATES_All = 1UL << 4UL
+		STATES_Unknown =			0UL,
+		STATES_MainMenu =			1UL << 0UL,
+		STATES_OfflineMatch =		1UL << 1UL,
+		STATES_CasualMatch =		1UL << 2UL,
+		STATES_RankedMatch =		1UL << 3UL,
+		STATES_All =				1UL << 4UL
 	};
 
 	// THIS COMPONENT IS LARGELY DEPENDENT ON YOUR GAME

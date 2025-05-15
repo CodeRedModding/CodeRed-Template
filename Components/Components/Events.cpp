@@ -200,7 +200,7 @@ namespace CodeRed
 			//AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Index method.
 			//AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
 
-			if (IsDetoured())
+			if (AreDetoursAttached())
 			{
 				// Example functions only, you will need to function scan in your game for your own to hook!
 				BlacklistEvent("Function Engine.Tracker.UploadData");
@@ -226,14 +226,14 @@ namespace CodeRed
 		return IsInitialized();
 	}
 
-	bool EventsComponent::IsDetoured()
+	bool EventsComponent::AreDetoursAttached()
 	{
 		return (m_detoured && m_processEvent);
 	}
 
 	void EventsComponent::AttachDetour(const ProcessEventType& detourFunction)
 	{
-		if (!IsDetoured())
+		if (!AreDetoursAttached())
 		{
 			m_processEvent = detourFunction;
 			DetourTransactionBegin();
@@ -247,7 +247,7 @@ namespace CodeRed
 
 	void EventsComponent::DetachDetour()
 	{
-		if (IsDetoured())
+		if (AreDetoursAttached())
 		{
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());

@@ -2,167 +2,151 @@
 
 namespace CodeRed::Format
 {
-    static char AlphabetCharacters[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
-    static char DecimalCharacters[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-    static char HexCharacters[] = { 'a', 'b', 'c', 'd', 'e', 'f' };
-
     // String and character identifier functions.
 
-    bool IsStringDecimal(std::string str)
+    bool IsStringDecimal(const std::string& str)
     {
-        if (str.empty())
+        bool foundAny = false;
+
+        if (!str.empty())
         {
-            return false;
-        }
+            bool first = true;
+            bool negative = false;
 
-        ToLowerInline(str);
-
-        bool first = true;
-        bool negative = false;
-        bool found = false;
-
-        for (char c : str)
-        {
-            if (first)
+            for (char c : str)
             {
-                first = false;
-                negative = (c == '-');
-            }
+                if (first)
+                {
+                    first = false;
+                    negative = (c == '-');
+                }
 
-            if (std::isdigit(c))
-            {
-                found = true;
-            }
-            else if (!negative)
-            {
-                return false;
+                if (std::isdigit(c))
+                {
+                    foundAny = true;
+                }
+                else if (!negative)
+                {
+                    return false;
+                }
             }
         }
 
-        return found;
+        return foundAny;
     }
 
-    bool IsStringAlphabet(std::string str)
+    bool IsStringAlphabet(const std::string& str)
     {
-        if (str.empty())
-        {
-            return false;
-        }
+        bool foundAny = false;
 
-        ToLowerInline(str);
-        bool found = false;
-
-        for (char c : str)
+        if (!str.empty())
         {
-            if (std::isalpha(c))
+            for (char c : str)
             {
-                found = true;
-            }
-            else
-            {
-                return false;
+                if (std::isalpha(c))
+                {
+                    foundAny = true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
-        return found;
+        return foundAny;
     }
 
-    bool IsStringHexadecimal(std::string str)
+    bool IsStringHexadecimal(const std::string& str)
     {
-        if (str.empty())
+        bool foundAny = false;
+
+        if (!str.empty())
         {
-            return false;
-        }
+            bool first = true;
+            bool negative = false;
 
-        ToLowerInline(str);
-
-        bool first = true;
-        bool negative = false;
-        bool found = false;
-
-        for (char c : str)
-        {
-            if (first)
+            for (char c : str)
             {
-                first = false;
-                negative = (c == '-');
-            }
+                if (first)
+                {
+                    first = false;
+                    negative = (c == '-');
+                }
 
-            if (std::isxdigit(c))
-            {
-                found = true;
-            }
-            else if (!negative)
-            {
-                return false;
+                if (std::isxdigit(c))
+                {
+                    foundAny = true;
+                }
+                else if (!negative)
+                {
+                    return false;
+                }
             }
         }
 
-        return found;
+        return foundAny;
     }
 
-    bool IsStringFloat(std::string str)
+    bool IsStringFloat(const std::string& str)
     {
-        if (str.empty())
+        bool foundAny = false;
+
+        if (!str.empty())
         {
-            return false;
-        }
+            bool first = true;
+            bool negative = false;
 
-        ToLowerInline(str);
-
-        bool first = true;
-        bool negative = false;
-        bool found = false;
-
-        for (char c : str)
-        {
-            if (first)
+            for (char c : str)
             {
-                first = false;
-                negative = (c == '-');
-            }
+                if (first)
+                {
+                    first = false;
+                    negative = (c == '-');
+                }
 
-            if (std::isdigit(c))
-            {
-                found = true;
-            }
-            else if ((c != '.') && (c != 'f') && !negative)
-            {
-                return false;
+                if (std::isdigit(c))
+                {
+                    foundAny = true;
+                }
+                else if ((c != '.') && (c != 'f') && !negative)
+                {
+                    return false;
+                }
             }
         }
 
-        return found;
+        return foundAny;
     }
 
-    bool IsStringBase64(std::string str)
+    bool IsStringBase64(const std::string& str)
     {
-        if (str.empty())
+        if (!str.empty())
         {
-            return false;
-        }
-
-        for (char c : str)
-        {
-            if ((!std::isalpha(c) && !std::isdigit(c)) && ((c != '+') && (c != '=') && (c != '/') && (c != '.') && (c != '_') && (c != '-')))
+            for (char c : str)
             {
-                return false;
+                if ((!std::isalpha(c) && !std::isdigit(c)) && ((c != '+') && (c != '=') && (c != '/') && (c != '.') && (c != '_') && (c != '-')))
+                {
+                    return false;
+                }
             }
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     // String Utils
 
-    bool Contains(std::string_view baseStr, std::string_view strToFind)
+    bool Contains(const std::string& baseStr, const std::string& strToFind)
     {
         return (baseStr.find(strToFind) != std::string::npos);
     }
 
     std::string ToLower(std::string str)
     {
-        std::transform(str.begin(), str.end(), str.begin(), tolower);
+        ToLowerInline(str);
         return str;
     }
 
@@ -173,7 +157,7 @@ namespace CodeRed::Format
 
     std::string ToUpper(std::string str)
     {
-        std::transform(str.begin(), str.end(), str.begin(), toupper);
+        ToUpperInline(str);
         return str;
     }
 
@@ -235,14 +219,20 @@ namespace CodeRed::Format
     {
         if (!baseStr.empty() && !strToReplace.empty())
         {
-            size_t replaceLength = strToReplace.length();
-            size_t replacePos = baseStr.find(strToReplace);
+            std::string result;
+            result.reserve(baseStr.size());
 
-            while (replacePos != std::string::npos)
+            size_t pos = 0;
+            size_t start = 0;
+
+            while ((pos = baseStr.find(strToReplace, start)) != std::string::npos)
             {
-                baseStr.replace(replacePos, strToReplace.length(), replaceWithStr);
-                replacePos = baseStr.find(strToReplace);
+                result.append(baseStr, start, (pos - start));
+                result += replaceWithStr;
+                start = (pos + strToReplace.length());
             }
+
+            return result.append(baseStr, start);
         }
 
         return baseStr;
@@ -308,24 +298,26 @@ namespace CodeRed::Format
         stream << std::setfill(fill) << std::setw(width) << std::left;
     }
 
-    std::string ToHex(void* address, bool bNotation)
+    std::string ToHex(void* address, const std::string notation)
     {
-        return ToHex(reinterpret_cast<uint64_t>(address), sizeof(uint64_t), bNotation);
+        return ToHex(reinterpret_cast<uint64_t>(address), sizeof(uint64_t), notation);
     }
 
-    std::string ToHex(uint64_t decimal, size_t width, bool bNotation)
+    std::string ToHex(uint64_t decimal, size_t width, const std::string notation)
     {
         std::ostringstream stream;
-        if (bNotation) { stream << "0x"; }
-        stream << std::setfill('0') << std::setw(width) << std::right << std::uppercase << std::hex << decimal;
+        stream << notation << std::setfill('0') << std::setw(width) << std::right << std::uppercase << std::hex << decimal;
         return stream.str();
     }
 
-    uint64_t ToDecimal(const std::string& hexStr)
+    uint64_t ToDecimal(std::string hexStr)
     {
+        RemoveStringInline(hexStr, "0x");
+        RemoveAllCharsInline(hexStr, '#');
+
         uint64_t decimal = 0;
         std::stringstream stream;
-        stream << std::right << std::uppercase << std::hex << RemoveAllChars(hexStr, '#');
+        stream << std::right << std::uppercase << std::hex << hexStr;
         stream >> decimal;
         return decimal;
     }
@@ -353,64 +345,72 @@ namespace CodeRed::Format
         return stream.str();
     }
 
-    Rotator ToRotator(std::string_view str)
+    Rotator ToRotator(const std::string& str)
     {
         Rotator returnRotator;
-        std::vector<std::string> values = Split(str, ' ');
 
-        if (values.size() >= 3)
+        if (!str.empty())
         {
-            if (IsStringDecimal(values[0]) && IsStringDecimal(values[1]) && IsStringDecimal(values[2]))
+            std::vector<std::string> values = Split(str, ' ');
+
+            if (values.size() >= 3)
             {
-                returnRotator.Pitch = std::stoi(values[0]);
-                returnRotator.Yaw = std::stoi(values[1]);
-                returnRotator.Roll = std::stoi(values[2]);
+                if (IsStringDecimal(values[0]) && IsStringDecimal(values[1]) && IsStringDecimal(values[2]))
+                {
+                    returnRotator.Pitch = std::stoi(values[0]);
+                    returnRotator.Yaw = std::stoi(values[1]);
+                    returnRotator.Roll = std::stoi(values[2]);
+                }
             }
         }
 
         return returnRotator;
     }
 
-    VectorF ToVectorF(std::string_view str)
+    VectorF ToVectorF(const std::string& str)
     {
         VectorF returnVector;
-        std::vector<std::string> values = Split(str, ' ');
 
-        if (values.size() == 2)
+        if (!str.empty())
         {
-            if (IsStringFloat(values[0]) && IsStringFloat(values[1]))
+            std::vector<std::string> values = Split(str, ' ');
+
+            if (values.size() == 2)
             {
-                returnVector.X = std::stof(values[0]);
-                returnVector.Y = std::stof(values[1]);
-                returnVector.Z = 0.0f;
+                if (IsStringFloat(values[0]) && IsStringFloat(values[1]))
+                {
+                    returnVector.X = std::stof(values[0]);
+                    returnVector.Y = std::stof(values[1]);
+                    returnVector.Z = 0.0f;
+                }
             }
-        }
-        else if (values.size() >= 3)
-        {
-            if (IsStringFloat(values[0]) && IsStringFloat(values[1]) && IsStringFloat(values[2]))
+            else if (values.size() >= 3)
             {
-                returnVector.X = std::stof(values[0]);
-                returnVector.Y = std::stof(values[1]);
-                returnVector.Z = std::stof(values[2]);
+                if (IsStringFloat(values[0]) && IsStringFloat(values[1]) && IsStringFloat(values[2]))
+                {
+                    returnVector.X = std::stof(values[0]);
+                    returnVector.Y = std::stof(values[1]);
+                    returnVector.Z = std::stof(values[2]);
+                }
             }
         }
 
         return returnVector;
     }
 
-    VectorI ToVectorI(std::string_view str)
+    VectorI ToVectorI(const std::string& str)
     {
         VectorF floatVector = ToVectorF(str);
         return VectorI(static_cast<int32_t>(floatVector.X), static_cast<int32_t>(floatVector.Y), static_cast<int32_t>(floatVector.Z));
     }
 
-    Vector2DF ToVector2DF(std::string_view str)
+    Vector2DF ToVector2DF(const std::string& str)
     {
         VectorF floatVector = ToVectorF(str);
         return Vector2DF(floatVector.X, floatVector.Y);
     }
 
-    Vector2DI ToVector2DI(std::string_view str)
+    Vector2DI ToVector2DI(const std::string& str)
     {
         VectorI intVector = ToVectorI(str);
         return Vector2DI(intVector.X, intVector.Y);
@@ -418,7 +418,7 @@ namespace CodeRed::Format
 
     // Helper Functions.
 
-    bool StringSequenceMatches(std::string_view baseStr, std::string_view matchStr, size_t startPos)
+    bool StringSequenceMatches(const std::string& baseStr, const std::string& matchStr, size_t startPos)
     {
         size_t matches = 0;
 
@@ -440,7 +440,7 @@ namespace CodeRed::Format
         return (matches == matchStr.length());
     }
 
-    std::vector<std::string> Split(std::string_view str, char character)
+    std::vector<std::string> Split(const std::string& str, char character)
     {
         std::vector<std::string> splitStrings;
         std::string currentWord;
@@ -470,7 +470,7 @@ namespace CodeRed::Format
         return splitStrings;
     }
 
-    std::vector<std::string> SplitRange(std::string_view str, char from, char to, bool bIncludeChar)
+    std::vector<std::string> SplitRange(const std::string& str, char from, char to, bool bIncludeChar)
     {
         std::vector<std::string> splitStrings;
         std::string currentWord;
@@ -517,5 +517,75 @@ namespace CodeRed::Format
         }
 
         return splitStrings;
+    }
+
+    // Random Generators.
+
+    std::string GetCharacterSet(uint32_t flags)
+    {
+        static constexpr char RNG_NUMBERS_CHARS[] = "0123456789";
+        static constexpr char RNG_LETTERS_CHARS[] = "abcdefghijklmnopqrstuvwxyz";
+        static constexpr char RNG_SYMBOLS_CHARS[] = "!#$%&'()*+,-./:;<=>?@[\]^_`{|}~";
+        std::string characterSet;
+
+        if ((flags & RandomFlags::RNG_Numbers) || (flags & RandomFlags::RNG_All))
+        {
+            characterSet += RNG_NUMBERS_CHARS;
+        }
+
+        if ((flags & RandomFlags::RNG_LowerLetters) || (flags & RandomFlags::RNG_All))
+        {
+            characterSet += RNG_LETTERS_CHARS;
+        }
+
+        if ((flags & RandomFlags::RNG_CapitalLetters) || (flags & RandomFlags::RNG_All))
+        {
+            characterSet += Format::ToUpper(RNG_LETTERS_CHARS);
+        }
+
+        if ((flags & RandomFlags::RNG_SpecialSymbols) || (flags & RandomFlags::RNG_All))
+        {
+            characterSet += RNG_SYMBOLS_CHARS;
+        }
+
+        Shuffle<std::string>(characterSet);
+        return characterSet;
+    }
+
+    std::string RandomString(uint32_t flags, size_t length)
+    {
+        std::string randomStr;
+
+        if (length > 0)
+        {
+            std::string characterSet = GetCharacterSet(flags);
+
+            if (!characterSet.empty())
+            {
+                for (size_t i = 0; i < length; i++)
+                {
+                    randomStr += characterSet[Math::RandomRange64<size_t>(0, (characterSet.length() - 1))];
+                }
+            }
+        }
+
+        return randomStr;
+    }
+
+    char RandomCharacter(uint32_t flags)
+    {
+        std::string characterSet = GetCharacterSet(flags);
+
+        if (!characterSet.empty())
+        {
+            if (characterSet.size() > 1)
+            {
+                return characterSet[Math::RandomRange64<size_t>(0, (characterSet.length() - 1))];
+            }
+            
+            return characterSet[0];
+        }
+
+        return NULL;
     }
 }

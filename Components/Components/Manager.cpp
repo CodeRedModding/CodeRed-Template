@@ -3,7 +3,7 @@
 
 namespace CodeRed
 {
-	QueueData::QueueData(const std::string& command, const std::string& arguments, bool bInternal, bool bSkipSave) :
+	ManagerQueue::ManagerQueue(const std::string& command, const std::string& arguments, bool bInternal, bool bSkipSave) :
 		Thread(ThreadTypes::Main),
 		Command(command),
 		Arguments(arguments),
@@ -16,7 +16,7 @@ namespace CodeRed
 
 	}
 
-	QueueData::QueueData(const std::string& command, const std::string& arguments, bool bInternal, uint64_t delay, uint32_t multiplier, bool bSkipSave) :
+	ManagerQueue::ManagerQueue(const std::string& command, const std::string& arguments, bool bInternal, uint64_t delay, uint32_t multiplier, bool bSkipSave) :
 		Thread(ThreadTypes::Main),
 		Command(command),
 		Arguments(arguments),
@@ -29,32 +29,32 @@ namespace CodeRed
 
 	}
 
-	QueueData::QueueData(const QueueData& queueData) :
-		Thread(queueData.Thread),
-		Command(queueData.Command),
-		Arguments(queueData.Arguments),
-		Delay(queueData.Delay),
-		Delta(queueData.Delta),
-		SkipSave(queueData.SkipSave),
-		Internal(queueData.Internal),
-		Completed(queueData.Completed)
+	ManagerQueue::ManagerQueue(const ManagerQueue& managerQueue) :
+		Thread(managerQueue.Thread),
+		Command(managerQueue.Command),
+		Arguments(managerQueue.Arguments),
+		Delay(managerQueue.Delay),
+		Delta(managerQueue.Delta),
+		SkipSave(managerQueue.SkipSave),
+		Internal(managerQueue.Internal),
+		Completed(managerQueue.Completed)
 	{
 
 	}
 
-	QueueData::~QueueData() {}
+	ManagerQueue::~ManagerQueue() {}
 
-	bool QueueData::HasArguments() const
+	bool ManagerQueue::HasArguments() const
 	{
 		return (!Arguments.empty());
 	}
 
-	bool QueueData::IsAsync() const
+	bool ManagerQueue::IsAsync() const
 	{
 		return (Delay > 0);
 	}
 
-	bool QueueData::OnTick()
+	bool ManagerQueue::OnTick()
 	{
 		if (IsAsync())
 		{
@@ -65,16 +65,16 @@ namespace CodeRed
 		return true;
 	}
 
-	QueueData& QueueData::operator=(const QueueData& queueData)
+	ManagerQueue& ManagerQueue::operator=(const ManagerQueue& managerQueue)
 	{
-		Thread = queueData.Thread;
-		Command = queueData.Command;
-		Arguments = queueData.Arguments;
-		Delay = queueData.Delay;
-		Delta = queueData.Delta;
-		SkipSave = queueData.SkipSave;
-		Internal = queueData.Internal;
-		Completed = queueData.Completed;
+		Thread = managerQueue.Thread;
+		Command = managerQueue.Command;
+		Arguments = managerQueue.Arguments;
+		Delay = managerQueue.Delay;
+		Delta = managerQueue.Delta;
+		SkipSave = managerQueue.SkipSave;
+		Internal = managerQueue.Internal;
+		Completed = managerQueue.Completed;
 		return *this;
 	}
 
@@ -90,6 +90,14 @@ namespace CodeRed
 
 	void ManagerComponent::OnDestroy()
 	{
+		for (const auto& modulePair : m_modules)
+		{
+			if (modulePair.second)
+			{
+				modulePair.second->OnDestroy(); // Give modules a chance to cleanup before all other ones are destroyed and can't be referenced.
+			}
+		}
+
 		m_modules.clear();
 		OnCreate();
 	}
@@ -117,7 +125,7 @@ namespace CodeRed
 		{
 			if (!m_threadQueue.empty())
 			{
-				for (QueueData& data : m_threadQueue)
+				for (ManagerQueue& data : m_threadQueue)
 				{
 					m_queue.push_back(data);
 				}
@@ -129,7 +137,7 @@ namespace CodeRed
 			{
 				bool safeToClear = true;
 
-				for (QueueData& data : m_queue)
+				for (ManagerQueue& data : m_queue)
 				{
 					if (!data.Completed)
 					{
@@ -193,7 +201,7 @@ namespace CodeRed
 
 	std::pair<CommandResults, std::string> ManagerComponent::InternalCommand(const std::string& command, const std::string& arguments, ThreadTypes thread, bool bSkipSave)
 	{
-		return ProcessCommandInternal(QueueData(command, arguments, true, bSkipSave), thread);
+		return ProcessCommandInternal(ManagerQueue(command, arguments, true, bSkipSave), thread);
 	}
 
 	std::pair<CommandResults, std::string> ManagerComponent::InternalCommand(const std::string& command, ThreadTypes thread)
@@ -203,7 +211,7 @@ namespace CodeRed
 
 	void ManagerComponent::ConsoleCommand(const std::string& command, const std::string& arguments, ThreadTypes thread, bool bSkipSave)
 	{
-		ProcessCommand(QueueData(command, arguments, false, bSkipSave), thread);
+		ProcessCommand(ManagerQueue(command, arguments, false, bSkipSave), thread);
 	}
 
 	void ManagerComponent::ConsoleCommand(const std::string& command, ThreadTypes thread)
@@ -213,12 +221,12 @@ namespace CodeRed
 
 	void ManagerComponent::AsyncCommand(const std::string& command, const std::string& arguments, uint64_t delay, ThreadTypes thread)
 	{
-		ProcessCommand(QueueData(command, arguments, false, delay), thread);
+		ProcessCommand(ManagerQueue(command, arguments, false, delay), thread);
 	}
 
 	void ManagerComponent::AsyncCommand(const std::string& command, uint64_t delay, ThreadTypes thread)
 	{
-		ProcessCommand(QueueData(command, "", false, delay), thread);
+		ProcessCommand(ManagerQueue(command, "", false, delay), thread);
 	}
 
 	void ManagerComponent::UnrealCommand(std::string unrealCommand, bool bPrintToConsole)
@@ -283,11 +291,11 @@ namespace CodeRed
 		}
 	}
 
-	void ManagerComponent::QueueCommand(const QueueData& queueData, ThreadTypes thread)
+	void ManagerComponent::QueueCommand(const ManagerQueue& managerQueue, ThreadTypes thread)
 	{
-		if (!queueData.Command.empty())
+		if (!managerQueue.Command.empty())
 		{
-			QueueData queueCopy = queueData;
+			ManagerQueue queueCopy = managerQueue;
 			queueCopy.Thread = thread;
 
 			if (m_queueLocked)
@@ -301,7 +309,7 @@ namespace CodeRed
 					m_queueLocked = true;
 					m_threadQueue.push_back(queueCopy);
 					m_queueLocked = false;
-					});
+				});
 
 				queueThread.detach();
 			}
@@ -314,36 +322,36 @@ namespace CodeRed
 		}
 	}
 
-	void ManagerComponent::ProcessCommand(const QueueData& queueData, ThreadTypes thread)
+	void ManagerComponent::ProcessCommand(const ManagerQueue& managerQueue, ThreadTypes thread)
 	{
 		if (thread != ThreadTypes::Main)
 		{
-			if (!queueData.Command.empty())
+			if (!managerQueue.Command.empty())
 			{
-				QueueCommand(queueData, thread);
+				QueueCommand(managerQueue, thread);
 			}
 		}
 		else
 		{
-			std::pair<CommandResults, std::string> returnType = ProcessCommandInternal(queueData, thread);
+			std::pair<CommandResults, std::string> returnType = ProcessCommandInternal(managerQueue, thread);
 
 			if (returnType.first != CommandResults::None)
 			{
 				if (returnType.first == CommandResults::Unrecognized)
 				{
-					Console.Error(GetNameFormatted() + "Unrecognized command or setting: \"" + queueData.Command + "\".");
+					Console.Error(GetNameFormatted() + "Unrecognized command or setting: \"" + managerQueue.Command + "\".");
 				}
 				else if (returnType.first == CommandResults::EmptyArguments)
 				{
-					Console.Error(GetNameFormatted() + "Invalid arguments provided for: \"" + queueData.Command + "\".");
+					Console.Error(GetNameFormatted() + "Invalid arguments provided for: \"" + managerQueue.Command + "\".");
 				}
 				else if (returnType.first == CommandResults::InvalidArguments)
 				{
-					Console.Error(GetNameFormatted() + "Arguments are not supported for: \"" + queueData.Command + "\".");
+					Console.Error(GetNameFormatted() + "Arguments are not supported for: \"" + managerQueue.Command + "\".");
 				}
 				else if (returnType.first == CommandResults::ModifySetting)
 				{
-					std::shared_ptr<Setting> consoleSetting = Variables.GetSetting(queueData.Command);
+					std::shared_ptr<Setting> consoleSetting = Variables.GetSetting(managerQueue.Command);
 
 					if (consoleSetting)
 					{
@@ -352,7 +360,7 @@ namespace CodeRed
 				}
 				else if (returnType.first == CommandResults::PrintSetting)
 				{
-					std::shared_ptr<Setting> consoleSetting = Variables.GetSetting(queueData.Command);
+					std::shared_ptr<Setting> consoleSetting = Variables.GetSetting(managerQueue.Command);
 
 					if (consoleSetting)
 					{
@@ -365,31 +373,31 @@ namespace CodeRed
 		}
 	}
 
-	std::pair<CommandResults, std::string> ManagerComponent::ProcessCommandInternal(const QueueData& queueData, ThreadTypes thread)
+	std::pair<CommandResults, std::string> ManagerComponent::ProcessCommandInternal(const ManagerQueue& managerQueue, ThreadTypes thread)
 	{
-		if ((thread != ThreadTypes::Main) || (queueData.IsAsync()))
+		if ((thread != ThreadTypes::Main) || (managerQueue.IsAsync()))
 		{
-			if (!queueData.Command.empty())
+			if (!managerQueue.Command.empty())
 			{
-				QueueCommand(queueData, thread);
+				QueueCommand(managerQueue, thread);
 				return { CommandResults::Queued, "" };
 			}
 		}
 		else
 		{
-			std::shared_ptr<Command> consoleCommand = Variables.GetCommand(queueData.Command);
+			std::shared_ptr<Command> consoleCommand = Variables.GetCommand(managerQueue.Command);
 
 			if (consoleCommand)
 			{
-				if (consoleCommand->HasCallback() && !queueData.HasArguments())
+				if (consoleCommand->HasCallback() && !managerQueue.HasArguments())
 				{
 					consoleCommand->TriggerCallback();
 				}
 				else if (consoleCommand->HasArgumentCallback())
 				{
-					if (queueData.HasArguments() || !consoleCommand->NeedsArgs())
+					if (managerQueue.HasArguments() || !consoleCommand->NeedsArgs())
 					{
-						consoleCommand->TriggerCallback(queueData.Arguments);
+						consoleCommand->TriggerCallback(managerQueue.Arguments);
 					}
 					else
 					{
@@ -403,14 +411,14 @@ namespace CodeRed
 			}
 			else
 			{
-				std::shared_ptr<Setting> consoleSetting = Variables.GetSetting(queueData.Command);
+				std::shared_ptr<Setting> consoleSetting = Variables.GetSetting(managerQueue.Command);
 
 				if (consoleSetting && !consoleSetting->IsLocked())
 				{
-					if (queueData.HasArguments())
+					if (managerQueue.HasArguments())
 					{
 						std::string oldValue = consoleSetting->GetStringValue();
-						consoleSetting->SetStringValue(queueData.Arguments, ThreadTypes::Main, queueData.SkipSave);
+						consoleSetting->SetStringValue(managerQueue.Arguments, ThreadTypes::Main, managerQueue.SkipSave);
 						return { CommandResults::ModifySetting, oldValue };
 					}
 

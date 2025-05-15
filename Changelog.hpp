@@ -1,5 +1,16 @@
 #pragma once
 /*
+    Changes in v1.5.8:
+    - BREAKING: Renamed the "QueueData" class in "Manager.hpp/cpp" to "ManagerQueue".
+    - BREAKING: Changed the "ToHex" notion parameters for the functions in "Formatting.hpp/cpp".
+    - Added two new virutal functions for the "Module" class in "Module.hpp/cpp", "OnCreate" and "OnDestroy", which work the same way as the ones from the "Component" class.
+    - Added two new random string generator functions "RandomString" and "RandomCharacter" in "Formatting.hpp/cpp".
+    - Added a new templated "Shuffle" function in "Formatting.hpp/cpp".
+    - Improvements to the "VariableComponent::CreateCommand" and "VariableComponent::CreateCommand" functions in "Variables.hpp/cpp".
+    - Improved the "Format::ReplaceString" function and fixed some bugs with it in "Formatting.hpp/cpp".
+    - Renamed the "EventsComponent::IsDetoured" function to "EventsComponent::AreDetoursAttached" in "Events.hpp/cpp".
+    - Various other improvements and bug fixes to the functions in "Formatting.hpp/cpp".
+
     Changes in v1.5.7:
     - BREAKING: Added a new "VariableComponent" and moved all command and setting related functions from "ManagerComponent" to this new class.
     - BREAKING: Changed all the "Initialize" functions return a bool value, as well as making them a virtual function for the "Component" class in "Component.hpp/cpp".
@@ -170,7 +181,7 @@
     - Remade and added a bunch of extra helper functions in "Formatting.hpp", you should uh check them out if you want.
     - Changed the "AreGlobalsValid" function in "Core.cpp".
 
-    Changes in v1.3.0: 
+    Changes in v1.3.0:
     - Modified some of the arguments for function hooking in "Events.hpp", as well as added extra functions for using their index directly.
     - Improved and fixed various operators and functions for the color and math classes in both "Colors.hpp/cpp" and "Math.hpp/cpp".
 
@@ -329,7 +340,7 @@
     - Made the console component to use std::ofstream and be more efficient in terms of initializing.
     - Improved the "UnrealMemory" files which are based on UE4 source.
     - Removed the "Filesystem" extension files as they have no real use (yet).
- 
+
     Changes in v1.0.8:
     - Fixed the constructor for the "Setting" class not properly setting color values.
     - Fixed the "HexToDecimal" function in "Colors.hpp".

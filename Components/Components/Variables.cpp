@@ -1106,11 +1106,9 @@ namespace CodeRed
 		return "";
 	}
 
-	std::shared_ptr<Command> VariableComponent::CreateCommand(std::string commandName, Command* command)
+	std::shared_ptr<Command> VariableComponent::CreateCommand(const std::string& commandName, Command* command)
 	{
-		Format::ToLowerInline(commandName);
-
-		if (command)
+		if (!commandName.empty() && command)
 		{
 			if (CreateVariable(commandName, command->GetId()))
 			{
@@ -1151,7 +1149,7 @@ namespace CodeRed
 
 	std::shared_ptr<Setting> VariableComponent::CreateSetting(const std::string& settingName, Setting* setting)
 	{
-		if (setting)
+		if (!settingName.empty() && setting)
 		{
 			if (CreateVariable(settingName, setting->GetId()))
 			{
