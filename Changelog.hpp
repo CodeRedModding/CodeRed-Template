@@ -6,7 +6,7 @@
     - Added two new virutal functions for the "Module" class in "Module.hpp/cpp", "OnCreate" and "OnDestroy", which work the same way as the ones from the "Component" class.
     - Added two new random string generator functions "RandomString" and "RandomCharacter" in "Formatting.hpp/cpp".
     - Added a new templated "Shuffle" function in "Formatting.hpp/cpp".
-    - Improvements to the "VariableComponent::CreateCommand" and "VariableComponent::CreateCommand" functions in "Variables.hpp/cpp".
+    - Improvements to the "VariableComponent::CreateSetting" and "VariableComponent::CreateCommand" functions in "Variables.hpp/cpp".
     - Improved the "Format::ReplaceString" function and fixed some bugs with it in "Formatting.hpp/cpp".
     - Renamed the "EventsComponent::IsDetoured" function to "EventsComponent::AreDetoursAttached" in "Events.hpp/cpp".
     - Various other improvements and bug fixes to the functions in "Formatting.hpp/cpp".
