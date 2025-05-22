@@ -8,18 +8,20 @@ namespace CodeRed
 	class PreEvent
 	{
 	protected:
-		class UObject* m_caller;		// The calling class/unreal object.
-		class UFunction* m_function;	// Unreal function, used as a reference in Process Event to call the native function.
-		void* m_params;					// If params are provided in the function, this would be a pointer to a struct with said params in them.
-		bool m_detour;					// If we should detour this event or not through Process Event, this is entirely up to us and not the game.
+		class UObject* m_caller;		// The calling object.
+		class UFunction* m_function;	// The unreal function being processed.
+		void* m_params;					// If params are provided in the function, this would be a pointer to a struct to the params.
+		EventTypes m_type;				// The origin type of this function call.
+		bool m_detour;					// If we should detour this function, or block it.
 
 	public:
 		PreEvent();
-		PreEvent(class UObject* caller, class UFunction* function, void* params, bool bDetour = true);
+		PreEvent(class UObject* caller, class UFunction* function, void* params, EventTypes eventType, bool bDetour = true);
 		PreEvent(const PreEvent& preEvent);
 		~PreEvent();
 
 	public:
+		EventTypes GetType() const;
 		class UObject* Caller() const;
 		template <typename T> T* GetCaller() const;
 		class UFunction* Function() const;
@@ -29,17 +31,17 @@ namespace CodeRed
 		void SetDetour(bool bDetour);
 
 	public:
-		PreEvent& operator=(const PreEvent& other);
+		PreEvent& operator=(const PreEvent& preEvent);
 	};
 
 	class PostEvent : public PreEvent
 	{
 	private:
-		void* m_result;					// Unused result after going through Process Event.
+		void* m_result;					// Unused result after being processed, can contain arbitrary data.
 
 	public:
 		PostEvent();
-		PostEvent(class UObject* caller, class UFunction* function, void* params, void* result);
+		PostEvent(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType, bool bDetour = true);
 		PostEvent(const PostEvent& postEvent);
 		~PostEvent();
 
@@ -48,7 +50,7 @@ namespace CodeRed
 		template <typename T> T* GetResult() const;
 
 	public:
-		PostEvent& operator=(const PostEvent& other);
+		PostEvent& operator=(const PostEvent& postEvent);
 	};
 
 	class HooksComponent : public Component
@@ -102,8 +104,8 @@ namespace CodeRed
 		static void ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result); // Process event gets detoured to this function, then we manually proxy it through to "ProcessEvent".
 
 	private:
-		static bool ProcessBefore(class UObject* caller, class UFunction* function, void* params, void* result);
-		static void ProcessAfter(class UObject* caller, class UFunction* function, void* params, void* result);
+		static bool ProcessBefore(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType);
+		static void ProcessAfter(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType);
 
 	public:
 		static bool IsEventBlacklisted(uint32_t functionIndex);

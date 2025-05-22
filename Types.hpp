@@ -5,6 +5,15 @@ namespace CodeRed
 {
 	static constexpr int32_t INSTANCES_INTERATE_OFFSET = 10;
 
+	enum EventTypes : uint8_t
+	{
+		Unknown,
+		ProcessEvent,
+		ProcessInternal,
+		ProcessDelegate,
+		CallFunction
+	};
+
 	enum class ThreadTypes : uint8_t
 	{
 		Main,

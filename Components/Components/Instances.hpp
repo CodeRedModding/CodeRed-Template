@@ -3,7 +3,6 @@
 
 namespace CodeRed
 {
-	// THIS COMPONENT IS LARGELY DEPENDENT ON YOUR GAME
 	// Automatically stores active class instances that can be retrieved at any time.
 	class InstancesComponent : public Component
 	{

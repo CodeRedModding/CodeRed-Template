@@ -3,13 +3,18 @@
 
 namespace CodeRed
 {
-	PreEvent::PreEvent() : m_caller(nullptr), m_function(nullptr), m_params(nullptr), m_detour(true) {}
+	PreEvent::PreEvent() : m_caller(nullptr), m_function(nullptr), m_params(nullptr), m_type(EventTypes::Unknown), m_detour(true) {}
 
-	PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params, bool bDetour) : m_caller(caller), m_function(function), m_params(params), m_detour(bDetour) {}
+	PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params, EventTypes eventType, bool bDetour) : m_caller(caller), m_function(function), m_params(params), m_type(eventType), m_detour(bDetour) {}
 
-	PreEvent::PreEvent(const PreEvent& preEvent) : m_caller(preEvent.m_caller), m_function(preEvent.m_function), m_params(preEvent.m_params), m_detour(preEvent.m_detour) {}
+	PreEvent::PreEvent(const PreEvent& preEvent) : m_caller(preEvent.m_caller), m_function(preEvent.m_function), m_params(preEvent.m_params), m_type(preEvent.m_type), m_detour(preEvent.m_detour) {}
 
 	PreEvent::~PreEvent() {}
+
+	EventTypes PreEvent::GetType() const
+	{
+		return m_type;
+	}
 
 	class UObject* PreEvent::Caller() const
 	{
@@ -18,9 +23,9 @@ namespace CodeRed
 
 	template <typename T> T* PreEvent::GetCaller() const
 	{
-		if (m_caller)
+		if (Caller())
 		{
-			return static_cast<T*>(m_caller);
+			return static_cast<T*>(Caller());
 		}
 
 		return nullptr;
@@ -38,9 +43,9 @@ namespace CodeRed
 
 	template <typename T> T* PreEvent::GetParams() const
 	{
-		if (m_params)
+		if (Params())
 		{
-			return reinterpret_cast<T*>(m_params);
+			return reinterpret_cast<T*>(Params());
 		}
 
 		return nullptr;
@@ -56,20 +61,21 @@ namespace CodeRed
 		m_detour = bDetour;
 	}
 
-	PreEvent& PreEvent::operator=(const PreEvent& other)
+	PreEvent& PreEvent::operator=(const PreEvent& preEvent)
 	{
-		m_caller = other.m_caller;
-		m_function = other.m_function;
-		m_params = other.m_params;
-		m_detour = other.m_detour;
+		m_caller = preEvent.m_caller;
+		m_function = preEvent.m_function;
+		m_params = preEvent.m_params;
+		m_type = preEvent.m_type;
+		m_detour = preEvent.m_detour;
 		return *this;
 	}
 
 	PostEvent::PostEvent() : m_result(nullptr) {}
 
-	PostEvent::PostEvent(class UObject* caller, class UFunction* function, void* params, void* result) : PreEvent(caller, function, params), m_result(result) {}
+	PostEvent::PostEvent(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType, bool bDetour) : PreEvent(caller, function, params, eventType, bDetour), m_result(result) {}
 
-	PostEvent::PostEvent(const PostEvent& postEvent) : PreEvent(postEvent.m_caller, postEvent.m_function, postEvent.m_params, postEvent.m_detour), m_result(postEvent.m_result) {}
+	PostEvent::PostEvent(const PostEvent& postEvent) : m_result(postEvent.m_result), PreEvent(postEvent) {}
 
 	PostEvent::~PostEvent() {}
 
@@ -88,13 +94,10 @@ namespace CodeRed
 		return nullptr;
 	}
 
-	PostEvent& PostEvent::operator=(const PostEvent& other)
+	PostEvent& PostEvent::operator=(const PostEvent& postEvent)
 	{
-		m_caller = other.m_caller;
-		m_function = other.m_function;
-		m_params = other.m_params;
-		m_detour = other.m_detour;
-		m_result = other.m_result;
+		m_result = postEvent.m_result;
+		PreEvent::operator=(postEvent);
 		return *this;
 	}
 
@@ -265,14 +268,14 @@ namespace CodeRed
 		{
 			if (function)
 			{
-				bool shouldDetour = ProcessBefore(caller, function, params, result);
+				bool shouldDetour = ProcessBefore(caller, function, params, result, EventTypes::ProcessEvent);
 
 				if (shouldDetour)
 				{
 					m_processEvent(caller, function, params, result);
 				}
 
-				ProcessAfter(caller, function, params, result);
+				ProcessAfter(caller, function, params, result, EventTypes::ProcessEvent);
 			}
 			else
 			{
@@ -281,7 +284,7 @@ namespace CodeRed
 		}
 	}
 
-	bool EventsComponent::ProcessBefore(class UObject* caller, class UFunction* function, void* params, void* result)
+	bool EventsComponent::ProcessBefore(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType)
 	{
 		if (function)
 		{
@@ -289,7 +292,7 @@ namespace CodeRed
 
 			if (m_hookSafe && m_preHooks.contains(function->ObjectInternalInteger))
 			{
-				PreEvent preEvent(caller, function, params);
+				PreEvent preEvent(caller, function, params, eventType);
 
 				for (const auto& preHook : m_preHooks[function->ObjectInternalInteger])
 				{
@@ -316,13 +319,13 @@ namespace CodeRed
 		return true;
 	}
 
-	void EventsComponent::ProcessAfter(class UObject* caller, class UFunction* function, void* params, void* result)
+	void EventsComponent::ProcessAfter(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType)
 	{
 		if (function)
 		{
 			if (m_hookSafe && m_postHooks.contains(function->ObjectInternalInteger))
 			{
-				PostEvent postEvent(caller, function, params, result);
+				PostEvent postEvent(caller, function, params, result, eventType);
 
 				for (const auto& postHook : m_postHooks[function->ObjectInternalInteger])
 				{
