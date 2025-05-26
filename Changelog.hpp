@@ -1,8 +1,5 @@
 #pragma once
 /*
-    Changes in v1.6.0:
-    
-
     Changes in v1.5.9:
     - Added a new "EventTypes" enum in "Types.hpp", which is now used by the hook classes in "Events.hpp/cpp" to let you tell where a function was called from.
     - Changed the "ProcessBefore" and "ProcessAfter" functions to use the new "EventTypes" enum.
