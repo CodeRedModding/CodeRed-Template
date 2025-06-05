@@ -1,6 +1,6 @@
 #pragma once
 #include "../Component.hpp"
-#include "../Modules/Includes.hpp"
+#include "../../Modules/Includes.hpp"
 #include "Variables.hpp"
 
 namespace CodeRed

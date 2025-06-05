@@ -1,5 +1,14 @@
 #pragma once
 /*
+    Changes in v1.6.0:
+    - BREAKING: Added a new "FunctionHook" class and changed the entire "EventsComponent" class to use these, they support both Detours and MinHook and are a much more dynamic way of hooking functions. In "Types.hpp" there are macros that let you choose between Detours and MinHook.
+    - BREAKING: Added support to hook ProcessInternal on top of ProcessEvent, in the "EventsComponent" class in "Events.hpp/cpp".
+    - BREAKING: Renamed the "EventsComponent::IsEventBlacklisted" function to just "EventsComponent::IsBlacklisted" in "Events.hpp/cpp".
+    - BREAKING: Renamed several detour functions in "Events.hpp/cpp" to use the word "callable" instead, this applies to the classes "PreEvent", "PostEvent", and "EventsComponent".
+    - Added a new "EventPair" class used by the new "EventGuard" class in "Events.hpp/cpp", which is used to prevent duplicate calls when hooking multiple functions (such as ProcessEvent, ProcessInternal, or even CallFunction).
+    - Added several macros at the top of the "Events.cpp" file, that can help you with tracing function hooks or to debug the new guard system.
+    - Minor spelling fixes and changes throughout the project, as well as some additional code reorganization.
+
     Changes in v1.5.9:
     - Added a new "EventTypes" enum in "Types.hpp", which is now used by the hook classes in "Events.hpp/cpp" to let you tell where a function was called from.
     - Changed the "ProcessBefore" and "ProcessAfter" functions to use the new "EventTypes" enum.
@@ -193,7 +202,7 @@
     - Fixed the "IsStringNumber" and "IsStringFloat" functions from returning false if the given string was negative in "Formatting.cpp".
     - Added two new functions, "ToLinear" and "ToColor", to the color structs in "Colors.hpp" which auto converts color types from one to the other.
     - Added a new setting type, "TYPE_ROTATOR", and added a "GetRotatorValue" to accommodate this for the "Setting" class in "Manager.hpp/cpp".
-    - Added a "GetQuat" function which returns a Quat version of a Rotator in "Math.hpp/cpp".
+    - Added a "GetQuat" function which returns a quat version of a Rotator in "Math.hpp/cpp".
     - Changed the constructor for the "Setting" class in "Manager.hpp", moved the "SettingTypes" type to the front.
     - Changed the example for initializing module variables in the "Initialize" function in "Manager.cpp".
 
@@ -265,7 +274,7 @@
     - Reformatting/added extra comments in "Instances.hpp/cpp", and updated the PlaceholderSDK to accommodate this.
     - Changed all macros in "Math.hpp" to use static constant expressions.
     - Added includes for "Extensions/Includes.hpp" for both the "Component.hpp" and "Module.hpp" files.
-    - Added nullcheck for detaching detours in "Core.cpp".
+    - Added null check for detaching detours in "Core.cpp".
 
     Changes in v1.1.9:
     - Removed the pointless additional constructors for the console component in "Console.hpp".

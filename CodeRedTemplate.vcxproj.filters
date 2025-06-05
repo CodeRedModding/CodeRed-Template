@@ -12,9 +12,6 @@
     <Filter Include="Components\Components">
       <UniqueIdentifier>{05088e23-d549-42b4-8a75-131cc8d466ef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Detours">
-      <UniqueIdentifier>{00cca946-65c7-471b-99a2-edda8ae6fdf0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Extensions">
       <UniqueIdentifier>{94fc7a1f-83a0-4190-b895-cd88a20dd19e}</UniqueIdentifier>
     </Filter>
@@ -32,6 +29,24 @@
     </Filter>
     <Filter Include="Modules\Modules">
       <UniqueIdentifier>{a25fc3f1-953b-4e4a-a31b-976562030599}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{86b6baa9-3f38-4631-862c-bc30a6d4129c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\FunctionHook">
+      <UniqueIdentifier>{573bdaad-d9f3-4f91-8e4b-308b3fdabff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Detours">
+      <UniqueIdentifier>{566e4eef-3540-45a3-b4bf-1b613a7c8fed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\EventGuard">
+      <UniqueIdentifier>{c6f46f68-6ca4-4eb2-b711-d56f834fc78a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\MinHook">
+      <UniqueIdentifier>{da7a44b9-a92b-4edc-bc45-fa155170c433}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\MinHook\hde">
+      <UniqueIdentifier>{e66f8d97-9e4f-43dd-acd7-47e003548883}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +104,27 @@
     <ClCompile Include="Components\Components\Variables.cpp">
       <Filter>Components\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Framework\FunctionHook\FunctionHook.cpp">
+      <Filter>Framework\FunctionHook</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\EventGuard\EventGuard.cpp">
+      <Filter>Framework\EventGuard</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\MinHook\MinHook.cpp">
+      <Filter>Framework\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\MinHook\Trampoline.cpp">
+      <Filter>Framework\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\MinHook\Buffer.cpp">
+      <Filter>Framework\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\MinHook\hde\hde64.cpp">
+      <Filter>Framework\MinHook\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\MinHook\hde\hde32.cpp">
+      <Filter>Framework\MinHook\hde</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Components\Component.hpp">
@@ -114,15 +150,6 @@
     </ClInclude>
     <ClInclude Include="Components\Components\Manager.hpp">
       <Filter>Components\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Detours\detours.h">
-      <Filter>Detours</Filter>
-    </ClInclude>
-    <ClInclude Include="Detours\detver.h">
-      <Filter>Detours</Filter>
-    </ClInclude>
-    <ClInclude Include="Detours\syelog.h">
-      <Filter>Detours</Filter>
     </ClInclude>
     <ClInclude Include="Extensions\Includes.hpp">
       <Filter>Extensions</Filter>
@@ -166,18 +193,57 @@
     <ClInclude Include="Components\Components\Variables.hpp">
       <Filter>Components\Components</Filter>
     </ClInclude>
+    <ClInclude Include="Framework\FunctionHook\FunctionHook.hpp">
+      <Filter>Framework\FunctionHook</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Detours\detours.h">
+      <Filter>Framework\Detours</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Detours\detver.h">
+      <Filter>Framework\Detours</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Detours\syelog.h">
+      <Filter>Framework\Detours</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\EventGuard\EventGuard.hpp">
+      <Filter>Framework\EventGuard</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MinHook\Buffer.hpp">
+      <Filter>Framework\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MinHook\MinHook.hpp">
+      <Filter>Framework\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MinHook\Trampoline.hpp">
+      <Filter>Framework\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MinHook\hde\hde64.hpp">
+      <Filter>Framework\MinHook\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MinHook\hde\pstdint.hpp">
+      <Filter>Framework\MinHook\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MinHook\hde\table32.hpp">
+      <Filter>Framework\MinHook\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MinHook\hde\table64.hpp">
+      <Filter>Framework\MinHook\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MinHook\hde\hde32.hpp">
+      <Filter>Framework\MinHook\hde</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Detours\detours.lib">
-      <Filter>Detours</Filter>
+    <Library Include="Framework\Detours\detours.lib">
+      <Filter>Framework\Detours</Filter>
     </Library>
-    <Library Include="Detours\syelog.lib">
-      <Filter>Detours</Filter>
+    <Library Include="Framework\Detours\syelog.lib">
+      <Filter>Framework\Detours</Filter>
     </Library>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Detours\detours.pdb">
-      <Filter>Detours</Filter>
+    <None Include="Framework\Detours\detours.pdb">
+      <Filter>Framework\Detours</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

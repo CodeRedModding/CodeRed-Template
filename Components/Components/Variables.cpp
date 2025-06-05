@@ -187,7 +187,7 @@ namespace CodeRed
 		}
 		if (IsType(SettingTypes::Int32))
 		{
-			if (!CodeRed::Format::IsStringFloat(sValue))
+			if (!Format::IsStringFloat(sValue))
 			{
 				Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or 32 bit integer values.");
 				return false;
@@ -195,7 +195,7 @@ namespace CodeRed
 		}
 		else if (IsType(SettingTypes::Float))
 		{
-			if (!CodeRed::Format::IsStringFloat(sValue))
+			if (!Format::IsStringFloat(sValue))
 			{
 				Console.Warning("[Setting] (" + GetName() + ") Warning: Input is invalid, this setting only supports floating point numbers or optionally 32 bit integer values.");
 				return false;
@@ -203,11 +203,11 @@ namespace CodeRed
 		}
 		else if (IsType(SettingTypes::Color))
 		{
-			std::string cValue = CodeRed::Format::RemoveAllChars(sValue, '#');
+			std::string cValue = Format::RemoveAllChars(sValue, '#');
 
-			if (CodeRed::Format::IsStringHexadecimal(cValue) && (cValue.length() <= 8))
+			if (Format::IsStringHexadecimal(cValue) && (cValue.length() <= 8))
 			{
-				uint64_t dValue = CodeRed::Format::ToDecimal(cValue);
+				uint64_t dValue = Format::ToDecimal(cValue);
 
 				if (dValue <= 0xFFFFFFFF)
 				{
@@ -220,11 +220,11 @@ namespace CodeRed
 		}
 		else if (IsType(SettingTypes::Rotator))
 		{
-			std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
+			std::vector<std::string> values = Format::Split(sValue, ' ');
 
 			if (values.size() >= 3)
 			{
-				if (CodeRed::Format::IsStringDecimal(values[0]) && CodeRed::Format::IsStringDecimal(values[1]) && CodeRed::Format::IsStringDecimal(values[2]))
+				if (Format::IsStringDecimal(values[0]) && Format::IsStringDecimal(values[1]) && Format::IsStringDecimal(values[2]))
 				{
 					return true;
 				}
@@ -235,11 +235,11 @@ namespace CodeRed
 		}
 		else if (IsType(SettingTypes::Vector2D))
 		{
-			std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
+			std::vector<std::string> values = Format::Split(sValue, ' ');
 
 			if (values.size() >= 2)
 			{
-				if (CodeRed::Format::IsStringFloat(values[0]) && CodeRed::Format::IsStringFloat(values[1]))
+				if (Format::IsStringFloat(values[0]) && Format::IsStringFloat(values[1]))
 				{
 					return true;
 				}
@@ -250,11 +250,11 @@ namespace CodeRed
 		}
 		else if (IsType(SettingTypes::Vector3D))
 		{
-			std::vector<std::string> values = CodeRed::Format::Split(sValue, ' ');
+			std::vector<std::string> values = Format::Split(sValue, ' ');
 
 			if (values.size() >= 3)
 			{
-				if (CodeRed::Format::IsStringFloat(values[0]) && CodeRed::Format::IsStringFloat(values[1]) && CodeRed::Format::IsStringFloat(values[2]))
+				if (Format::IsStringFloat(values[0]) && Format::IsStringFloat(values[1]) && Format::IsStringFloat(values[2]))
 				{
 					return true;
 				}
@@ -645,7 +645,7 @@ namespace CodeRed
 
 		if (HasRange())
 		{
-			if (CodeRed::Format::IsStringDecimal(m_range.first) && CodeRed::Format::IsStringDecimal(m_range.second))
+			if (Format::IsStringDecimal(m_range.first) && Format::IsStringDecimal(m_range.second))
 			{
 				returnRange.first = std::stoi(m_range.first);
 				returnRange.second = std::stoi(m_range.second);
@@ -661,7 +661,7 @@ namespace CodeRed
 
 		if (HasRange())
 		{
-			if (CodeRed::Format::IsStringDecimal(m_range.first) && CodeRed::Format::IsStringDecimal(m_range.second))
+			if (Format::IsStringDecimal(m_range.first) && Format::IsStringDecimal(m_range.second))
 			{
 				returnRange.first = std::stoll(m_range.first);
 				returnRange.second = std::stoll(m_range.second);
@@ -677,7 +677,7 @@ namespace CodeRed
 
 		if (HasRange())
 		{
-			if (CodeRed::Format::IsStringFloat(m_range.first) && CodeRed::Format::IsStringFloat(m_range.second))
+			if (Format::IsStringFloat(m_range.first) && Format::IsStringFloat(m_range.second))
 			{
 				returnRange.first = std::stof(m_range.first);
 				returnRange.second = std::stof(m_range.second);
@@ -693,8 +693,8 @@ namespace CodeRed
 
 		if (HasRange())
 		{
-			returnRange.first = CodeRed::Format::ToRotator(m_range.first);
-			returnRange.second = CodeRed::Format::ToRotator(m_range.second);
+			returnRange.first = Format::ToRotator(m_range.first);
+			returnRange.second = Format::ToRotator(m_range.second);
 		}
 
 		return returnRange;
@@ -706,8 +706,8 @@ namespace CodeRed
 
 		if (HasRange())
 		{
-			returnRange.first = CodeRed::Format::ToVectorF(m_range.first);
-			returnRange.second = CodeRed::Format::ToVectorF(m_range.second);
+			returnRange.first = Format::ToVectorF(m_range.first);
+			returnRange.second = Format::ToVectorF(m_range.second);
 		}
 
 		return returnRange;
@@ -719,8 +719,8 @@ namespace CodeRed
 
 		if (HasRange())
 		{
-			returnRange.first = CodeRed::Format::ToVectorI(m_range.first);
-			returnRange.second = CodeRed::Format::ToVectorI(m_range.second);
+			returnRange.first = Format::ToVectorI(m_range.first);
+			returnRange.second = Format::ToVectorI(m_range.second);
 		}
 
 		return returnRange;
@@ -732,8 +732,8 @@ namespace CodeRed
 
 		if (HasRange())
 		{
-			returnRange.first = CodeRed::Format::ToVector2DF(m_range.first);
-			returnRange.second = CodeRed::Format::ToVector2DF(m_range.second);
+			returnRange.first = Format::ToVector2DF(m_range.first);
+			returnRange.second = Format::ToVector2DF(m_range.second);
 		}
 
 		return returnRange;
@@ -745,8 +745,8 @@ namespace CodeRed
 
 		if (HasRange())
 		{
-			returnRange.first = CodeRed::Format::ToVector2DI(m_range.first);
-			returnRange.second = CodeRed::Format::ToVector2DI(m_range.second);
+			returnRange.first = Format::ToVector2DI(m_range.first);
+			returnRange.second = Format::ToVector2DI(m_range.second);
 		}
 
 		return returnRange;

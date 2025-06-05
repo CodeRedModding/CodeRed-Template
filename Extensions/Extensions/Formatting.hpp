@@ -1,5 +1,5 @@
 #pragma once
-#include "../pch.hpp"
+#include "../../pch.hpp"
 #include "Math.hpp"
 
 // Helper functions for formatting streams and strings.

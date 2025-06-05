@@ -30,8 +30,8 @@ struct UGameViewportClient_TA_execHandleKeyPress_Params
 	struct FName Key;
 	uint8_t EventType;
 	float AmountDepressed;
-	bool bGamepad : 1;
-	bool ReturnValue : 1;
+	uint32_t bGamepad : 1;
+	uint32_t ReturnValue : 1;
 };
 
 enum class EInputEvent : uint8_t
@@ -63,10 +63,7 @@ public:
 	bool IsA(int objInternalInteger) { return false; };
 	template<typename T> bool IsA()
 	{
-		if (std::is_base_of<UObject, T>::value)
-		{
-			return IsA(T::StaticClass());
-		}
+		return IsA(T::StaticClass());
 	}
 	static UClass* StaticClass()
 	{
@@ -83,8 +80,30 @@ public:
 	};
 };
 
-class UFunction : public UObject
+class UField : public UObject
 {
+public:
+	static UClass* StaticClass()
+	{
+		return nullptr;
+	};
+};
+
+class UStruct : public UObject
+{
+public:
+	static UClass* StaticClass()
+	{
+		return nullptr;
+	};
+};
+
+class UFunction : public UStruct
+{
+public:
+	uint64_t FunctionFlags;
+	FPointer Func;
+
 public:
 	static UClass* StaticClass()
 	{
@@ -183,6 +202,14 @@ public:
 	{
 		return nullptr;
 	};
+};
+
+struct FFrame
+{
+	class UStruct* Node;
+	class UObject* Object;
+	uint8_t* Code;
+	uint8_t* Locals;
 };
 
 /*

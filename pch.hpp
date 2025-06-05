@@ -1,8 +1,6 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 
-// Add headers that you want to pre-compile here.
-
 #include <Windows.h>
 #include <unordered_map>
 #include <map>
@@ -23,8 +21,18 @@
 #include <random>
 #include <inttypes.h>
 #include <filesystem>
-#include <detours.h>
+
+// CodeRed Macros
+#define WALKTHROUGH
 
 #include "Types.hpp"
 #include "PlaceHolderSDK/SdkHeaders.hpp"
-#define WALKTHROUGH
+#include "Framework/FunctionHook/FunctionHook.hpp"
+#include "Framework/EventGuard/EventGuard.hpp"
+
+#ifdef CR_DETOURS
+#include <detours.h>
+#endif
+#ifdef CR_MINHOOK
+#include "Framework/MinHook/MinHook.hpp"
+#endif

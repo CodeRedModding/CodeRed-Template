@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\Detours</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\Framework\Detours</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\Detours</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\Framework\Detours</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\Detours</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\Framework\Detours</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -140,7 +140,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\Detours</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\Framework\Detours</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -166,6 +166,13 @@
     <ClCompile Include="Extensions\Extensions\Math.cpp" />
     <ClCompile Include="Extensions\Extensions\Memory.cpp" />
     <ClCompile Include="Extensions\Extensions\Time.cpp" />
+    <ClCompile Include="Framework\EventGuard\EventGuard.cpp" />
+    <ClCompile Include="Framework\FunctionHook\FunctionHook.cpp" />
+    <ClCompile Include="Framework\MinHook\Buffer.cpp" />
+    <ClCompile Include="Framework\MinHook\hde\hde32.cpp" />
+    <ClCompile Include="Framework\MinHook\hde\hde64.cpp" />
+    <ClCompile Include="Framework\MinHook\MinHook.cpp" />
+    <ClCompile Include="Framework\MinHook\Trampoline.cpp" />
     <ClCompile Include="Modules\Modules\Placeholder.cpp" />
     <ClCompile Include="Modules\Module.cpp" />
     <ClCompile Include="pch.cpp" />
@@ -181,15 +188,25 @@
     <ClInclude Include="Components\Components\Manager.hpp" />
     <ClInclude Include="Components\Components\Variables.hpp" />
     <ClInclude Include="Components\Includes.hpp" />
-    <ClInclude Include="Detours\detours.h" />
-    <ClInclude Include="Detours\detver.h" />
-    <ClInclude Include="Detours\syelog.h" />
     <ClInclude Include="Extensions\Extensions\Colors.hpp" />
     <ClInclude Include="Extensions\Extensions\Formatting.hpp" />
     <ClInclude Include="Extensions\Extensions\Math.hpp" />
     <ClInclude Include="Extensions\Extensions\Memory.hpp" />
     <ClInclude Include="Extensions\Extensions\Time.hpp" />
     <ClInclude Include="Extensions\Includes.hpp" />
+    <ClInclude Include="Framework\Detours\detours.h" />
+    <ClInclude Include="Framework\Detours\detver.h" />
+    <ClInclude Include="Framework\Detours\syelog.h" />
+    <ClInclude Include="Framework\EventGuard\EventGuard.hpp" />
+    <ClInclude Include="Framework\FunctionHook\FunctionHook.hpp" />
+    <ClInclude Include="Framework\MinHook\Buffer.hpp" />
+    <ClInclude Include="Framework\MinHook\hde\hde32.hpp" />
+    <ClInclude Include="Framework\MinHook\hde\hde64.hpp" />
+    <ClInclude Include="Framework\MinHook\hde\pstdint.hpp" />
+    <ClInclude Include="Framework\MinHook\hde\table32.hpp" />
+    <ClInclude Include="Framework\MinHook\hde\table64.hpp" />
+    <ClInclude Include="Framework\MinHook\MinHook.hpp" />
+    <ClInclude Include="Framework\MinHook\Trampoline.hpp" />
     <ClInclude Include="Modules\Includes.hpp" />
     <ClInclude Include="Modules\Modules\Placeholder.hpp" />
     <ClInclude Include="Modules\Module.hpp" />
@@ -199,11 +216,11 @@
     <ClInclude Include="Types.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Detours\detours.lib" />
-    <Library Include="Detours\syelog.lib" />
+    <Library Include="Framework\Detours\detours.lib" />
+    <Library Include="Framework\Detours\syelog.lib" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Detours\detours.pdb" />
+    <None Include="Framework\Detours\detours.pdb" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Changelog.hpp" />

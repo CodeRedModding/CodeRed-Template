@@ -18,6 +18,10 @@ namespace CodeRed
 			CloseHandle(m_mainThread);
 			m_mainThread = nullptr;
 		}
+
+#ifdef CR_MINHOOK
+		MinHook::MH_Uninitialize();
+#endif
 	}
 
 	bool CoreComponent::Initialize()
@@ -28,9 +32,19 @@ namespace CodeRed
 			{
 				if (FindGlobals())
 				{
-					Console.Notify(GetNameFormatted() + "Entry Point " + CodeRed::Format::ToHex(reinterpret_cast<void*>(GetModuleHandleW(nullptr))));
-					Console.Notify(GetNameFormatted() + "Global Objects: " + CodeRed::Format::ToHex(UObject::GObjObjects()));
-					Console.Notify(GetNameFormatted() + "Global Names: " + CodeRed::Format::ToHex(FName::Names()));
+					Console.Notify(GetNameFormatted() + "Entry Point " + Format::ToHex(reinterpret_cast<void*>(GetModuleHandleW(nullptr))));
+					Console.Notify(GetNameFormatted() + "Global Objects: " + Format::ToHex(UObject::GObjObjects()));
+					Console.Notify(GetNameFormatted() + "Global Names: " + Format::ToHex(FName::Names()));
+
+#ifdef CR_MINHOOK
+					MinHook::MH_STATUS minhookStatus = MinHook::MH_Initialize();
+
+					if (minhookStatus != MinHook::MH_STATUS::MH_OK)
+					{
+						Console.Error(GetNameFormatted() + "Failed to initalize MinHook, cannot continue!");
+						return false;
+					}
+#endif
 
 					GameState.Initialize();			// Unimplemented.
 					Instances.Initialize();			// Initialize class instances that aren't automatically set by function hooks.
@@ -82,8 +96,8 @@ namespace CodeRed
 		if (!UObject::GObjObjects() && !FName::Names())
 		{
 			// Populate the GObject and GName addresses, remember to replace "PlaceholderSDK" with your own.
-			GObjects = reinterpret_cast<TArray<UObject*>*>(CodeRed::Memory::FindPattern(GObjects_Pattern, GObjects_Mask));
-			GNames = reinterpret_cast<TArray<FNameEntry*>*>(CodeRed::Memory::FindPattern(GNames_Pattern, GNames_Mask));
+			GObjects = reinterpret_cast<TArray<UObject*>*>(Memory::FindPattern(GObjects_Pattern, GObjects_Mask));
+			GNames = reinterpret_cast<TArray<FNameEntry*>*>(Memory::FindPattern(GNames_Pattern, GNames_Mask));
 		}
 
 		return AreGlobalsValid();

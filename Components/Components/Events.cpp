@@ -3,11 +3,18 @@
 
 namespace CodeRed
 {
-	PreEvent::PreEvent() : m_caller(nullptr), m_function(nullptr), m_params(nullptr), m_type(EventTypes::Unknown), m_detour(true) {}
+	#define TRACE_PROCESSES
+	#define TRACE_BLACKLISTS
+	#define TRACE_GUARDS
 
-	PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params, EventTypes eventType, bool bDetour) : m_caller(caller), m_function(function), m_params(params), m_type(eventType), m_detour(bDetour) {}
+	#define DETOUR_PROCEVENT
+	#define DETOUR_PROCINTERNAL
 
-	PreEvent::PreEvent(const PreEvent& preEvent) : m_caller(preEvent.m_caller), m_function(preEvent.m_function), m_params(preEvent.m_params), m_type(preEvent.m_type), m_detour(preEvent.m_detour) {}
+	PreEvent::PreEvent() : m_caller(nullptr), m_function(nullptr), m_params(nullptr), m_type(EventTypes::Unknown), n_callable(true) {}
+
+	PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params, EventTypes eventType, bool bCallable) : m_caller(caller), m_function(function), m_params(params), m_type(eventType), n_callable(bCallable) {}
+
+	PreEvent::PreEvent(const PreEvent& preEvent) : m_caller(preEvent.m_caller), m_function(preEvent.m_function), m_params(preEvent.m_params), m_type(preEvent.m_type), n_callable(preEvent.n_callable) {}
 
 	PreEvent::~PreEvent() {}
 
@@ -51,14 +58,14 @@ namespace CodeRed
 		return nullptr;
 	}
 
-	bool PreEvent::ShouldDetour() const
+	bool PreEvent::IsCallable() const
 	{
-		return m_detour;
+		return n_callable;
 	}
 
-	void PreEvent::SetDetour(bool bDetour)
+	void PreEvent::SetCallable(bool bCallable)
 	{
-		m_detour = bDetour;
+		n_callable = bCallable;
 	}
 
 	PreEvent& PreEvent::operator=(const PreEvent& preEvent)
@@ -67,13 +74,13 @@ namespace CodeRed
 		m_function = preEvent.m_function;
 		m_params = preEvent.m_params;
 		m_type = preEvent.m_type;
-		m_detour = preEvent.m_detour;
+		n_callable = preEvent.n_callable;
 		return *this;
 	}
 
 	PostEvent::PostEvent() : m_result(nullptr) {}
 
-	PostEvent::PostEvent(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType, bool bDetour) : PreEvent(caller, function, params, eventType, bDetour), m_result(result) {}
+	PostEvent::PostEvent(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType, bool bCallable) : m_result(result), PreEvent(caller, function, params, eventType, bCallable) {}
 
 	PostEvent::PostEvent(const PostEvent& postEvent) : m_result(postEvent.m_result), PreEvent(postEvent) {}
 
@@ -175,18 +182,18 @@ namespace CodeRed
 
 	void EventsComponent::OnCreate()
 	{
-		m_detoured = false;
-		m_processEvent = nullptr;
-		m_hookSafe = false;
+		m_hooksSafe = false;
+		m_blacklistSafe = false;
 	}
 
 	void EventsComponent::OnDestroy()
 	{
-		DetachDetour();
-		OnCreate();
+		DetachDetours();
+		OnCreate(); // Reset everything to default.
 		m_blacklisted.clear();
 		m_preHooks.clear();
 		m_postHooks.clear();
+		EventGuard::ClearRefStore();
 	}
 
 	bool EventsComponent::Initialize()
@@ -197,13 +204,8 @@ namespace CodeRed
 			Console.Notify("\"Components\\Components\\Events.cpp -> EventsComponent::Initialize()\". Looks like you forgot to check this file, the only thing here are demo functions hooks!");
 			return false;
 #endif
-			// You can use either a pattern for Process Event or its place in the VfTable index (not both).
 
-			//void** unrealVTable = reinterpret_cast<void**>(UObject::StaticClass()->VfTableObject.Dummy);
-			//AttachDetour(reinterpret_cast<ProcessEventType>(unrealVTable[0])); // Index method.
-			//AttachDetour(reinterpret_cast<ProcessEventType>(Memory::FindPattern(ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
-
-			if (AreDetoursAttached())
+			if (AttachDetours())
 			{
 				// Example functions only, you will need to function scan in your game for your own to hook!
 				BlacklistEvent("Function Engine.Tracker.UploadData");
@@ -231,116 +233,247 @@ namespace CodeRed
 
 	bool EventsComponent::AreDetoursAttached()
 	{
-		return (m_detoured && m_processEvent);
+#ifdef DETOUR_PROCEVENT
+		bool eventValid = m_processEvent.IsAttached();
+#else
+		eventValid = true;
+#endif
+
+#ifdef DETOUR_PROCINTERNAL
+		bool internalValid = m_processInternal.IsAttached();
+#else
+		bool internalValid = true;
+#endif
+
+		return (eventValid && internalValid);
 	}
 
-	void EventsComponent::AttachDetour(const ProcessEventType& detourFunction)
+	bool EventsComponent::AttachDetours()
 	{
-		if (!AreDetoursAttached())
-		{
-			m_processEvent = detourFunction;
-			DetourTransactionBegin();
-			DetourUpdateThread(GetCurrentThread());
-			DetourAttach(&reinterpret_cast<PVOID&>(m_processEvent), reinterpret_cast<PVOID>(ProcessEventDetour));
-			DetourTransactionCommit();
-			m_detoured = true;
-			m_hookSafe = true;
-		}
-	}
+#ifdef WALKTHROUGH
+		Console.Notify("\"Components\\Components\\Events.cpp -> EventsComponent::AttachDetours()\". Looks like you forgot to check this file, you need to setup hooking ProcessEvent!");
+		return false;
+#endif
 
-	void EventsComponent::DetachDetour()
-	{
-		if (AreDetoursAttached())
+#ifdef DETOUR_PROCEVENT
+		if (!m_processEvent.IsAttached())
 		{
-			DetourTransactionBegin();
-			DetourUpdateThread(GetCurrentThread());
-			DetourDetach(&reinterpret_cast<PVOID&>(m_processEvent), reinterpret_cast<PVOID>(ProcessEventDetour));
-			DetourTransactionCommit();
-			m_detoured = false;
-			m_processEvent = nullptr;
-			m_hookSafe = false;
-		}
-	}
+			// You can use either a pattern for Process Event or its place in the VfTable index (not both).	
+			//Attach(reinterpret_cast<uintptr_t*>(unrealVTable[0])); // Index method.
+			//Attach(reinterpret_cast<uintptr_t*>(Memory::FindPattern(ProcessEvent_Pattern, ProcessEvent_Mask))); // Find pattern method.
 
-	void EventsComponent::ProcessEventDetour(class UObject* caller, class UFunction* function, void* params, void* result)
-	{
-		if (m_processEvent)
-		{
-			if (function)
+			void** vfTable = reinterpret_cast<void**>(UObject::StaticClass()->VfTableObject.Dummy);
+
+			if (vfTable && m_processEvent.Attach(reinterpret_cast<uintptr_t*>(vfTable[69]), ProcessEventHook))
 			{
-				bool shouldDetour = ProcessBefore(caller, function, params, result, EventTypes::ProcessEvent);
-
-				if (shouldDetour)
-				{
-					m_processEvent(caller, function, params, result);
-				}
-
-				ProcessAfter(caller, function, params, result, EventTypes::ProcessEvent);
+				m_processEvent.Enable();
 			}
 			else
 			{
-				m_processEvent(caller, function, params, result);
+				Console.Error("[Events Component] (AttachDetours) Failed to hook process event!");
 			}
 		}
+#endif
+
+#ifdef DETOUR_PROCINTERNAL
+		if (!m_processInternal.IsAttached())
+		{
+			UFunction* function = Instances.FindStaticFunction("Function Engine.HUD.PostRender"); // The "Func" pointer here is a pointer to the function "ProcessInternal".
+
+			if (function && function->Func.Dummy)
+			{
+				if (m_processInternal.Attach(reinterpret_cast<uintptr_t*>(function->Func.Dummy), ProcessInternalHook))
+				{
+					m_processInternal.Enable();
+				}
+				else
+				{
+					Console.Error("[Events Component] (AttachDetours) Failed to hook process internal!");
+				}
+			}
+		}
+#endif
+
+		if (AreDetoursAttached())
+		{
+			m_hooksSafe = true;
+			m_blacklistSafe = true;
+		}
+
+		return AreDetoursAttached();
 	}
 
-	bool EventsComponent::ProcessBefore(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType)
+	void EventsComponent::DetachDetours()
 	{
-		if (function)
+		m_processEvent.Detach();
+		m_processInternal.Detach();
+		m_hooksSafe = false;
+		m_blacklistSafe = false;
+	}
+
+	void EventsComponent::ProcessEventHook(class UObject* caller, class UFunction* function, void* params, void* result)
+	{
+#ifdef DETOUR_PROCEVENT
+		if (m_processEvent.IsAttached())
 		{
-			bool shouldDetour = true;
-
-			if (m_hookSafe && m_preHooks.contains(function->ObjectInternalInteger))
+			if (CanProcessHook(caller, function, EventTypes::ProcessEvent))
 			{
-				PreEvent preEvent(caller, function, params, eventType);
+				EventGuard eventGuard(caller, function);
 
-				for (const auto& preHook : m_preHooks[function->ObjectInternalInteger])
+				if (eventGuard.IsFirst())
 				{
-					preHook(preEvent);
+					ProcessResults processResult = ProcessBefore(caller, function, params, result, EventTypes::ProcessEvent);
 
-					if (!preEvent.ShouldDetour())
+					if (CanCallHook(function, processResult, EventTypes::ProcessEvent))
 					{
-						shouldDetour = false;
+						m_processEvent.Call<HookTypes::ProcessEvent>()(caller, function, params, result);
 					}
-				}
-			}
+#ifdef TRACE_BLACKLISTS
+					else if (function)
+					{
+						Console.Error("[Events Component] (ProcessEventHook) Don't want to call function \"" + function->GetFullName() + "\"!");
+					}
+#endif
 
-			if (shouldDetour)
-			{
-				if (m_hookSafe && IsEventBlacklisted(function->ObjectInternalInteger))
+					ProcessAfter(caller, function, params, result, EventTypes::ProcessEvent);
+					return;
+				}
+#ifdef TRACE_GUARDS
+				else if (function)
 				{
-					return false;
+					Console.Error("[Events Component] (ProcessEventHook) Guard isn't safe for \"" + function->GetFullName() + "\"!");
 				}
+#endif
+			}
+			else if (IsBlacklisted(function))
+			{
+#ifdef TRACE_BLACKLISTS
+				if (function)
+				{
+					Console.Error("[Events Component] (ProcessEventHook) Blacklist found for \"" + function->GetFullName() + "\"!");
+				}
+#endif
+
+				return;
 			}
 
-			return shouldDetour;
+			m_processEvent.Call<HookTypes::ProcessEvent>()(caller, function, params, result);
 		}
-
-		return true;
+#endif
 	}
 
-	void EventsComponent::ProcessAfter(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType)
+	void EventsComponent::ProcessInternalHook(class UObject* caller, struct FFrame& frame, void* result)
+	{
+#ifdef DETOUR_PROCINTERNAL
+		if (m_processInternal.IsAttached())
+		{
+			UFunction* function = static_cast<UFunction*>(frame.Node);
+			void* params = frame.Locals;
+
+			if (CanProcessHook(caller, function, EventTypes::ProcessInternal))
+			{
+				EventGuard eventGuard(caller, function);
+
+				if (eventGuard.IsFirst())
+				{
+					ProcessResults processResult = ProcessBefore(caller, function, params, result, EventTypes::ProcessInternal);
+
+					if (CanCallHook(function, processResult, EventTypes::ProcessInternal))
+					{
+						m_processInternal.Call<HookTypes::ProcessInternal>()(caller, frame, result);
+					}
+#ifdef TRACE_BLACKLISTS
+					else if (function)
+					{
+						Console.Error("[Events Component] (ProcessInternalHook) Cannot call function for \"" + function->GetFullName() + "\"!");
+					}
+#endif
+
+					ProcessAfter(caller, function, params, result, EventTypes::ProcessInternal);
+					return;
+				}
+#ifdef TRACE_GUARDS
+				else if (function)
+				{
+					Console.Error("[Events Component] (ProcessInternalHook) Guard isn't safe for \"" + function->GetFullName() + "\"!");
+				}
+#endif
+			}
+			else if (IsBlacklisted(function))
+			{
+#ifdef TRACE_BLACKLISTS
+				if (function)
+				{
+					Console.Error("[Events Component] (ProcessInternalHook) Blacklist found for \"" + function->GetFullName() + "\"!");
+				}
+#endif
+
+				return;
+			}
+
+			m_processInternal.Call<HookTypes::ProcessInternal>()(caller, frame, result);
+		}
+#endif
+	}
+
+	bool EventsComponent::IsBlacklisted(class UFunction* function)
 	{
 		if (function)
 		{
-			if (m_hookSafe && m_postHooks.contains(function->ObjectInternalInteger))
-			{
-				PostEvent postEvent(caller, function, params, result, eventType);
-
-				for (const auto& postHook : m_postHooks[function->ObjectInternalInteger])
-				{
-					postHook(postEvent);
-				}
-			}
+			return IsBlacklisted(function->ObjectInternalInteger);
 		}
+
+		return false;
 	}
 
-	bool EventsComponent::IsEventBlacklisted(uint32_t functionIndex)
+	bool EventsComponent::IsBlacklisted(uint32_t functionIndex)
 	{
-		m_hookSafe = false;
-		bool blacklisted = (std::find(m_blacklisted.begin(), m_blacklisted.end(), functionIndex) != m_blacklisted.end());
-		m_hookSafe = true;
-		return blacklisted;
+		if (m_blacklistSafe)
+		{
+			return (std::find(m_blacklisted.begin(), m_blacklisted.end(), functionIndex) != m_blacklisted.end());
+		}
+
+		return false;
+	}
+
+	bool EventsComponent::IsPreHooked(class UFunction* function)
+	{
+		if (function)
+		{
+			return IsPreHooked(function->ObjectInternalInteger);
+		}
+
+		return false;
+	}
+
+	bool EventsComponent::IsPreHooked(uint32_t functionIndex)
+	{
+		if (m_hooksSafe)
+		{
+			return m_preHooks.contains(functionIndex);
+		}
+
+		return false;
+	}
+
+	bool EventsComponent::IsPostHooked(class UFunction* function)
+	{
+		if (function)
+		{
+			return IsPostHooked(function->ObjectInternalInteger);
+		}
+
+		return false;
+	}
+
+	bool EventsComponent::IsPostHooked(uint32_t functionIndex)
+	{
+		if (m_hooksSafe)
+		{
+			return m_postHooks.contains(functionIndex);
+		}
+
+		return false;
 	}
 
 	void EventsComponent::BlacklistEvent(const std::string& function)
@@ -349,15 +482,15 @@ namespace CodeRed
 
 		if (foundFunction)
 		{
-			m_hookSafe = false;
+			bool isBlacklisted = IsBlacklisted(foundFunction);
 
-			if (!IsEventBlacklisted(foundFunction->ObjectInternalInteger))
+			if (!isBlacklisted)
 			{
+				m_blacklistSafe = false;
 				m_blacklisted.push_back(foundFunction->ObjectInternalInteger);
 				std::sort(m_blacklisted.begin(), m_blacklisted.end());
+				m_blacklistSafe = true;
 			}
-
-			m_hookSafe = true;
 		}
 		else
 		{
@@ -371,7 +504,7 @@ namespace CodeRed
 
 		if (foundFunction)
 		{
-			m_hookSafe = false;
+			m_hooksSafe = false;
 			auto blackIt = std::find(m_blacklisted.begin(), m_blacklisted.end(), foundFunction->ObjectInternalInteger);
 
 			if (blackIt != m_blacklisted.end())
@@ -380,7 +513,7 @@ namespace CodeRed
 				std::sort(m_blacklisted.begin(), m_blacklisted.end());
 			}
 
-			m_hookSafe = true;
+			m_hooksSafe = true;
 		}
 		else
 		{
@@ -410,18 +543,9 @@ namespace CodeRed
 
 			if (foundFunction && foundFunction->IsA<UFunction>())
 			{
-				m_hookSafe = false;
-
-				if (m_preHooks.contains(functionIndex))
-				{
-					m_preHooks[functionIndex].push_back(preHook);
-				}
-				else
-				{
-					m_preHooks[functionIndex] = std::vector<std::function<void(PreEvent&)>>{ preHook };
-				}
-
-				m_hookSafe = true;
+				m_hooksSafe = false;
+				m_preHooks[functionIndex].push_back(preHook);
+				m_hooksSafe = true;
 			}
 			else
 			{
@@ -452,24 +576,135 @@ namespace CodeRed
 
 			if (foundFunction && foundFunction->IsA<UFunction>())
 			{
-				m_hookSafe = false;
-
-				if (m_postHooks.contains(functionIndex))
-				{
-					m_postHooks[functionIndex].push_back(postHook);
-				}
-				else
-				{
-					m_postHooks[functionIndex] = std::vector<std::function<void(const PostEvent&)>>{ postHook };
-				}
-
-				m_hookSafe = true;
+				m_hooksSafe = false;
+				m_postHooks[functionIndex].push_back(postHook);
+				m_hooksSafe = true;
 			}
 			else
 			{
 				Console.Warning("Warning: Failed to hook function at index \"" + std::to_string(functionIndex) + "\"!");
 			}
 		}
+	}
+
+	bool EventsComponent::CanCallHook(class UFunction* function, ProcessResults processResult, EventTypes eventType)
+	{
+		if (eventType != EventTypes::CallFunction) // CallFunction is limited to what you can hook, including its parameters, so this isn't supported fully for now.
+		{
+			return ((processResult != ProcessResults::Blacklist) && (processResult != ProcessResults::CallbackBlacklist) && !IsBlacklisted(function));
+		}
+
+		return true;
+	}
+
+	bool EventsComponent::CanProcessHook(class UObject* caller, class UFunction* function, EventTypes eventType)
+	{
+		if ((eventType != EventTypes::Unknown) && function)
+		{
+			return (IsPreHooked(function) || IsPostHooked(function));
+		}
+
+		return false;
+	}
+
+	ProcessResults EventsComponent::ProcessBefore(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType)
+	{
+		ProcessResults processResult = ProcessResults::Should;
+
+		if (function)
+		{
+			if (IsPreHooked(function->ObjectInternalInteger))
+			{
+				processResult = ProcessResults::ShouldCallback; // At least one callback was found.
+				PreEvent preEvent(caller, function, params, eventType);
+
+				for (const auto& functionHook : m_preHooks[function->ObjectInternalInteger])
+				{
+					functionHook(preEvent);
+
+					if (!preEvent.IsCallable() && (eventType != EventTypes::CallFunction)) // Can't blacklist from CallFunction or else it will crash, would need to hook "UObject::SkipFunction" and call that instead.
+					{
+#ifdef TRACE_BLACKLISTS
+						Console.Notify("[Events Component] (ProcessBefore) CallbackBlacklist!");
+#endif
+						processResult = ProcessResults::CallbackBlacklist; // Callback was found, and it said we should blacklist it.
+					}
+				}
+			}
+
+			if ((processResult != ProcessResults::CallbackBlacklist) && (eventType != EventTypes::CallFunction)) // Save ourselves some function calls and checks, it's already blacklisted.
+			{
+				if (IsBlacklisted(function->ObjectInternalInteger))
+				{
+					if (processResult == ProcessResults::ShouldCallback)
+					{
+#ifdef TRACE_BLACKLISTS
+						Console.Notify("[Events Component] (ProcessBefore) CallbackBlacklist!");
+#endif
+						processResult = ProcessResults::CallbackBlacklist;
+					}
+					else
+					{
+#ifdef TRACE_BLACKLISTS
+						Console.Notify("[Events Component] (ProcessBefore) Blacklist!");
+#endif
+						processResult = ProcessResults::Blacklist;
+					}
+				}
+			}
+		}
+
+		return processResult;
+	}
+
+	ProcessResults EventsComponent::ProcessAfter(class UObject* caller, class UFunction* function, void* params, void* result, EventTypes eventType)
+	{
+		ProcessResults processResult = ProcessResults::Should;
+
+		if (function)
+		{
+			if (IsPostHooked(function->ObjectInternalInteger))
+			{
+				processResult = ProcessResults::ShouldCallback; // At least one callback was found.
+				PostEvent postEvent(caller, function, params, result, eventType);
+
+				for (const auto& functionHook : m_postHooks[function->ObjectInternalInteger])
+				{
+					functionHook(postEvent);
+
+					if (!postEvent.IsCallable() && (eventType != EventTypes::CallFunction)) // Can't blacklist from CallFunction or else it will crash, would need to hook "UObject::SkipFunction" and call that instead.
+					{
+#ifdef TRACE_BLACKLISTS
+						Console.Notify("[Events Component] (ProcessAfter) CallbackBlacklist!");
+#endif
+						processResult = ProcessResults::CallbackBlacklist; // Obviously the function is already called at this point, but we don't want to return that it can be called anyway if it is blacklisted.
+					}
+				}
+
+				if ((processResult != ProcessResults::CallbackBlacklist) && (eventType != EventTypes::CallFunction)) // Save ourselves some function calls and checks, it's already blacklisted.
+				{
+					if (IsBlacklisted(function->ObjectInternalInteger))
+					{
+						if (processResult == ProcessResults::ShouldCallback)
+						{
+#ifdef TRACE_BLACKLISTS
+							Console.Notify("[Events Component] (ProcessAfter) CallbackBlacklist!");
+#endif
+							processResult = ProcessResults::CallbackBlacklist;
+						}
+						else
+						{
+#ifdef TRACE_BLACKLISTS
+							Console.Notify("[Events Component] (ProcessAfter) Blacklist!)");
+#endif
+							processResult = ProcessResults::Blacklist;
+						}
+					}
+				}
+			}
+		}
+
+		return processResult;
 	}
 
 	class EventsComponent Events;
