@@ -1,5 +1,10 @@
 #pragma once
 /*
+    Changes in v1.6.1:
+    - BREAKING: Renamed the "MandarianOrange" color in the "GColorList" class to "MandarinOrange" in "Colors.hpp".
+    - Moved both the "VARIABLE_NAME_LENGTH" and "VARIABLE_VALUE_LENGTH" constants from "Variables.cpp" to its header file "Variables.hpp".
+    - Changed the static colors in the "GColorList" class to use normal hex codes in "Colors.cpp", to make them easier to read and modify.
+
     Changes in v1.6.0:
     - BREAKING: Added a new "FunctionHook" class and changed the entire "EventsComponent" class to use these, they support both Detours and MinHook and are a much more dynamic way of hooking functions. In "Types.hpp" there are macros that let you choose between Detours and MinHook.
     - BREAKING: Added support to hook ProcessInternal on top of ProcessEvent, in the "EventsComponent" class in "Events.hpp/cpp".

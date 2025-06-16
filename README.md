@@ -1,4 +1,4 @@
-## CodeRed Template v1.6.0
+## CodeRed Template v1.6.1
 
 A custom framework to get you started in Unreal Engine modding that can be used in any game.
 
@@ -16,7 +16,7 @@ For instance storage, game state tracker, and function hooks, they are all game-
 #### Libraries
 
 The following third party libraries are used for compiling, they are included in this project but can be found below.
-Both Detours and MinHook are supported in this project, you can pick which one to use with the marcos "CR_DETOURS" and "CR_MINHOOK".
+Both Detours and MinHook are supported in this project, you can pick which one to use with the marcos "CR_DETOURS" and "CR_MINHOOK" in the "Types.hpp" file.
 
 - Microsoft Detours https://github.com/microsoft/Detours/
 - TsudaKageyu MinHook https://github.com/TsudaKageyu/minhook

@@ -1,5 +1,5 @@
 #pragma once
-#include "../pch.hpp"
+#include "../../pch.hpp"
 
 class Color
 {
@@ -94,7 +94,7 @@ public:
 	static void OnTick(); // Managed by the "ManagerComponent::OnTick" function.
 };
 
-// Taken directly from Unreal Engine source code and converted to BGRA format instead of RGBA.
+// Taken directly from Unreal Engine source code.
 // https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Source/Runtime/Core/Private/Math/ColorList.cpp
 
 class GColorList
@@ -150,7 +150,7 @@ public:
 	static const Color LightSteelBlue;
 	static const Color LightWood;
 	static const Color LimeGreen;
-	static const Color MandarianOrange;
+	static const Color MandarinOrange;
 	static const Color Maroon;
 	static const Color MediumAquamarine;
 	static const Color MediumBlue;

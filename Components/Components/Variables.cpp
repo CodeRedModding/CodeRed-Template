@@ -3,9 +3,6 @@
 
 namespace CodeRed
 {
-	static constexpr uint32_t VARIABLE_NAME_LENGTH = 256; // Max length of a variableId name in character length.
-	static constexpr uint32_t VARIABLE_VALUE_LENGTH = 5120; // Max length of a value a variableId can store in character length.
-
 	Variable::Variable(VariableIds id, uint32_t flags) : m_id(id), m_flags(flags) {}
 
 	Variable::Variable(const Variable& variable) : m_id(variable.m_id), m_flags(variable.m_flags) {}

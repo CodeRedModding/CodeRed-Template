@@ -6,10 +6,7 @@ namespace CodeRed
 
 	FunctionHook::FunctionHook(const FunctionHook& functionHook) : m_targetFunction(functionHook.m_targetFunction), m_hookedFunction(functionHook.m_hookedFunction), m_overrideFunction(functionHook.m_overrideFunction) {}
 
-	FunctionHook::~FunctionHook()
-	{
-		Detach();
-	}
+	FunctionHook::~FunctionHook() { Detach(); }
 
 	bool FunctionHook::IsAttached() const
 	{

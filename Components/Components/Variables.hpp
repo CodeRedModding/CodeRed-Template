@@ -3,6 +3,9 @@
 
 namespace CodeRed
 {
+	static constexpr uint32_t VARIABLE_NAME_LENGTH = 256; // Max length of a variable name in character length.
+	static constexpr uint32_t VARIABLE_VALUE_LENGTH = 5120; // Max character length of a value a variable can store in string format.
+
 	enum SettingFlags : uint32_t
 	{
 		SETTING_None =			0UL,		// Default flags.
