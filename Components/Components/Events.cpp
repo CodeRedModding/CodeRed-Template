@@ -140,6 +140,8 @@ namespace CodeRed
 			{
 				Manager.OnCanvasDraw(hud->Canvas);
 			}
+
+			Manager.OnTick(); // Required to process commands from different threads or commands with async delays.
 		}
 	}
 

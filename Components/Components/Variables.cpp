@@ -24,6 +24,21 @@ namespace CodeRed
 		return m_flags;
 	}
 
+	bool Variable::HasFlags(uint32_t flags) const
+	{
+		return (GetFlags() & flags);
+	}
+
+	void Variable::AddFlags(uint32_t flags)
+	{
+		m_flags |= flags;
+	}
+
+	void Variable::RemoveFlags(uint32_t flag)
+	{
+		m_flags &= ~flag;
+	}
+
 	Variable& Variable::operator=(const Variable& variable)
 	{
 		m_id = variable.m_id;
@@ -272,12 +287,12 @@ namespace CodeRed
 			return false;
 		}
 #endif
-		return (GetFlags() & SettingFlags::SETTING_Hidden);
+		return HasFlags(SettingFlags::SETTING_Hidden);
 	}
 
 	bool Setting::IsLocked() const
 	{
-		return (GetFlags() & SettingFlags::SETTING_Locked);
+		return HasFlags(SettingFlags::SETTING_Locked);
 	}
 
 	bool Setting::HasCallback() const
@@ -753,11 +768,11 @@ namespace CodeRed
 	{
 		if (bHidden)
 		{
-			m_flags |= SettingFlags::SETTING_Hidden;
+			AddFlags(SettingFlags::SETTING_Hidden);
 		}
 		else
 		{
-			m_flags &= ~SettingFlags::SETTING_Hidden;
+			RemoveFlags(SettingFlags::SETTING_Hidden);
 		}
 
 		return this;
@@ -767,11 +782,11 @@ namespace CodeRed
 	{
 		if (bLocked)
 		{
-			m_flags |= SettingFlags::SETTING_Locked;
+			AddFlags(SettingFlags::SETTING_Locked);
 		}
 		else
 		{
-			m_flags &= ~SettingFlags::SETTING_Locked;
+			RemoveFlags(SettingFlags::SETTING_Locked);
 		}
 
 		return this;
@@ -892,17 +907,17 @@ namespace CodeRed
 
 	bool Command::IsHidden() const
 	{
-		return (GetFlags() & CommandFlags::COMMAND_Hidden);
+		return HasFlags(CommandFlags::COMMAND_Hidden);
 	}
 
 	bool Command::IsLocked() const
 	{
-		return (GetFlags() & CommandFlags::COMMAND_Locked);
+		return HasFlags(CommandFlags::COMMAND_Locked);
 	}
 
 	bool Command::NeedsArgs() const
 	{
-		return (GetFlags() & CommandFlags::COMMAND_NeedsArgs);
+		return HasFlags(CommandFlags::COMMAND_NeedsArgs);
 	}
 
 	bool Command::HasCallback() const
@@ -949,11 +964,11 @@ namespace CodeRed
 	{
 		if (bHidden)
 		{
-			m_flags |= CommandFlags::COMMAND_Hidden;
+			AddFlags(CommandFlags::COMMAND_Hidden);
 		}
 		else
 		{
-			m_flags &= ~CommandFlags::COMMAND_Hidden;
+			RemoveFlags(CommandFlags::COMMAND_Hidden);
 		}
 
 		return this;
@@ -963,11 +978,11 @@ namespace CodeRed
 	{
 		if (bLocked)
 		{
-			m_flags |= CommandFlags::COMMAND_Locked;
+			AddFlags(CommandFlags::COMMAND_Locked);
 		}
 		else
 		{
-			m_flags &= ~CommandFlags::COMMAND_Locked;
+			RemoveFlags(CommandFlags::COMMAND_Locked);
 		}
 
 		return this;
@@ -977,11 +992,11 @@ namespace CodeRed
 	{
 		if (bNeedsArgs)
 		{
-			m_flags |= CommandFlags::COMMAND_NeedsArgs;
+			AddFlags(CommandFlags::COMMAND_NeedsArgs);
 		}
 		else
 		{
-			m_flags &= ~CommandFlags::COMMAND_NeedsArgs;
+			RemoveFlags(CommandFlags::COMMAND_NeedsArgs);
 		}
 
 		return this;
@@ -1323,7 +1338,7 @@ namespace CodeRed
 
 						if (setting)
 						{
-							std::string value = variable.substr((spacePos + 1), variable.length());
+							std::string value = variable.substr(spacePos + 1);
 
 							if (!value.empty() && !setting->IsLocked())
 							{

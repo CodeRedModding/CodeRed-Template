@@ -56,7 +56,7 @@ namespace CodeRed
 	{
 	protected:
 		VariableIds m_id;	// Internal identification.
-		uint32_t m_flags;	// Internal permission flags.
+		uint32_t m_flags;	// Internal attribute flags.
 
 	public:
 		Variable() = delete;
@@ -68,6 +68,11 @@ namespace CodeRed
 		VariableIds GetId() const;
 		std::string GetName() const;
 		uint32_t GetFlags() const;
+		bool HasFlags(uint32_t flags) const;
+
+	public:
+		void AddFlags(uint32_t flags);
+		void RemoveFlags(uint32_t flag);
 
 	public:
 		Variable& operator=(const Variable& variable);

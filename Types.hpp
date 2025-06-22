@@ -21,8 +21,7 @@ namespace CodeRed
 	enum class ThreadTypes : uint8_t
 	{
 		Main,
-		Render,
-		Other
+		Render
 	};
 
 	enum class TextColors : uint32_t

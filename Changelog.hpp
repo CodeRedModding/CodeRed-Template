@@ -1,5 +1,18 @@
 #pragma once
 /*
+    Changes in v1.6.2:
+    - BREAKING: Moved the "ManagerComponent::OnTick" function call from "ManagerComponent::OnCanvasDraw" to "HUDPostRender" in "Events.cpp".
+    - BREAKING: Removed the "multiplier" argument in one of the constructors for the "ManagerQueue" class in "Manager.hpp/cpp".
+    - BREAKING: Changed the "ManagerQueue"'s delta variable to be a float instead of a uint64_t, also changed its delay variable from a uint64 to a uint32_t in "Manager.hpp/cpp".
+    - BREAKING: Wrapped the "GRainbowColor" and "GColorList" classes in the "CodeRed" namespace in "Colors.hpp/cpp".
+    - BREAKING: Renamed the "GRainbowColor::GetByte" function to "GRainbowColor::GetColor" in "Colors.hpp/cpp".
+    - Changed the rng character sets in the "Format::GetCharacterSet" function to be static strings instead of char arrays in "Formatting.cpp".
+    - Remade the "ManagerQueue" class in "Manager.hpp/cpp" completely, also changed all the functions in the "ManagerComponent" class to accommodate this.
+    - Added three new functions "Variable::HasFlags", "Variable::AddFlags",and "Variable::RemoveFlags" in "Variables.hpp/cpp", and converted all functions in the "Setting" and "Command" classes to use them.
+    - Added a new constant variable "QUEUE_TICK_MULTIPLIER" in "Manager.hpp", used to properly time async commands.
+    - Added a new constant variable "QUEUE_TICK_RATE" in "Manager.hpp", used to properly calculate async commands.
+    - Fixed a rare bug possible thread racing issue related to the thread queue in the "ManagerComponent::OnTick" function in "Manager.cpp".
+
     Changes in v1.6.1:
     - BREAKING: Renamed the "MandarianOrange" color in the "GColorList" class to "MandarinOrange" in "Colors.hpp".
     - Moved both the "VARIABLE_NAME_LENGTH" and "VARIABLE_VALUE_LENGTH" constants from "Variables.cpp" to its header file "Variables.hpp".

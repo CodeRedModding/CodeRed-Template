@@ -1,4 +1,4 @@
-## CodeRed Template v1.6.1
+## CodeRed Template v1.6.2
 
 A custom framework to get you started in Unreal Engine modding that can be used in any game.
 

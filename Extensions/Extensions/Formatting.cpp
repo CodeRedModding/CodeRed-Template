@@ -523,9 +523,9 @@ namespace CodeRed::Format
 
     std::string GetCharacterSet(uint32_t flags)
     {
-        static constexpr char RNG_NUMBERS_CHARS[] = "0123456789";
-        static constexpr char RNG_LETTERS_CHARS[] = "abcdefghijklmnopqrstuvwxyz";
-        static constexpr char RNG_SYMBOLS_CHARS[] = "!#$%&'()*+,-./:;<=>?@[\]^_`{|}~";
+        static std::string RNG_NUMBERS_CHARS = "0123456789";
+        static std::string RNG_LETTERS_CHARS = "abcdefghijklmnopqrstuvwxyz";
+        static std::string RNG_SYMBOLS_CHARS = "!#$%&'()*+,-./:;<=>?@[\]^_`{|}~";
         std::string characterSet;
 
         if ((flags & RandomFlags::RNG_Numbers) || (flags & RandomFlags::RNG_All))

@@ -296,124 +296,127 @@ bool LinearColor::operator>(const LinearColor& other) const
 	return (ToHexAlpha(false) > other.ToHexAlpha(false));
 }
 
-Color GRainbowColor::GetByte()
+namespace CodeRed
 {
-	return ByteRainbow;
-}
+	Color GRainbowColor::m_rainbow = Color(0, 0, 255, 255);
 
-LinearColor GRainbowColor::GetLinear()
-{
-	return LinearRainbow;
-}
+	void GRainbowColor::OnTick()
+	{
+		m_rainbow.Cycle();
+	}
 
-void GRainbowColor::Reset()
-{
-	ByteRainbow = Color(0, 0, 255, 255);
-	LinearRainbow = LinearColor(0.0f, 0.0f, 1.0f, 1.0f);
-}
+	void GRainbowColor::Reset()
+	{
+		m_rainbow = Color(0, 0, 255, 255);
+	}
 
-void GRainbowColor::OnTick()
-{
-	ByteRainbow.Cycle();
-	LinearRainbow = ByteRainbow.ToLinear();
-}
+	Color GRainbowColor::GetColor()
+	{
+		return m_rainbow;
+	}
 
-const Color GColorList::White = Color("#FFFFFF");
-const Color GColorList::Red = Color("#FF0000");
-const Color GColorList::Green = Color("#00FF00");
-const Color GColorList::Blue = Color("#0000FF");
-const Color GColorList::Magenta = Color("#FF00FF");
-const Color GColorList::Cyan = Color("#00FFFF");
-const Color GColorList::Yellow = Color("#FFFF00");
-const Color GColorList::Black = Color("#000000");
-const Color GColorList::Aquamarine = Color("#70DB93");
-const Color GColorList::BakerChocolate = Color("#5C3317");
-const Color GColorList::BlueViolet = Color("#9F5F9F");
-const Color GColorList::Brass = Color("#B5A642");
-const Color GColorList::BrightGold = Color("#D9D919");
-const Color GColorList::Brown = Color("#2AA62A");
-const Color GColorList::Bronze = Color("#8C7853");
-const Color GColorList::BronzeII = Color("#A67D3D");
-const Color GColorList::CadetBlue = Color("#5F9F9F");
-const Color GColorList::CoolCopper = Color("#D98719");
-const Color GColorList::Copper = Color("#B87333");
-const Color GColorList::Coral = Color("#FF7F00");
-const Color GColorList::CornFlowerBlue = Color("#42426F");
-const Color GColorList::DarkBrown = Color("#5C4033");
-const Color GColorList::DarkGreen = Color("#2F4F2F");
-const Color GColorList::DarkGreenCopper = Color("#4A766E");
-const Color GColorList::DarkOliveGreen = Color("#4F4F2F");
-const Color GColorList::DarkOrchid = Color("#9932CD");
-const Color GColorList::DarkPurple = Color("#871F78");
-const Color GColorList::DarkSlateBlue = Color("#6B238E");
-const Color GColorList::DarkSlateGrey = Color("#2F4F4F");
-const Color GColorList::DarkTan = Color("#97694F");
-const Color GColorList::DarkTurquoise = Color("#7093DB");
-const Color GColorList::DarkWood = Color("#855E42");
-const Color GColorList::DimGrey = Color("#545454");
-const Color GColorList::DustyRose = Color("#856363");
-const Color GColorList::Feldspar = Color("#D19275");
-const Color GColorList::Firebrick = Color("#8E2323");
-const Color GColorList::ForestGreen = Color("#238E23");
-const Color GColorList::Gold = Color("#CD7F32");
-const Color GColorList::Goldenrod = Color("#DBDB70");
-const Color GColorList::Grey = Color("#C0C0C0");
-const Color GColorList::GreenCopper = Color("#527F76");
-const Color GColorList::GreenYellow = Color("#93DB70");
-const Color GColorList::HunterGreen = Color("#215E21");
-const Color GColorList::IndianRed = Color("#4E2F2F");
-const Color GColorList::Khaki = Color("#9F9F5F");
-const Color GColorList::LightBlue = Color("#C0D9D9");
-const Color GColorList::LightGrey = Color("#A8A8A8");
-const Color GColorList::LightSteelBlue = Color("#8F8FBD");
-const Color GColorList::LightWood = Color("#E9C2A6");
-const Color GColorList::LimeGreen = Color("#32CD32");
-const Color GColorList::MandarinOrange = Color("#E47833");
-const Color GColorList::Maroon = Color("#8E236B");
-const Color GColorList::MediumAquamarine = Color("#32CD99");
-const Color GColorList::MediumBlue = Color("#3232CD");
-const Color GColorList::MediumForestGreen = Color("#6B8E23");
-const Color GColorList::MediumGoldenrod = Color("#EAEAAE");
-const Color GColorList::MediumOrchid = Color("#9370DB");
-const Color GColorList::MediumSeaGreen = Color("#426F42");
-const Color GColorList::MediumSlateBlue = Color("#7F00FF");
-const Color GColorList::MediumSpringGreen = Color("#7FFF00");
-const Color GColorList::MediumTurquoise = Color("#70DBDB");
-const Color GColorList::MediumVioletRed = Color("#DB7093");
-const Color GColorList::MediumWood = Color("#A68064");
-const Color GColorList::MidnightBlue = Color("#2F2F4F");
-const Color GColorList::NavyBlue = Color("#23238E");
-const Color GColorList::NeonBlue = Color("#4D4DFF");
-const Color GColorList::NeonPink = Color("#FF6EC7");
-const Color GColorList::NewMidnightBlue = Color("#00009C");
-const Color GColorList::NewTan = Color("#EBC79E");
-const Color GColorList::OldGold = Color("#CFB53B");
-const Color GColorList::Orange = Color("#FF7F00");
-const Color GColorList::OrangeRed = Color("#FF2400");
-const Color GColorList::Orchid = Color("#DB70DB");
-const Color GColorList::PaleGreen = Color("#8FBC8F");
-const Color GColorList::Pink = Color("#BC8F8F");
-const Color GColorList::Plum = Color("#EAADEA");
-const Color GColorList::Quartz = Color("#D9D9F3");
-const Color GColorList::RichBlue = Color("#5959AB");
-const Color GColorList::Salmon = Color("#6F4242");
-const Color GColorList::Scarlet = Color("#8C1717");
-const Color GColorList::SeaGreen = Color("#238E68");
-const Color GColorList::SemiSweetChocolate = Color("#6B4226");
-const Color GColorList::Sienna = Color("#8E6B23");
-const Color GColorList::Silver = Color("#E6E8FA");
-const Color GColorList::SkyBlue = Color("#3299CC");
-const Color GColorList::SlateBlue = Color("#007FFF");
-const Color GColorList::SpicyPink = Color("#FF1CAE");
-const Color GColorList::SpringGreen = Color("#00FF7F");
-const Color GColorList::SteelBlue = Color("#236B8E");
-const Color GColorList::SummerSky = Color("#38B0DE");
-const Color GColorList::Tan = Color("#DB9370");
-const Color GColorList::Thistle = Color("#D8BFD8");
-const Color GColorList::Turquoise = Color("#ADEAEA");
-const Color GColorList::VeryDarkBrown = Color("#5C4033");
-const Color GColorList::VeryLightGrey = Color("#CDCDCD");
-const Color GColorList::Violet = Color("#4F2F4F");
-const Color GColorList::VioletRed = Color("#CC3299");
-const Color GColorList::Wheat = Color("#D8D8BF");
-const Color GColorList::YellowGreen = Color("#99CC32");
+	LinearColor GRainbowColor::GetLinear()
+	{
+		return m_rainbow.ToLinear();
+	}
+
+	const Color GColorList::White = Color("#FFFFFF");
+	const Color GColorList::Red = Color("#FF0000");
+	const Color GColorList::Green = Color("#00FF00");
+	const Color GColorList::Blue = Color("#0000FF");
+	const Color GColorList::Magenta = Color("#FF00FF");
+	const Color GColorList::Cyan = Color("#00FFFF");
+	const Color GColorList::Yellow = Color("#FFFF00");
+	const Color GColorList::Black = Color("#000000");
+	const Color GColorList::Aquamarine = Color("#70DB93");
+	const Color GColorList::BakerChocolate = Color("#5C3317");
+	const Color GColorList::BlueViolet = Color("#9F5F9F");
+	const Color GColorList::Brass = Color("#B5A642");
+	const Color GColorList::BrightGold = Color("#D9D919");
+	const Color GColorList::Brown = Color("#2AA62A");
+	const Color GColorList::Bronze = Color("#8C7853");
+	const Color GColorList::BronzeII = Color("#A67D3D");
+	const Color GColorList::CadetBlue = Color("#5F9F9F");
+	const Color GColorList::CoolCopper = Color("#D98719");
+	const Color GColorList::Copper = Color("#B87333");
+	const Color GColorList::Coral = Color("#FF7F00");
+	const Color GColorList::CornFlowerBlue = Color("#42426F");
+	const Color GColorList::DarkBrown = Color("#5C4033");
+	const Color GColorList::DarkGreen = Color("#2F4F2F");
+	const Color GColorList::DarkGreenCopper = Color("#4A766E");
+	const Color GColorList::DarkOliveGreen = Color("#4F4F2F");
+	const Color GColorList::DarkOrchid = Color("#9932CD");
+	const Color GColorList::DarkPurple = Color("#871F78");
+	const Color GColorList::DarkSlateBlue = Color("#6B238E");
+	const Color GColorList::DarkSlateGrey = Color("#2F4F4F");
+	const Color GColorList::DarkTan = Color("#97694F");
+	const Color GColorList::DarkTurquoise = Color("#7093DB");
+	const Color GColorList::DarkWood = Color("#855E42");
+	const Color GColorList::DimGrey = Color("#545454");
+	const Color GColorList::DustyRose = Color("#856363");
+	const Color GColorList::Feldspar = Color("#D19275");
+	const Color GColorList::Firebrick = Color("#8E2323");
+	const Color GColorList::ForestGreen = Color("#238E23");
+	const Color GColorList::Gold = Color("#CD7F32");
+	const Color GColorList::Goldenrod = Color("#DBDB70");
+	const Color GColorList::Grey = Color("#C0C0C0");
+	const Color GColorList::GreenCopper = Color("#527F76");
+	const Color GColorList::GreenYellow = Color("#93DB70");
+	const Color GColorList::HunterGreen = Color("#215E21");
+	const Color GColorList::IndianRed = Color("#4E2F2F");
+	const Color GColorList::Khaki = Color("#9F9F5F");
+	const Color GColorList::LightBlue = Color("#C0D9D9");
+	const Color GColorList::LightGrey = Color("#A8A8A8");
+	const Color GColorList::LightSteelBlue = Color("#8F8FBD");
+	const Color GColorList::LightWood = Color("#E9C2A6");
+	const Color GColorList::LimeGreen = Color("#32CD32");
+	const Color GColorList::MandarinOrange = Color("#E47833");
+	const Color GColorList::Maroon = Color("#8E236B");
+	const Color GColorList::MediumAquamarine = Color("#32CD99");
+	const Color GColorList::MediumBlue = Color("#3232CD");
+	const Color GColorList::MediumForestGreen = Color("#6B8E23");
+	const Color GColorList::MediumGoldenrod = Color("#EAEAAE");
+	const Color GColorList::MediumOrchid = Color("#9370DB");
+	const Color GColorList::MediumSeaGreen = Color("#426F42");
+	const Color GColorList::MediumSlateBlue = Color("#7F00FF");
+	const Color GColorList::MediumSpringGreen = Color("#7FFF00");
+	const Color GColorList::MediumTurquoise = Color("#70DBDB");
+	const Color GColorList::MediumVioletRed = Color("#DB7093");
+	const Color GColorList::MediumWood = Color("#A68064");
+	const Color GColorList::MidnightBlue = Color("#2F2F4F");
+	const Color GColorList::NavyBlue = Color("#23238E");
+	const Color GColorList::NeonBlue = Color("#4D4DFF");
+	const Color GColorList::NeonPink = Color("#FF6EC7");
+	const Color GColorList::NewMidnightBlue = Color("#00009C");
+	const Color GColorList::NewTan = Color("#EBC79E");
+	const Color GColorList::OldGold = Color("#CFB53B");
+	const Color GColorList::Orange = Color("#FF7F00");
+	const Color GColorList::OrangeRed = Color("#FF2400");
+	const Color GColorList::Orchid = Color("#DB70DB");
+	const Color GColorList::PaleGreen = Color("#8FBC8F");
+	const Color GColorList::Pink = Color("#BC8F8F");
+	const Color GColorList::Plum = Color("#EAADEA");
+	const Color GColorList::Quartz = Color("#D9D9F3");
+	const Color GColorList::RichBlue = Color("#5959AB");
+	const Color GColorList::Salmon = Color("#6F4242");
+	const Color GColorList::Scarlet = Color("#8C1717");
+	const Color GColorList::SeaGreen = Color("#238E68");
+	const Color GColorList::SemiSweetChocolate = Color("#6B4226");
+	const Color GColorList::Sienna = Color("#8E6B23");
+	const Color GColorList::Silver = Color("#E6E8FA");
+	const Color GColorList::SkyBlue = Color("#3299CC");
+	const Color GColorList::SlateBlue = Color("#007FFF");
+	const Color GColorList::SpicyPink = Color("#FF1CAE");
+	const Color GColorList::SpringGreen = Color("#00FF7F");
+	const Color GColorList::SteelBlue = Color("#236B8E");
+	const Color GColorList::SummerSky = Color("#38B0DE");
+	const Color GColorList::Tan = Color("#DB9370");
+	const Color GColorList::Thistle = Color("#D8BFD8");
+	const Color GColorList::Turquoise = Color("#ADEAEA");
+	const Color GColorList::VeryDarkBrown = Color("#5C4033");
+	const Color GColorList::VeryLightGrey = Color("#CDCDCD");
+	const Color GColorList::Violet = Color("#4F2F4F");
+	const Color GColorList::VioletRed = Color("#CC3299");
+	const Color GColorList::Wheat = Color("#D8D8BF");
+	const Color GColorList::YellowGreen = Color("#99CC32");
+}
