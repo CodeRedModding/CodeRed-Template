@@ -3,22 +3,22 @@
 
 namespace CodeRed
 {
-	static constexpr uint32_t VARIABLE_NAME_LENGTH = 256; // Max length of a variable name in character length.
-	static constexpr uint32_t VARIABLE_VALUE_LENGTH = 5120; // Max character length of a value a variable can store in string format.
+	static constexpr size_t VARIABLE_NAME_LENGTH = 256; // Max length of a variable name in character length.
+	static constexpr size_t VARIABLE_VALUE_LENGTH = 5120; // Max character length of a value a variable can store in string format.
 
 	enum SettingFlags : uint32_t
 	{
 		SETTING_None =			0UL,		// Default flags.
-		SETTING_Hidden =		1UL << 0UL,	// Marks the setting as hidden, has no current use but it can be used to hide certain variables from ImGui windows.
+		SETTING_Hidden =		1UL << 0UL,	// Marks the setting as hidden, has no current use but it can be used to hide variables from the user.
 		SETTING_Locked =		1UL << 1UL	// Prevents the user from setting a new value and will use the last set value until unlocked.
 	};
 
 	enum CommandFlags : uint32_t
 	{
 		COMMAND_None =			0UL,		// Default flags.
-		COMMAND_Hidden =		1UL << 0UL,	// Marks the command as hidden, has no current use but it can be used to hide certain variables from ImGui windows.
+		COMMAND_Hidden =		1UL << 0UL,	// Marks the command as hidden, has no current use but it can be used to hide variables from the user.
 		COMMAND_Locked =		1UL << 1UL,	// Prevents the command from triggering its callbacks by the user.
-		COMMAND_NeedsArgs =		1UL << 2UL	// Command does not have optional arguments and requires input from the user, this is set to true by default.
+		COMMAND_NeedsArgs =		1UL << 2UL	// Command does not have optional arguments and requires input from the user, this flag is set by default.
 	};
 
 	enum class SettingTypes : uint8_t

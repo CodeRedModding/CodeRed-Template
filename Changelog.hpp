@@ -1,5 +1,10 @@
 #pragma once
 /*
+    Changes in v1.6.3:
+    - Added a check if the given string was empty or not in the "Format::RemoveFileChars" function in "Formatting.cpp".
+    - Changed the "VARIABLE_NAME_LENGTH" and "VARIABLE_VALUE_LENGTH" constant expressions to use "size_t" instead of "uint32_t" in "Variables.hpp".
+    - More minor spelling fixes throughout the project.
+
     Changes in v1.6.2:
     - BREAKING: Moved the "ManagerComponent::OnTick" function call from "ManagerComponent::OnCanvasDraw" to "HUDPostRender" in "Events.cpp".
     - BREAKING: Removed the "multiplier" argument in one of the constructors for the "ManagerQueue" class in "Manager.hpp/cpp".
@@ -279,7 +284,7 @@
     - Improved the constructors for the "Setting" and "Command" classes in "Manager.cpp".
     - Added the virtual functions "OnCreate" and "OnDestroy" in "Component.hpp", these can be manually called outside of the classes constructor and deconstructor.
     - Added a "CreatedInstances" vector in "Instances.hpp", when a custom object instance is created it is added to this vector. On the components "OnDestory" function all custom instances are marked to be destroyed as well.
-    - Added the "CreateVariable" function in "Manager.hpp" and moved creating variables from :ManagerComponent"'s constuctor to the "Initialize" function in "Manager.cpp".
+    - Added the "CreateVariable" function in "Manager.hpp" and moved creating variables from :ManagerComponent"'s constructor to the "Initialize" function in "Manager.cpp".
     - Added the "AttachDetour" and "DetachDetour" functions in "Events.hpp", this is now called from "InitializeGlobals" in "Core.cpp".
     - Moved the detaching Process Event from "CoreComponent"'s deconstructor to "EventsComponent"'s deconstuctor in "Events.cpp".
     - Made "WriteToLog" default to "true" in "Console.cpp".
@@ -308,7 +313,7 @@
     - Reformatted some of the constructors for the color classes in "Colors.cpp".
 
     Changes in v1.1.7:
-    - Added the "MarkForDestory" function in "Instances.hpp", and updated the PlaceholderSDK to accommodate this.
+    - Added the "MarkForDestroy" function in "Instances.hpp", and updated the PlaceholderSDK to accommodate this.
     - Fixed the "GetVector3DValue" function for the "Setting" class in "Manager.cpp", it still passed the type check even if it were a "TYPE_VECTOR_2D".
     - Changed some cast types for the template functions in "Instances.hpp".
     - BREAKING: some of the example settings in "Manager.cpp".

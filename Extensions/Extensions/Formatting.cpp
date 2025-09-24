@@ -179,15 +179,19 @@ namespace CodeRed::Format
 
     std::string RemoveFileChars(std::string str)
     {
-        RemoveAllCharsInline(str, '\\');
-        RemoveAllCharsInline(str, '/');
-        RemoveAllCharsInline(str, ':');
-        RemoveAllCharsInline(str, '*');
-        RemoveAllCharsInline(str, '?');
-        RemoveAllCharsInline(str, '"');
-        RemoveAllCharsInline(str, '<');
-        RemoveAllCharsInline(str, '>');
-        RemoveAllCharsInline(str, '|');
+        if (!str.empty())
+        {
+            RemoveAllCharsInline(str, '\\');
+            RemoveAllCharsInline(str, '/');
+            RemoveAllCharsInline(str, ':');
+            RemoveAllCharsInline(str, '*');
+            RemoveAllCharsInline(str, '?');
+            RemoveAllCharsInline(str, '"');
+            RemoveAllCharsInline(str, '<');
+            RemoveAllCharsInline(str, '>');
+            RemoveAllCharsInline(str, '|');
+        }
+
         return str;
     }
 

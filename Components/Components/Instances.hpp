@@ -227,7 +227,7 @@ namespace CodeRed
 			return returnObject;
 		}
 
-		// Set an object's flags to prevent it from being destoryed.
+		// Set an object's flags to prevent it from being destroyed.
 		void MarkInvincible(class UObject* object);
 
 		// Set object as a temporary object and marks it for the garbage collector to destroy.
