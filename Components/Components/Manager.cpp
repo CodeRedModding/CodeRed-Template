@@ -252,7 +252,7 @@ namespace CodeRed
 		if (!IsInitialized())
 		{
 			// Assigning the "STATES_CasualMatch" and "STATES_RankedMatch" flags, so this module will only be able to be used in casual or ranked games.
-			CreateModule<PlaceholderModule>(new PlaceholderModule("Paceholder", "An example module.", States::STATES_CasualMatch | States::STATES_RankedMatch), PlaceholderMod);
+			CreateModule<PlaceholderModule>(new PlaceholderModule("Placeholder", "An example module.", States::STATES_CasualMatch | States::STATES_RankedMatch), PlaceholderMod);
 
 			Console.Write(GetNameFormatted() + std::to_string(m_modules.size()) + " Module(s) Initialized!");
 			Console.Success(GetNameFormatted() + "Initialized!");
