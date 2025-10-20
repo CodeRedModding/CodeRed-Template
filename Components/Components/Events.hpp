@@ -85,16 +85,16 @@ namespace CodeRed
 	// Manages everything related to hooking functions form Process Event, as well as detouring.
 	class EventsComponent : public Component
 	{
-	private: // Internal Hooks
+	private: // Internal hooks.
 		static inline FunctionHook m_processEvent;
 		static inline FunctionHook m_processInternal;
 
-	private: // Custom Callbacks & Function Blacklist.
+	private: // Custom callbacks and function Blacklist.
 		static inline std::atomic<bool> m_hooksSafe; // Used to prevent thread racing issues related to adding or removing data from the maps.
 		static inline std::atomic<bool> m_blacklistSafe; // Similar thread racing issue preventive measure as "m_hooksSafe".
-		static inline std::vector<uint32_t> m_blacklisted; // Blacklisted functions internal integer.
-		static inline std::map<uint32_t, std::vector<std::function<void(PreEvent&)>>> m_preHooks; // Hooked functions internal integer and bound function.
-		static inline std::map<uint32_t, std::vector<std::function<void(const PostEvent&)>>> m_postHooks; // Hooked functions internal integer and bound function.
+		static inline std::vector<uint64_t> m_blacklisted; // Blacklisted functions internal integer.
+		static inline std::map<uint64_t, std::vector<std::function<void(PreEvent&)>>> m_preHooks; // Hooked functions internal integer and bound function.
+		static inline std::map<uint64_t, std::vector<std::function<void(const PostEvent&)>>> m_postHooks; // Hooked functions internal integer and bound function.
 
 	public:
 		EventsComponent();
@@ -114,17 +114,17 @@ namespace CodeRed
 
 	public:
 		static bool IsBlacklisted(class UFunction* function);
-		static bool IsBlacklisted(uint32_t functionIndex);
+		static bool IsBlacklisted(uint64_t functionIndex);
 		static bool IsPreHooked(class UFunction* function);
-		static bool IsPreHooked(uint32_t functionIndex);
+		static bool IsPreHooked(uint64_t functionIndex);
 		static bool IsPostHooked(class UFunction* function);
-		static bool IsPostHooked(uint32_t functionIndex);
+		static bool IsPostHooked(uint64_t functionIndex);
 		static void BlacklistEvent(const std::string& functionName);
 		static void WhitelistEvent(const std::string& functionName);
 		static void HookEventPre(const std::string& functionName, const std::function<void(PreEvent&)>& preHook);
-		static void HookEventPre(uint32_t functionIndex, const std::function<void(PreEvent&)>& preHook);
+		static void HookEventPre(uint64_t functionIndex, const std::function<void(PreEvent&)>& preHook);
 		static void HookEventPost(const std::string& functionName, const std::function<void(const PostEvent&)>& postHook);
-		static void HookEventPost(uint32_t functionIndex, const std::function<void(const PostEvent&)>& postHook);
+		static void HookEventPost(uint64_t functionIndex, const std::function<void(const PostEvent&)>& postHook);
 
 	private:
 		static bool CanCallHook(class UFunction* function, ProcessResults processResult, EventTypes eventType);

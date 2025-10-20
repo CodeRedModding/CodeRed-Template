@@ -1,5 +1,11 @@
 #pragma once
 /*
+    Changes in v1.6.4:
+    - Added a "WaitForSingleObject" check in the "CoreComponent::OnDestroy" function before calling "CloseHandle" in "Core.cpp".
+    - Added two new variables "std::mutex m_logMutex" and "std::mutex m_outMutex" in "Console.hpp/cpp", to add protections on writing from different threads.
+    - Replaced the "std::atomic<bool> m_queueLocked" variable in "Manager.hpp" to "std::mutex m_queueMutex", for better thread handling.
+    - Changed some constant variables and class variables to be larger sizes to make converting to different versions easier, as well as different archetypes.
+
     Changes in v1.6.3:
     - Added a check if the given string was empty or not in the "Format::RemoveFileChars" function in "Formatting.cpp".
     - Changed the "VARIABLE_NAME_LENGTH" and "VARIABLE_VALUE_LENGTH" constant expressions to use "size_t" instead of "uint32_t" in "Variables.hpp".

@@ -81,14 +81,14 @@ namespace CodeRed
 		ManagerQueue& operator=(const ManagerQueue& managerQueue);
 	};
 
-	// Manages variables, commands, settings, and modules.
+	// Manages modules and processing commands.
 	class ManagerComponent : public Component
 	{
 	private:
 		std::map<std::string, std::shared_ptr<Module>> m_modules;
 		std::vector<ManagerQueue> m_threadQueue;
 		std::vector<ManagerQueue> m_queue;
-		std::atomic<bool> m_queueLocked; // Used for preventing a thread racing issue when calling commands from different threads.
+		std::mutex m_threadMutex;
 
 	public:
 		std::shared_ptr<PlaceholderModule> PlaceholderMod;
@@ -106,7 +106,7 @@ namespace CodeRed
 		void OnTick(); // Checks the queue to see if there are any commands or settings that need to be processed.
 		void OnCanvasDraw(class UCanvas* unrealCanvas); // Calls all canvas drawing functions in each module, called 60 times every second on the games main thread.
 
-	public:
+	public: // Command processor.
 		std::pair<CommandResults, std::string> InternalCommand(const std::string& command, const std::string& arguments, ThreadTypes threadType = ThreadTypes::Main, bool bSkipSave = false);
 		std::pair<CommandResults, std::string> InternalCommand(const std::string& command, ThreadTypes threadType = ThreadTypes::Main);
 		void ConsoleCommand(const std::string& command, const std::string& arguments, ThreadTypes threadType = ThreadTypes::Main, bool bSkipSave = false);
@@ -116,20 +116,12 @@ namespace CodeRed
 		void UnrealCommand(std::string unrealCommand, bool bPrintToConsole = true);
 
 	public:
+		template <typename T> std::shared_ptr<T> GetModule(const std::string& moduleName) const;
 		template <typename T> std::shared_ptr<T> CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind);
-		template <typename T> std::shared_ptr<T> GetModule(const std::string& moduleName)
-		{
-			if (m_modules.contains(moduleName))
-			{
-				return std::static_pointer_cast<T>(m_modules[moduleName]);
-			}
-
-			return nullptr;
-		}
 		void UpdateAllSettings();
 
 	private:
-		void QueueCommand(ManagerQueue managerQueue); // Purposefully not a const reference to create a copy.
+		void QueueCommand(const ManagerQueue& managerQueue);
 		void ProcessCommand(const ManagerQueue& managerQueue);
 		std::pair<CommandResults, std::string> ProcessCommandInternal(const ManagerQueue& managerQueue);
 	};

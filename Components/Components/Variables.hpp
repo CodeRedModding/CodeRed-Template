@@ -80,7 +80,7 @@ namespace CodeRed
 
 	class Setting : public Variable
 	{
-	private: // Storage
+	private: // Storage.
 		SettingTypes m_type;									// Settings underlying type.
 		std::string m_description;								// Settings description.
 		std::string m_defaultValue;								// Settings default value.
@@ -88,7 +88,7 @@ namespace CodeRed
 		std::pair<std::string, std::string> m_range;			// Settings minimum and maximum value range.
 		std::map<VariableIds, bool> m_sharedSettings;			// Settings used as a reference in radio buttons.
 
-	private: // Callbacks
+	private: // Callbacks.
 		std::function<void()> m_callback;						// Callback function if one is bound.
 		std::function<void(Setting*)> m_settingCallback;		// Optional callback containing a pointer to itself as an argument.
 		std::function<void(std::string)> m_stringCallback;		// Optional callback containing the settings new string value as an argument.

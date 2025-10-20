@@ -230,7 +230,6 @@ namespace CodeRed
 
 	void ManagerComponent::OnCreate()
 	{
-		m_queueLocked = false;
 		PlaceholderMod = nullptr;
 	}
 
@@ -267,61 +266,57 @@ namespace CodeRed
 	{
 		if (IsInitialized())
 		{
-			GRainbowColor::OnTick();
+			GRainbowColor::OnTick(); // This is what cycles the rainbow color fields.
 
-			if (!m_queueLocked)
+			if (!m_threadQueue.empty())
 			{
-				if (!m_threadQueue.empty())
+				std::lock_guard<std::mutex> threadLock(m_threadMutex);
+
+				for (const ManagerQueue& queueData : m_threadQueue)
 				{
-					m_queueLocked = true;
-
-					for (const ManagerQueue& queueData : m_threadQueue)
+					if (!queueData.IsThreadRaced())
 					{
-						if (!queueData.IsThreadRaced())
-						{
-							m_queue.push_back(queueData);
-						}
+						m_queue.push_back(queueData);
 					}
-
-					m_threadQueue.clear();
-					m_queueLocked = false;
 				}
 
-				if (!m_queue.empty())
+				m_threadQueue.clear();
+			}
+
+			if (!m_queue.empty())
+			{
+				bool safeToClear = true;
+
+				for (ManagerQueue& queueData : m_queue)
 				{
-					bool safeToClear = true;
-
-					for (ManagerQueue& queueData : m_queue)
+					if (!queueData.IsCompleted())
 					{
-						if (!queueData.IsCompleted())
+						safeToClear = false;
+
+						if (!queueData.IsThreadRaced()) // If this is ever true, something is going wrong related to a thread racing issue on your end.
 						{
-							safeToClear = false;
-
-							if (!queueData.IsThreadRaced()) // If this is ever true, something is going wrong related to a thread racing issue on your end.
+							if (!queueData.OnTick())
 							{
-								if (!queueData.OnTick())
-								{
-									continue;
-								}
+								continue;
+							}
 
-								queueData.SetCompleted(true);
+							queueData.SetCompleted(true);
 
-								if (queueData.IsInternal())
-								{
-									InternalCommand(queueData.GetCommand(), queueData.GetArguments(), ThreadTypes::Main, queueData.ShouldSkipSave());
-								}
-								else
-								{
-									ConsoleCommand(queueData.GetCommand(), queueData.GetArguments(), ThreadTypes::Main, queueData.ShouldSkipSave());
-								}
+							if (queueData.IsInternal())
+							{
+								InternalCommand(queueData.GetCommand(), queueData.GetArguments(), ThreadTypes::Main, queueData.ShouldSkipSave());
+							}
+							else
+							{
+								ConsoleCommand(queueData.GetCommand(), queueData.GetArguments(), ThreadTypes::Main, queueData.ShouldSkipSave());
 							}
 						}
 					}
+				}
 
-					if (safeToClear)
-					{
-						m_queue.clear();
-					}
+				if (safeToClear)
+				{
+					m_queue.clear();
 				}
 			}
 		}
@@ -399,6 +394,16 @@ namespace CodeRed
 		}
 	}
 
+	template <typename T> std::shared_ptr<T> ManagerComponent::GetModule(const std::string& moduleName) const
+	{
+		if (m_modules.contains(moduleName))
+		{
+			return std::static_pointer_cast<T>(m_modules.at(moduleName));
+		}
+
+		return nullptr;
+	}
+
 	template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind)
 	{
 		if (mod)
@@ -436,31 +441,12 @@ namespace CodeRed
 		}
 	}
 
-	void ManagerComponent::QueueCommand(ManagerQueue managerQueue)
+	void ManagerComponent::QueueCommand(const ManagerQueue& managerQueue)
 	{
 		if (!managerQueue.IsThreadRaced() && managerQueue.HasCommand())
 		{
-			if (m_queueLocked)
-			{
-				std::thread queueThread([this, managerQueue]() {
-					while (m_queueLocked)
-					{
-						std::this_thread::sleep_for(std::chrono::milliseconds(1));
-					}
-
-					m_queueLocked = true;
-					m_threadQueue.push_back(managerQueue);
-					m_queueLocked = false;
-				});
-
-				queueThread.detach();
-			}
-			else
-			{
-				m_queueLocked = true;
-				m_threadQueue.push_back(managerQueue);
-				m_queueLocked = false;
-			}
+			std::lock_guard<std::mutex> threadLock(m_threadMutex);
+			m_threadQueue.push_back(managerQueue);
 		}
 	}
 

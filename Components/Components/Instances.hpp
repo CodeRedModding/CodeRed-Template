@@ -29,7 +29,7 @@ namespace CodeRed
 		{
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
+				for (size_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -51,7 +51,7 @@ namespace CodeRed
 		{
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -73,7 +73,7 @@ namespace CodeRed
 		{
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -99,7 +99,7 @@ namespace CodeRed
 
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -123,7 +123,7 @@ namespace CodeRed
 
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -145,7 +145,7 @@ namespace CodeRed
 		{
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -178,7 +178,7 @@ namespace CodeRed
 
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (int32_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 

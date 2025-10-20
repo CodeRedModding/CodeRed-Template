@@ -2,9 +2,9 @@
 
 namespace CodeRed
 {
-#define CONSOLE_WINDOW 	// If you want to open a console window to display text.
-#define WRITE_TO_FILE 	// If you want to write all console text to a local text file.
-#define STANDARD_OUTPUT // If you want all console text to also write to "std::cout".
+	#define CONSOLE_WINDOW 	// If you want to open a console window to display text.
+	#define WRITE_TO_FILE 	// If you want to write all console text to a local text file.
+	#define STANDARD_OUTPUT // If you want all console text to also write to "std::cout".
 
 	ConsoleComponent::ConsoleComponent() : Component("Console", "Displays and manages the standard out stream.") { OnCreate(); }
 
@@ -20,9 +20,10 @@ namespace CodeRed
 	void ConsoleComponent::OnDestroy()
 	{
 #ifdef WRITE_TO_FILE
+		std::lock_guard<std::mutex> logLock(m_logMutex);
+
 		if (m_logFile.is_open())
 		{
-			m_logFile.flush();
 			m_logFile.close();
 		}
 #endif
@@ -107,6 +108,7 @@ namespace CodeRed
 
 	void ConsoleComponent::Write(const std::string& text, TextColors textColor)
 	{
+		std::lock_guard<std::mutex> logLock(m_logMutex);
 		std::string str = (CreateTimestamp() + " " + text);
 
 #ifdef WRITE_TO_FILE
@@ -117,6 +119,7 @@ namespace CodeRed
 #endif
 
 #ifdef STANDARD_OUTPUT
+		std::lock_guard<std::mutex> outLock(m_outMutex);
 		ColorConsole(textColor);
 		std::cout << str << std::endl;
 		ColorConsole(TextColors::White);

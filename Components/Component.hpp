@@ -18,7 +18,7 @@ namespace CodeRed
 		Component(const Component& component);
 		virtual ~Component();
 
-	public: // These can be manually called out side of the classes constructor/deconstructor.
+	public: // These can be manually called out side of the classes constructor and deconstructor.
 		virtual void OnCreate();
 		virtual void OnDestroy();
 		virtual bool Initialize(); // Do component specific Initialization here.

@@ -15,6 +15,7 @@ namespace CodeRed
 	{
 		if (m_mainThread)
 		{
+			WaitForSingleObject(m_mainThread, 5000); // Wait up to 5 seconds before giving up.
 			CloseHandle(m_mainThread);
 			m_mainThread = nullptr;
 		}

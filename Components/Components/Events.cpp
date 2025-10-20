@@ -428,7 +428,7 @@ namespace CodeRed
 		return false;
 	}
 
-	bool EventsComponent::IsBlacklisted(uint32_t functionIndex)
+	bool EventsComponent::IsBlacklisted(uint64_t functionIndex)
 	{
 		if (m_blacklistSafe)
 		{
@@ -448,7 +448,7 @@ namespace CodeRed
 		return false;
 	}
 
-	bool EventsComponent::IsPreHooked(uint32_t functionIndex)
+	bool EventsComponent::IsPreHooked(uint64_t functionIndex)
 	{
 		if (m_hooksSafe)
 		{
@@ -468,7 +468,7 @@ namespace CodeRed
 		return false;
 	}
 
-	bool EventsComponent::IsPostHooked(uint32_t functionIndex)
+	bool EventsComponent::IsPostHooked(uint64_t functionIndex)
 	{
 		if (m_hooksSafe)
 		{
@@ -537,9 +537,9 @@ namespace CodeRed
 		}
 	}
 
-	void EventsComponent::HookEventPre(uint32_t functionIndex, const std::function<void(PreEvent&)>& preHook)
+	void EventsComponent::HookEventPre(uint64_t functionIndex, const std::function<void(PreEvent&)>& preHook)
 	{
-		if (UObject::GObjObjects())
+		if (UObject::GObjObjects() && (functionIndex < UObject::GObjObjects()->size()))
 		{
 			UObject* foundFunction = UObject::GObjObjects()->at(functionIndex);
 
@@ -570,9 +570,9 @@ namespace CodeRed
 		}
 	}
 
-	void EventsComponent::HookEventPost(uint32_t functionIndex, const std::function<void(const PostEvent&)>& postHook)
+	void EventsComponent::HookEventPost(uint64_t functionIndex, const std::function<void(const PostEvent&)>& postHook)
 	{
-		if (UObject::GObjObjects())
+		if (UObject::GObjObjects() && (functionIndex < UObject::GObjObjects()->size()))
 		{
 			UObject* foundFunction = UObject::GObjObjects()->at(functionIndex);
 

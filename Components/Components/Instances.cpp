@@ -21,7 +21,7 @@ namespace CodeRed
 	{
 		if (m_staticClasses.empty() && UObject::GObjObjects())
 		{
-			for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
+			for (size_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 			{
 				UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -60,7 +60,7 @@ namespace CodeRed
 	{
 		if (m_staticFunctions.empty() && UObject::GObjObjects())
 		{
-			for (int32_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
+			for (size_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
 			{
 				UObject* uObject = UObject::GObjObjects()->at(i);
 

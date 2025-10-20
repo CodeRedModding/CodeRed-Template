@@ -7,7 +7,7 @@
 
 namespace CodeRed
 {
-	static constexpr int32_t INSTANCES_INTERATE_OFFSET = 10;
+	static constexpr size_t INSTANCES_INTERATE_OFFSET = 10;
 	static constexpr uint64_t GOLDEN_RATIO_MAGIC = 0x9E3779B9;
 
 	enum class EventTypes : uint8_t
