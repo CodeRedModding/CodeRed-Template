@@ -4,7 +4,7 @@
 
 The CodeRed Template is a custom framework to get you started in Unreal Engine modding, designed to be used in any game, it features a lot of easy to use functions common in game modding. Such as function hooking, a module manager, storing class instances, saving and loading user settings, and more.
 
-### 🌟 Features
+### 📋 Features
 
 Included are the following features, each have their own examples in their own files retrospectively; along with comments on how to use them and how they work.
 
