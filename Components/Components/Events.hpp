@@ -19,7 +19,7 @@ namespace CodeRed
 		class UFunction* m_function;	// The unreal function being processed.
 		void* m_params;					// If parameters are provided in the function, this would be a pointer to a struct to the params.
 		EventTypes m_type;				// The origin type of this function call.
-		bool n_callable;				// If we should end up calling this function, or block it.
+		bool m_callable;				// If we should end up calling this function, or block it.
 
 	public:
 		PreEvent();

@@ -238,12 +238,12 @@ namespace CodeRed
 		std::string GetVariableName(VariableIds variableId) const;
 
 	public: // Commands and settings.
-		std::shared_ptr<Command> CreateCommand(const std::string& commandName, Command* command);
-		std::shared_ptr<Command> GetCommand(const std::string& commandName);
-		std::shared_ptr<Command> GetCommand(VariableIds variableId);
-		std::shared_ptr<Setting> CreateSetting(const std::string& settingName, Setting* setting);
-		std::shared_ptr<Setting> GetSetting(const std::string& settingName);
-		std::shared_ptr<Setting> GetSetting(VariableIds variableId);
+		std::shared_ptr<Command> CreateCommand(const std::string& commandName, Command* newCommand);
+		std::shared_ptr<Command> GetCommand(const std::string& commandName) const;
+		std::shared_ptr<Command> GetCommand(VariableIds variableId) const;
+		std::shared_ptr<Setting> CreateSetting(const std::string& settingName, Setting* newSetting);
+		std::shared_ptr<Setting> GetSetting(const std::string& settingName) const;
+		std::shared_ptr<Setting> GetSetting(VariableIds variableId) const;
 
 	public:
 		void SetupVariables();

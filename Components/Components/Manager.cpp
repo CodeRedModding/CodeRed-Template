@@ -394,25 +394,15 @@ namespace CodeRed
 		}
 	}
 
-	template <typename T> std::shared_ptr<T> ManagerComponent::GetModule(const std::string& moduleName) const
+	template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* newModule, std::shared_ptr<T>& moduleToBind)
 	{
-		if (m_modules.contains(moduleName))
+		if (newModule)
 		{
-			return std::static_pointer_cast<T>(m_modules.at(moduleName));
-		}
-
-		return nullptr;
-	}
-
-	template <typename T> std::shared_ptr<T> ManagerComponent::CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind)
-	{
-		if (mod)
-		{
-			std::string moduleName = mod->GetName();
+			std::string moduleName = newModule->GetName();
 
 			if (!m_modules.contains(moduleName))
 			{
-				m_modules[moduleName] = std::shared_ptr<Module>(mod);
+				m_modules[moduleName] = std::shared_ptr<Module>(newModule);
 				moduleToBind = std::static_pointer_cast<T>(m_modules[moduleName]);
 				moduleToBind->OnCreateVariables();
 				return moduleToBind;
@@ -425,6 +415,16 @@ namespace CodeRed
 		else
 		{
 			Console.Error("[Manager Component] Error: Failed to create module, given pointer is invalid!");
+		}
+
+		return nullptr;
+	}
+
+	template <typename T> std::shared_ptr<T> ManagerComponent::GetModule(const std::string& moduleName) const
+	{
+		if (m_modules.contains(moduleName))
+		{
+			return std::static_pointer_cast<T>(m_modules.at(moduleName));
 		}
 
 		return nullptr;

@@ -1,5 +1,10 @@
 #pragma once
 /*
+    Changes in v1.6.5:
+    - Made the "VariableComponent::GetCommand" and "VariableComponent::GetSetting" functions const in "Variables.hpp/cpp".
+    - Improved the "Rotator::UnrealRotator" function in "Math.cpp" to avoid unnecessary math functions.
+    - Fixed the "Rotator::FromUnrealRotator" function not working as intended outside of the "Rotator" constructor in "Math.cpp".
+
     Changes in v1.6.4:
     - Added a "WaitForSingleObject" check in the "CoreComponent::OnDestroy" function before calling "CloseHandle" in "Core.cpp".
     - Added two new variables "std::mutex m_logMutex" and "std::mutex m_outMutex" in "Console.hpp/cpp", to add protections on writing from different threads.

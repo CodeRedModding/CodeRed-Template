@@ -116,8 +116,8 @@ namespace CodeRed
 		void UnrealCommand(std::string unrealCommand, bool bPrintToConsole = true);
 
 	public:
+		template <typename T> std::shared_ptr<T> CreateModule(Module* newModule, std::shared_ptr<T>& moduleToBind);
 		template <typename T> std::shared_ptr<T> GetModule(const std::string& moduleName) const;
-		template <typename T> std::shared_ptr<T> CreateModule(Module* mod, std::shared_ptr<T>& moduleToBind);
 		void UpdateAllSettings();
 
 	private:

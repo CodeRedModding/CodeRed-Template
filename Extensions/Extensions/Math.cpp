@@ -407,22 +407,23 @@ Rotator::~Rotator() {}
 
 struct FRotator Rotator::UnrealRotator(bool bURR) const
 {
+	if (!bURR)
+	{
+		return FRotator{ Pitch, Yaw, Roll };
+	}
+
 	float pitch = Pitch; pitch *= CodeRed::Math::ROTATIONS_TO_DEGREES;
 	float yaw = Yaw; yaw *= CodeRed::Math::ROTATIONS_TO_DEGREES;
 	float roll = Roll; roll *= CodeRed::Math::ROTATIONS_TO_DEGREES;
 
-	return FRotator{
-		(bURR ? lroundf(pitch) : Pitch),
-		(bURR ? lroundf(yaw) : Yaw),
-		(bURR ? lroundf(roll) : Roll)
-	};
+	return FRotator{ lroundf(pitch), lroundf(yaw), lroundf(roll) };
 }
 
 Rotator& Rotator::FromUnrealRotator(const struct FRotator& other)
 {
-	float pitch = Pitch; pitch /= CodeRed::Math::ROTATIONS_TO_DEGREES;
-	float yaw = Yaw; yaw /= CodeRed::Math::ROTATIONS_TO_DEGREES;
-	float roll = Roll; roll /= CodeRed::Math::ROTATIONS_TO_DEGREES;
+	float pitch = other.Pitch; pitch /= CodeRed::Math::ROTATIONS_TO_DEGREES;
+	float yaw = other.Yaw; yaw /= CodeRed::Math::ROTATIONS_TO_DEGREES;
+	float roll = other.Roll; roll /= CodeRed::Math::ROTATIONS_TO_DEGREES;
 
 	Pitch = lroundf(pitch);
 	Yaw = lroundf(yaw);

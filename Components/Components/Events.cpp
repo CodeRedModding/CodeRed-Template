@@ -10,11 +10,11 @@ namespace CodeRed
 	#define DETOUR_PROCEVENT
 	#define DETOUR_PROCINTERNAL
 
-	PreEvent::PreEvent() : m_caller(nullptr), m_function(nullptr), m_params(nullptr), m_type(EventTypes::Unknown), n_callable(true) {}
+	PreEvent::PreEvent() : m_caller(nullptr), m_function(nullptr), m_params(nullptr), m_type(EventTypes::Unknown), m_callable(true) {}
 
-	PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params, EventTypes eventType, bool bCallable) : m_caller(caller), m_function(function), m_params(params), m_type(eventType), n_callable(bCallable) {}
+	PreEvent::PreEvent(class UObject* caller, class UFunction* function, void* params, EventTypes eventType, bool bCallable) : m_caller(caller), m_function(function), m_params(params), m_type(eventType), m_callable(bCallable) {}
 
-	PreEvent::PreEvent(const PreEvent& preEvent) : m_caller(preEvent.m_caller), m_function(preEvent.m_function), m_params(preEvent.m_params), m_type(preEvent.m_type), n_callable(preEvent.n_callable) {}
+	PreEvent::PreEvent(const PreEvent& preEvent) : m_caller(preEvent.m_caller), m_function(preEvent.m_function), m_params(preEvent.m_params), m_type(preEvent.m_type), m_callable(preEvent.m_callable) {}
 
 	PreEvent::~PreEvent() {}
 
@@ -60,12 +60,12 @@ namespace CodeRed
 
 	bool PreEvent::IsCallable() const
 	{
-		return n_callable;
+		return m_callable;
 	}
 
 	void PreEvent::SetCallable(bool bCallable)
 	{
-		n_callable = bCallable;
+		m_callable = bCallable;
 	}
 
 	PreEvent& PreEvent::operator=(const PreEvent& preEvent)
@@ -74,7 +74,7 @@ namespace CodeRed
 		m_function = preEvent.m_function;
 		m_params = preEvent.m_params;
 		m_type = preEvent.m_type;
-		n_callable = preEvent.n_callable;
+		m_callable = preEvent.m_callable;
 		return *this;
 	}
 

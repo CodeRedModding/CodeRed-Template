@@ -1118,20 +1118,20 @@ namespace CodeRed
 		return "";
 	}
 
-	std::shared_ptr<Command> VariableComponent::CreateCommand(const std::string& commandName, Command* command)
+	std::shared_ptr<Command> VariableComponent::CreateCommand(const std::string& commandName, Command* newCommand)
 	{
-		if (!commandName.empty() && command)
+		if (!commandName.empty() && newCommand)
 		{
-			if (CreateVariable(commandName, command->GetId()))
+			if (CreateVariable(commandName, newCommand->GetId()))
 			{
 				if (!m_commands.contains(commandName))
 				{
-					if (!command->IsHidden())
+					if (!newCommand->IsHidden())
 					{
 						Console.Notify("(CreateCommand) Created command \"" + commandName + "\".");
 					}
 
-					m_commands[commandName] = std::shared_ptr<Command>(command);
+					m_commands[commandName] = std::shared_ptr<Command>(newCommand);
 					return m_commands[commandName];
 				}
 			}
@@ -1140,39 +1140,39 @@ namespace CodeRed
 		return nullptr;
 	}
 
-	std::shared_ptr<Command> VariableComponent::GetCommand(const std::string& commandName)
+	std::shared_ptr<Command> VariableComponent::GetCommand(const std::string& commandName) const
 	{
 		if (m_commands.contains(commandName))
 		{
-			return m_commands[commandName];
+			return m_commands.at(commandName);
 		}
 		else
 		{
-			Console.Warning("(GetCommand) Warning: Failed to find a command with the name \"" + commandName + "\"!");
+			Console.Warning("(GetCommand) Warning: Failed to find a command by the name of \"" + commandName + "\"!");
 		}
 
 		return nullptr;
 	}
 
-	std::shared_ptr<Command> VariableComponent::GetCommand(VariableIds variableId)
+	std::shared_ptr<Command> VariableComponent::GetCommand(VariableIds variableId) const
 	{
 		return GetCommand(GetVariableName(variableId));
 	}
 
-	std::shared_ptr<Setting> VariableComponent::CreateSetting(const std::string& settingName, Setting* setting)
+	std::shared_ptr<Setting> VariableComponent::CreateSetting(const std::string& settingName, Setting* newSetting)
 	{
-		if (!settingName.empty() && setting)
+		if (!settingName.empty() && newSetting)
 		{
-			if (CreateVariable(settingName, setting->GetId()))
+			if (CreateVariable(settingName, newSetting->GetId()))
 			{
 				if (!m_settings.contains(settingName))
 				{
-					if (!setting->IsHidden())
+					if (!newSetting->IsHidden())
 					{
 						Console.Notify("(CreateSetting) Created setting \"" + settingName + "\".");
 					}
 
-					m_settings[settingName] = std::shared_ptr<Setting>(setting);
+					m_settings[settingName] = std::shared_ptr<Setting>(newSetting);
 					return m_settings[settingName];
 				}
 			}
@@ -1181,21 +1181,21 @@ namespace CodeRed
 		return nullptr;
 	}
 
-	std::shared_ptr<Setting> VariableComponent::GetSetting(const std::string& settingName)
+	std::shared_ptr<Setting> VariableComponent::GetSetting(const std::string& settingName) const
 	{
 		if (m_settings.contains(settingName))
 		{
-			return m_settings[settingName];
+			return m_settings.at(settingName);
 		}
 		else
 		{
-			Console.Warning("(GetSetting) Warning: Failed to find a setting with the name \"" + settingName + "\"!");
+			Console.Warning("(GetSetting) Warning: Failed to find a setting by the name of \"" + settingName + "\"!");
 		}
 
 		return nullptr;
 	}
 
-	std::shared_ptr<Setting> VariableComponent::GetSetting(VariableIds variableId)
+	std::shared_ptr<Setting> VariableComponent::GetSetting(VariableIds variableId) const
 	{
 		return GetSetting(GetVariableName(variableId));
 	}
@@ -1293,11 +1293,14 @@ namespace CodeRed
 
 	void VariableComponent::FindUnusedVariables() const
 	{
-		for (uint32_t i = (static_cast<uint32_t>(VariableIds::UNKNOWN) + 1); i < static_cast<uint32_t>(VariableIds::END); i++)
+		if (IsInitialized())
 		{
-			if (!m_variables.contains(static_cast<VariableIds>(i)))
+			for (uint32_t i = (static_cast<uint32_t>(VariableIds::UNKNOWN) + 1); i < static_cast<uint32_t>(VariableIds::END); i++)
 			{
-				Console.Warning("(VerifyVariables) Warning: Unused variable id \"" + std::to_string(i) + "\" detected!");
+				if (!m_variables.contains(static_cast<VariableIds>(i)))
+				{
+					Console.Warning("(VerifyVariables) Warning: Unused variable id \"" + std::to_string(i) + "\" detected!");
+				}
 			}
 		}
 	}
