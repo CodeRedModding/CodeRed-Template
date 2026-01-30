@@ -3,6 +3,8 @@
 
 namespace CodeRed
 {
+	static constexpr uint64_t GLOBAL_EXCLUDE_FLAGS = (EObjectFlags::RF_ClassDefaultObject | EObjectFlags::RF_ArchetypeObject); // Default flags to exclude when using the "GetInstanceOf" functions.
+
 	// Automatically stores active class instances that can be retrieved at any time.
 	class InstancesComponent : public Component
 	{
@@ -29,16 +31,13 @@ namespace CodeRed
 		{
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (size_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
+				for (size_t i = 0; i < (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i++)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
-					if (uObject && uObject->IsA<T>())
+					if (uObject && (uObject->ObjectFlags & EObjectFlags::RF_ClassDefaultObject) && uObject->IsA<T>())
 					{
-						if (uObject->GetFullName().find("Default__") != std::string::npos)
-						{
-							return static_cast<T*>(uObject);
-						}
+						return static_cast<T*>(uObject);
 					}
 				}
 			}
@@ -47,17 +46,17 @@ namespace CodeRed
 		}
 
 		// Get the most current/active instance of a class. Example: UEngine* engine = GetInstanceOf<UEngine>();
-		template<typename T> T* GetInstanceOf()
+		template<typename T> T* GetInstanceOf(uint64_t flagsToExclude = GLOBAL_EXCLUDE_FLAGS)
 		{
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
 					if (uObject && uObject->IsA<T>())
 					{
-						if (uObject->GetFullName().find("Default__") == std::string::npos)
+						if (!flagsToExclude || (!(uObject->ObjectFlags & flagsToExclude)))
 						{
 							return static_cast<T*>(uObject);
 						}
@@ -69,17 +68,17 @@ namespace CodeRed
 		}
 
 		// Get the most current/active instance of a class, if one isn't found it creates a new instance. Example: UEngine* engine = GetInstanceOf<UEngine>();
-		template<typename T> T* GetOrCreateInstance()
+		template<typename T> T* GetOrCreateInstance(uint64_t flagsToExclude = GLOBAL_EXCLUDE_FLAGS)
 		{
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
 					if (uObject && uObject->IsA<T>())
 					{
-						if (uObject->GetFullName().find("Default__") == std::string::npos)
+						if (!flagsToExclude || (!(uObject->ObjectFlags & flagsToExclude)))
 						{
 							return static_cast<T*>(uObject);
 						}
@@ -93,19 +92,19 @@ namespace CodeRed
 		}
 
 		// Get all active instances of a class type. Example: std::vector<APawn*> pawns = GetAllInstancesOf<APawn>();
-		template<typename T> std::vector<T*> GetAllInstancesOf()
+		template<typename T> std::vector<T*> GetAllInstancesOf(uint64_t flagsToExclude = GLOBAL_EXCLUDE_FLAGS)
 		{
 			std::vector<T*> objectInstances;
 
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
 					if (uObject && uObject->IsA<T>())
 					{
-						if (uObject->GetFullName().find("Default__") == std::string::npos)
+						if (!flagsToExclude || (!(uObject->ObjectFlags & flagsToExclude)))
 						{
 							objectInstances.push_back(static_cast<T*>(uObject));
 						}
@@ -123,16 +122,13 @@ namespace CodeRed
 
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = 0; i < (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i++)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
-					if (uObject && uObject->IsA<T>())
+					if (uObject && (uObject->ObjectFlags & EObjectFlags::RF_ClassDefaultObject) && uObject->IsA<T>())
 					{
-						if (uObject->GetFullName().find("Default__") != std::string::npos)
-						{
-							objectInstances.push_back(static_cast<T*>(uObject));
-						}
+						objectInstances.push_back(static_cast<T*>(uObject));
 					}
 				}
 			}
@@ -145,22 +141,22 @@ namespace CodeRed
 		{
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
 					if (uObject && uObject->IsA<T>())
 					{
-						std::string objectFullName = uObject->GetFullName();
+						std::string fullName = uObject->GetFullName();
 
 						if (bStrictFind)
 						{
-							if (objectFullName == objectName)
+							if (fullName == objectName)
 							{
 								return static_cast<T*>(uObject);
 							}
 						}
-						else if (objectFullName.find(objectName) != std::string::npos)
+						else if (fullName.find(objectName) != std::string::npos)
 						{
 							return static_cast<T*>(uObject);
 						}
@@ -178,7 +174,7 @@ namespace CodeRed
 
 			if (std::is_base_of<UObject, T>::value && UObject::GObjObjects())
 			{
-				for (size_t i = (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i > 0; i--)
+				for (size_t i = (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i > 0; i--)
 				{
 					UObject* uObject = UObject::GObjObjects()->at(i);
 
@@ -216,7 +212,7 @@ namespace CodeRed
 					returnObject = static_cast<T*>(defaultObject->DuplicateObject(defaultObject, defaultObject->Outer, staticClass));
 				}
 
-				// Making sure newly created object doesn't get randomly destoyed by the garbage collector when we don't want it do.
+				// Making sure newly created object doesn't get randomly destroyed by the garbage collector when we don't want it do.
 				if (returnObject)
 				{
 					MarkInvincible(returnObject);

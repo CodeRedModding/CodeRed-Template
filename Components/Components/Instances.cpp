@@ -17,19 +17,36 @@ namespace CodeRed
 
 	void InstancesComponent::OnDestroy() {}
 
+	bool InstancesComponent::Initialize()
+	{
+		if (!IsInitialized())
+		{
+			// Cache every static class and static function, we only need to do this once.
+			FindStaticClass("");
+			FindStaticFunction("");
+
+			Console.Success(GetNameFormatted() + "Initialized!");
+			SetInitialized(true);
+		}
+
+		return IsInitialized();
+	}
+
 	class UClass* InstancesComponent::FindStaticClass(const std::string& className)
 	{
 		if (m_staticClasses.empty() && UObject::GObjObjects())
 		{
-			for (size_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
+			for (size_t i = 0; i < (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i++)
 			{
 				UObject* uObject = UObject::GObjObjects()->at(i);
 
 				if (uObject)
 				{
-					if ((uObject->GetFullName().find("Class") == 0))
+					std::string fullName = uObject->GetFullName();
+
+					if (fullName.find("Class ") == 0)
 					{
-						m_staticClasses[uObject->GetFullName()] = static_cast<UClass*>(uObject);
+						m_staticClasses[fullName] = static_cast<UClass*>(uObject);
 					}
 				}
 			}
@@ -43,32 +60,21 @@ namespace CodeRed
 		return nullptr;
 	}
 
-	bool InstancesComponent::Initialize()
-	{
-		if (!IsInitialized())
-		{
-			// Initialize classes that can't be grabbed from function hooks here.
-
-			Console.Success(GetNameFormatted() + "Initialized!");
-			SetInitialized(true);
-		}
-
-		return IsInitialized();
-	}
-
 	class UFunction* InstancesComponent::FindStaticFunction(const std::string& className)
 	{
 		if (m_staticFunctions.empty() && UObject::GObjObjects())
 		{
-			for (size_t i = 0; i < (UObject::GObjObjects()->size() - INSTANCES_INTERATE_OFFSET); i++)
+			for (size_t i = 0; i < (UObject::GObjObjects()->size() - GLOBAL_OBJECT_SUB); i++)
 			{
 				UObject* uObject = UObject::GObjObjects()->at(i);
 
 				if (uObject)
 				{
-					if (uObject && uObject->IsA<UFunction>())
+					std::string fullName = uObject->GetFullName();
+
+					if (fullName.find("Function ") == 0)
 					{
-						m_staticFunctions[uObject->GetFullName()] = static_cast<UFunction*>(uObject);
+						m_staticFunctions[fullName] = static_cast<UFunction*>(uObject);
 					}
 				}
 			}
@@ -143,6 +149,8 @@ namespace CodeRed
 
 	class ULocalPlayer* InstancesComponent::IULocalPlayer()
 	{
+		// Can also grab your local player from "APlayerController->Player".
+
 		UEngine* engine = IUEngine();
 
 		if (engine && engine->GamePlayers[0])

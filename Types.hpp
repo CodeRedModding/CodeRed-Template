@@ -7,8 +7,8 @@
 
 namespace CodeRed
 {
-	static constexpr size_t INSTANCES_INTERATE_OFFSET = 10;
-	static constexpr uint64_t GOLDEN_RATIO_MAGIC = 0x9E3779B9;
+	static constexpr uint8_t GLOBAL_OBJECT_SUB = 10; // Objects at the back of GObjects are highly volatile, may crash if you read the very last entry when iterating backwards, good to subtract a few as a buffer.
+	static constexpr uint64_t GOLDEN_RATIO_MAGIC = 0x9E3779B9; // 0x9E3779B9;
 
 	enum class EventTypes : uint8_t
 	{

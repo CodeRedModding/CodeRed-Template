@@ -1,5 +1,11 @@
 #pragma once
 /*
+    Changes in v1.6.6:
+    - BREAKING: Renamed the constant variable "INSTANCES_INTERATE_OFFSET" to "GLOBAL_OBJECT_SUB" in "Types.hpp".
+    - BREAKING: Added a new optional argument for all the "InstancesComponent::GetInstanceOf" related functions in "Instances.hpp", which are object flags you wish to exclude.
+    - Added a new constant variable "GLOBAL_EXCLUDE_FLAGS" in "Instances.hpp" which is now used by the "GetInstanceOf" functions.
+    - The "InstancesComponent::GetDefaultInstanceOf" function now checks the "EObjectFlags::RF_ClassDefaultObject" flag instead of "GetFullName".
+
     Changes in v1.6.5:
     - Made the "VariableComponent::GetCommand" and "VariableComponent::GetSetting" functions const in "Variables.hpp/cpp".
     - Improved the "Rotator::UnrealRotator" function in "Math.cpp" to avoid unnecessary math functions.
