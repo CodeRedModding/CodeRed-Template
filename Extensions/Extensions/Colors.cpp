@@ -1,5 +1,5 @@
 #include "Colors.hpp"
-#include "Formatting.hpp"
+#include "Format.hpp"
 
 Color::Color() : R(255), G(255), B(255), A(255) {}
 

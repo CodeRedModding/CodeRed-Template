@@ -162,7 +162,7 @@
     <ClCompile Include="Components\Components\Variables.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Extensions\Extensions\Colors.cpp" />
-    <ClCompile Include="Extensions\Extensions\Formatting.cpp" />
+    <ClCompile Include="Extensions\Extensions\Format.cpp" />
     <ClCompile Include="Extensions\Extensions\Math.cpp" />
     <ClCompile Include="Extensions\Extensions\Memory.cpp" />
     <ClCompile Include="Extensions\Extensions\Time.cpp" />
@@ -189,7 +189,7 @@
     <ClInclude Include="Components\Components\Variables.hpp" />
     <ClInclude Include="Components\Includes.hpp" />
     <ClInclude Include="Extensions\Extensions\Colors.hpp" />
-    <ClInclude Include="Extensions\Extensions\Formatting.hpp" />
+    <ClInclude Include="Extensions\Extensions\Format.hpp" />
     <ClInclude Include="Extensions\Extensions\Math.hpp" />
     <ClInclude Include="Extensions\Extensions\Memory.hpp" />
     <ClInclude Include="Extensions\Extensions\Time.hpp" />

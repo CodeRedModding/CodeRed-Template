@@ -37,8 +37,6 @@ namespace CodeRed::Format
 	void Empty(std::ostringstream& stream);
 	void FillRight(std::ostringstream& stream, char fill, size_t width);
 	void FillLeft(std::ostringstream& stream, char fill, size_t width);
-	void FillRight(std::ofstream& stream, char fill, size_t width);
-	void FillLeft(std::ofstream& stream, char fill, size_t width);
 
 	std::string ToHex(void* address, const std::string notation = "0x");
 	std::string ToHex(uint64_t decimal, size_t width, const std::string notation = "0x");

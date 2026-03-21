@@ -24,6 +24,14 @@ namespace CodeRed::Time
 	static constexpr uint32_t MONTH_NOVEMBER = 10;
 	static constexpr uint32_t MONTH_DECEMBER = 11;
 
+	static constexpr uint32_t WEEKDAY_MONDAY = 1;
+	static constexpr uint32_t WEEKDAY_TUESDAY = 2;
+	static constexpr uint32_t WEEKDAY_WEDNESDAY = 3;
+	static constexpr uint32_t WEEKDAY_THURSDAY = 4;
+	static constexpr uint32_t WEEKDAY_FRIDAY = 5;
+	static constexpr uint32_t WEEKDAY_SATURDAY = 6;
+	static constexpr uint32_t WEEKDAY_SUNDAY = 0;
+
 	class Time
 	{
 	public:
@@ -45,9 +53,10 @@ namespace CodeRed::Time
 		~Time();
 
 	public:
+		static Time Create();
 		Time& FromEpoch(uint64_t epochTimestamp);
 		Time& FromTM(const std::tm& tm);
-		Time& Create();
+		Time& Clear();
 
 	public:
 		Time& operator=(const std::tm& tm);

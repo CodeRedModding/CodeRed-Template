@@ -127,7 +127,7 @@ namespace CodeRed
 		return IsInitialized();
 	}
 
-	// Pre Hooks
+	// Pre hooks.
 
 	void HooksComponent::HUDPostRender(PreEvent& event)
 	{
@@ -161,17 +161,22 @@ namespace CodeRed
 		}
 	}
 
-	// Post Hooks
+	// Post hooks.
 
 	void HooksComponent::GameViewPortKeyPress(const PostEvent& event)
 	{
 		if (event.Params())
 		{
-			UGameViewportClient_TA_execHandleKeyPress_Params* handleKeyPress = event.GetParams<UGameViewportClient_TA_execHandleKeyPress_Params>();
+			UGameViewportClient_TA_execHandleKeyPress_Params* params = event.GetParams<UGameViewportClient_TA_execHandleKeyPress_Params>();
+			EInputEvent eventType = static_cast<EInputEvent>(params->EventType);
 
-			if (handleKeyPress->EventType == static_cast<uint8_t>(EInputEvent::IE_Released))
+			if (eventType == EInputEvent::IE_Released)
 			{
-				// Blah blah do key pressed stuff here blah blah
+				// Blah blah do key pressed stuff here blah blah.
+			}
+			else if (eventType == EInputEvent::IE_Repeat)
+			{
+				// Do key being held down stuff here blah blah bleh.
 			}
 		}
 	}

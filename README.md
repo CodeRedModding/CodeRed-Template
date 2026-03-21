@@ -1,4 +1,4 @@
-# CodeRed Template v1.6.6
+# CodeRed Template v1.6.7
 
 ## 📌 About The Project
 

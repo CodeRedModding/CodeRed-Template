@@ -64,6 +64,7 @@ namespace CodeRed
 			DetourDetach(&reinterpret_cast<PVOID&>(m_targetFunction), reinterpret_cast<PVOID>(GetOverride()));
 			DetourTransactionCommit();
 #endif
+			m_targetFunction = nullptr;
 			m_hookedFunction = nullptr;
 		}
 	}

@@ -95,7 +95,7 @@
     <ClCompile Include="Extensions\Extensions\Math.cpp">
       <Filter>Extensions\Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="Extensions\Extensions\Formatting.cpp">
+    <ClCompile Include="Extensions\Extensions\Format.cpp">
       <Filter>Extensions\Extensions</Filter>
     </ClCompile>
     <ClCompile Include="Extensions\Extensions\Time.cpp">
@@ -181,7 +181,7 @@
     <ClInclude Include="Extensions\Extensions\Math.hpp">
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="Extensions\Extensions\Formatting.hpp">
+    <ClInclude Include="Extensions\Extensions\Format.hpp">
       <Filter>Extensions\Extensions</Filter>
     </ClInclude>
     <ClInclude Include="Extensions\Extensions\Time.hpp">

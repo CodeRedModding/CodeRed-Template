@@ -1,4 +1,4 @@
-#include "Formatting.hpp"
+#include "Format.hpp"
 
 namespace CodeRed::Format
 {
@@ -288,16 +288,6 @@ namespace CodeRed::Format
     }
 
     void FillLeft(std::ostringstream& stream, char fill, size_t width)
-    {
-        stream << std::setfill(fill) << std::setw(width) << std::left;
-    }
-
-    void FillRight(std::ofstream& stream, char fill, size_t width)
-    {
-        stream << std::setfill(fill) << std::setw(width) << std::right;
-    }
-
-    void FillLeft(std::ofstream& stream, char fill, size_t width)
     {
         stream << std::setfill(fill) << std::setw(width) << std::left;
     }

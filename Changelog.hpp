@@ -1,5 +1,13 @@
 #pragma once
 /*
+    Changes in v1.6.7:
+    - BREAKING: Renamed the "Formatting.hpp/cpp" files to "Format.hpp/cpp" for consistency reasons.
+    - BREAKING: Removed the "Format::FillRight" and "Format::FillLeft" ofstream functions in "Format.hpp/cpp".
+    - BREAKING: Changed the "Time::Create" function to be a static function in "Time.hpp/cpp", similar to the "Timestamp" class in the same file.
+    - The "FunctionHook::Detach" function now sets "m_targetFunction" to nullptr in "FunctionHook.cpp".
+    - Added new constant expressions for weekday values in "Time.hpp" that can be used in the "Time" class.
+    - Fixed the "Timestamp::FormatClock" function displaying midnight as "00:00 AM" instead of "12:00 AM" if you were using the 12 hour clock format instead of 24.
+
     Changes in v1.6.6:
     - BREAKING: Renamed the constant variable "INSTANCES_INTERATE_OFFSET" to "GLOBAL_OBJECT_SUB" in "Types.hpp".
     - BREAKING: Added a new optional argument for all the "InstancesComponent::GetInstanceOf" related functions in "Instances.hpp", which are object flags you wish to exclude.

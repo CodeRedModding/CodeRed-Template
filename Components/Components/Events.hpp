@@ -71,12 +71,12 @@ namespace CodeRed
 		void OnDestroy() override;
 		bool Initialize() override;
 
-	public: // Pre Hooks
+	public: // Pre hooks.
 		void HUDPostRender(PreEvent& event);
 		void GameViewPortPostRender(PreEvent& event);
 		void PlayerControllerTick(PreEvent& event);
 
-	public: // Post Hooks
+	public: // Post hooks.
 		void GameViewPortKeyPress(const PostEvent& event);
 	};
 

@@ -1,5 +1,5 @@
 #include "Time.hpp"
-#include "Formatting.hpp"
+#include "Format.hpp"
 
 namespace CodeRed::Time
 {
@@ -43,6 +43,15 @@ namespace CodeRed::Time
 
 	Time::~Time() {}
 
+	Time Time::Create()
+	{
+		std::tm tm;
+		ZeroMemory(&tm, sizeof(tm));
+		std::time_t time = std::time(nullptr);
+		localtime_s(&tm, &time);
+		return Time(tm);
+	}
+
 	Time& Time::FromEpoch(uint64_t epochTimestamp)
 	{
 		std::tm tm;
@@ -64,15 +73,6 @@ namespace CodeRed::Time
 		YearDay = tm.tm_year;
 		bDaylightSavings = (tm.tm_isdst > 0);
 		return *this;
-	}
-
-	Time& Time::Create()
-	{
-		std::tm local;
-		ZeroMemory(&local, sizeof(local));
-		std::time_t time = std::time(nullptr);
-		localtime_s(&local, &time);
-		return FromTM(local);
 	}
 
 	Time& Time::operator=(const std::tm& tm)
@@ -141,7 +141,18 @@ namespace CodeRed::Time
 		uint32_t hours = tTime.Hour;
 		bool isAM = (hours < 12);
 
-		if (!b24Hours && !isAM) { hours -= 12; }
+		if (!b24Hours)
+		{
+			if (!isAM)
+			{
+				hours -= 12;
+			}
+			else if (!hours)
+			{
+				hours = 12; // Hours here is hours since midnight, so 12 am would actually look like 0 am if we didn't do this.
+			}
+		}
+
 		if (b24Hours) { Format::FillRight(timeStream, '0', 2); }
 		timeStream << hours << ":";
 
