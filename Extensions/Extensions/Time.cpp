@@ -143,7 +143,7 @@ namespace CodeRed::Time
 
 		if (!b24Hours)
 		{
-			if (!isAM)
+			if (!isAM && (hours != 12))
 			{
 				hours -= 12;
 			}
