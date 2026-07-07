@@ -15,12 +15,12 @@ namespace CodeRed
 		SetSkipSave(bSkipSave);
 	}
 
-	ManagerQueue::ManagerQueue(ThreadTypes threadType, const std::string& command, const std::string& arguments, bool bInternal, uint32_t delay, bool bSkipSave) :
+	ManagerQueue::ManagerQueue(ThreadTypes threadType, const std::string& command, const std::string& arguments, bool bInternal, uint32_t delaySeconds, bool bSkipSave) :
 		m_thread(threadType),
 		m_command(command),
 		m_arguments(arguments),
 		m_flags(QueueFlags::QUEUE_None),
-		m_delay(delay* QUEUE_TICK_MULTIPLIER),
+		m_delay(delaySeconds * QUEUE_TICK_MULTIPLIER),
 		m_delta(0.0f)
 	{
 		SetInternal(bInternal);
@@ -121,11 +121,11 @@ namespace CodeRed
 		return m_delta;
 	}
 
-	bool ManagerQueue::OnTick(float rate)
+	bool ManagerQueue::OnTick(float tickRate)
 	{
 		if (IsAsync() && !IsAsyncCompleted())
 		{
-			m_delta += rate;
+			m_delta += tickRate;
 
 			if (GetDelta() < GetDelay())
 			{

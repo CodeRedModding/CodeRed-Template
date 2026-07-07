@@ -26,8 +26,8 @@ public:
 	std::string ToHex(bool bNotation = true) const;
 	std::string ToHexAlpha(bool bNotation = true) const; // Same as "ToHex" but includes the alpha channel, supported here but may not be standard elsewhere.
 	Color& FromLinear(const LinearColor& linearColor);
-	Color& FromDecimal(uint32_t decimalColor); // Supports both alpha and non alpha channels.
-	Color& FromHex(std::string hexColor); // Supports both alpha and non alpha channels.
+	Color& FromDecimal(uint32_t decimalColor); // Supports both alpha and non alpha channels, alpha must be at the end of the color not the start.
+	Color& FromHex(std::string hexColor); // Supports both alpha and non alpha channels, alpha must be at the end of the color not the start.
 	Color& Cycle(int32_t steps = 1);
 
 public:

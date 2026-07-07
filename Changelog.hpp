@@ -1,5 +1,10 @@
 #pragma once
 /*
+    Changes in v1.6.8:
+    - BREAKING: The project now has "#define NOMINMAX" in "pch.hpp", which disables the C min/max macros in favor of std::min/std::max.
+    - Improved the "Color::FromHex" function a bit in "Colors.cpp".
+    - Fixed the "GetCharacterSet" function in "Format.cpp" not escaping the backslash character.
+
     Changes in v1.6.7:
     - BREAKING: Renamed the "Formatting.hpp/cpp" files to "Format.hpp/cpp" for consistency reasons.
     - BREAKING: Removed the "Format::FillRight" and "Format::FillLeft" ofstream functions in "Format.hpp/cpp".

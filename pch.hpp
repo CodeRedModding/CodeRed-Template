@@ -1,13 +1,14 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 
 #include <Windows.h>
 #include <unordered_map>
 #include <map>
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <functional>
-#include <iostream>
 #include <sstream>
 #include <fstream>
 #include <stdlib.h>

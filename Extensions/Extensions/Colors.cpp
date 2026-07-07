@@ -75,12 +75,11 @@ Color& Color::FromHex(std::string hexColor)
 {
 	CodeRed::Format::RemoveAllCharsInline(hexColor, '#');
 
-	if (CodeRed::Format::IsStringHexadecimal(hexColor))
+	if (CodeRed::Format::IsStringHexadecimal(hexColor) && ((hexColor.length() == 6) || (hexColor.length() == 8)))
 	{
-		if (hexColor.length() > 8)
-		{
-			hexColor = hexColor.substr(0, 8);
-		}
+		R = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(0, 2)));
+		G = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(2, 2)));
+		B = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(4, 2)));
 
 		uint64_t alpha = 255;
 
@@ -90,26 +89,6 @@ Color& Color::FromHex(std::string hexColor)
 		}
 
 		A = static_cast<uint8_t>(alpha);
-
-		if (hexColor.length() > 6)
-		{
-			hexColor = hexColor.substr(0, 6); // Removes the alpha value, or invalid trailing characters.
-		}
-
-		if (hexColor.length() >= 2)
-		{
-			R = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(0, 2)));
-		}
-
-		if (hexColor.length() >= 4)
-		{
-			G = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(2, 2)));
-		}
-
-		if (hexColor.length() >= 6)
-		{
-			B = static_cast<uint8_t>(CodeRed::Format::ToDecimal(hexColor.substr(4, 2)));
-		}
 	}
 
 	return *this;

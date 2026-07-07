@@ -6,7 +6,7 @@
 namespace CodeRed
 {
 	static constexpr uint32_t QUEUE_TICK_MULTIPLIER = 60; // How many times per second the "ManagerComponent::OnTick" function is called.
-	static constexpr float QUEUE_TICK_RATE = 1.0f; // What value the internal delta tick that the "ManagerQueue::m_delay" variable is incremented by.
+	static constexpr float QUEUE_TICK_RATE = 1.0f; // The default value the internal delta tick that the "ManagerQueue::m_delay" variable is incremented by.
 
 	enum class CommandResults : uint8_t
 	{
@@ -42,7 +42,7 @@ namespace CodeRed
 	public:
 		ManagerQueue() = delete;
 		ManagerQueue(ThreadTypes threadType, const std::string& command, const std::string& arguments, bool bInternal, bool bSkipSave = false);
-		ManagerQueue(ThreadTypes threadType, const std::string& command, const std::string& arguments, bool bInternal, uint32_t delay, bool bSkipSave = false);
+		ManagerQueue(ThreadTypes threadType, const std::string& command, const std::string& arguments, bool bInternal, uint32_t delaySeconds, bool bSkipSave = false);
 		ManagerQueue(const ManagerQueue& managerQueue);
 		~ManagerQueue();
 
@@ -65,7 +65,7 @@ namespace CodeRed
 		float GetDelta() const;
 
 	public:
-		bool OnTick(float rate = QUEUE_TICK_RATE); // Returns true if the command can be executed yet or not.
+		bool OnTick(float tickRate = QUEUE_TICK_RATE); // Returns true if the command can be executed yet or not.
 		void SetThread(ThreadTypes threadType);
 		void SetCompleted(bool bCompleted);
 		void SetAsync(bool bAsync);
