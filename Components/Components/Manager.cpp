@@ -380,9 +380,9 @@ namespace CodeRed
 
 		if (defaultActor)
 		{
-			if (unrealCommand.find("unreal_command") == 0)
+			if (unrealCommand.find("unreal_command ") == 0)
 			{
-				unrealCommand = unrealCommand.erase(0, 15);
+				 unrealCommand.erase(0, 15);
 			}
 
 			if (bPrintToConsole)
